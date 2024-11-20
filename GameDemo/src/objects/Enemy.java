@@ -1,6 +1,7 @@
 package objects;
 
 import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class Enemy extends Entity {
 
@@ -10,7 +11,8 @@ public class Enemy extends Entity {
     public Enemy(int x, int y, int width, int height, Object target) throws IOException {
         super(x, y, width, height);
         this.target = target;
-        this.speed = 2;
+        this.speed = 1;
+        this.sprite = ImageIO.read(getClass().getResourceAsStream("/res/enemies/monster.png"));
     }
 
     public void moveTowardTarget(double delta) {

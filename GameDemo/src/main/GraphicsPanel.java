@@ -65,7 +65,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         // Add an example enemy
         try {
-            enemies.add(new Enemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), 25, 25, player));
+            enemies.add(new Enemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), 50, 50, player));
+            enemies.add(new Enemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), 50, 50, player));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -32,4 +32,17 @@ public class Object { // Renamed for clarity
         Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
         return thisRect.intersects(otherRect);
     }
+
+    /**
+     * Calculates the distance from one object to another
+     * 
+     * @param x     The x-coordinate of the point to measuring from
+     * @param y     The y-coordinate of the point to measuring from
+     * @param other The object to be measured
+     * @return The distance between the current object and the target
+     */
+
+    public double distanceTo(int x, int y, Object other) {
+        return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
+    }
 }
