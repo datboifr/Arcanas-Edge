@@ -14,7 +14,6 @@ public class Player extends Entity {
 	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage idleB, idleF, idleR, idleL;
 
-	public int spriteCounter = 0;
 	public int spriteNumber = 1;
 
 	KeyHandler keyHandler;

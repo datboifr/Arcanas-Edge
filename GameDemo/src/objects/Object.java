@@ -18,11 +18,11 @@ public class Object { // Renamed for clarity
     // Draw method with optional dynamic scaling
     public void draw(Graphics2D g2) {
         if (sprite != null) {
-            g2.drawImage(sprite, x, y, width, height, null);
+            g2.drawImage(sprite, x - (width / 2), y - (height / 2), width, height, null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
             g2.setColor(Color.RED);
-            g2.fillRect(x, y, width, height);
+            g2.fillRect(x - (width / 2), y - (height / 2), width, height);
         }
     }
 

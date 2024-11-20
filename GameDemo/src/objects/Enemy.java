@@ -6,13 +6,13 @@ import javax.imageio.ImageIO;
 public class Enemy extends Entity {
 
     Object target;
-    int speed;
 
-    public Enemy(int x, int y, int width, int height, Object target) throws IOException {
+    public Enemy(int x, int y, int width, int height, Object target) {
         super(x, y, width, height);
         this.target = target;
         this.speed = 1;
-        this.sprite = ImageIO.read(getClass().getResourceAsStream("/res/enemies/monster.png"));
+        try { this.sprite = ImageIO.read(getClass().getResourceAsStream("/res/enemies/monster.png"));
+        } catch (IOException ex) {}
     }
 
     public void moveTowardTarget(double delta) {
