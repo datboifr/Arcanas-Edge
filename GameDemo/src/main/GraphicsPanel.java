@@ -1,7 +1,6 @@
 package main;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.*;
 import javax.swing.*;
 import objects.Enemy;
@@ -40,7 +39,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         objects = new ArrayList<>();
         enemies = new ArrayList<>();
 
-        player = new Player(random.nextInt(WIDTH), random.nextInt(HEIGHT), 25, 25, keyHandler);
+        player = new Player(0, 0, 50, 50, keyHandler);
         player.loadPlayerImages();
 
     }

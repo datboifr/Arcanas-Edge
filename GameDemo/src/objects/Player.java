@@ -22,7 +22,7 @@ public class Player extends Entity {
 	// Constructor
 	public Player(int x, int y, int width, int height, KeyHandler keyHandler) {
 		super(x, y, width, height);
-		speed = 10; // Set default speed
+		speed = 5; // Set default speed
 		direction = "down";
 		this.keyHandler = keyHandler; //
 

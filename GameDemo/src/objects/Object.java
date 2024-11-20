@@ -18,10 +18,9 @@ public class Object { // Renamed for clarity
     // Draw method with optional dynamic scaling
     public void draw(Graphics2D g2) {
         if (sprite != null) {
-            g2.drawImage(sprite, x, y, null);
+            g2.drawImage(sprite, x, y, width, height, null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
-            System.err.println("Sprite is null");
             g2.setColor(Color.RED);
             g2.fillRect(x, y, width, height);
         }
