@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import javax.swing.*;
 import objects.Enemy;
