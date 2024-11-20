@@ -14,7 +14,6 @@ public class Player extends Entity {
 	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage idleB, idleF, idleR, idleL;
 
-	public int spriteCounter = 0;
 	public int spriteNumber = 1;
 
 	KeyHandler keyHandler;
@@ -28,10 +27,7 @@ public class Player extends Entity {
 
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 	}
 
 	// Handle input to update the direction
@@ -76,32 +72,19 @@ public class Player extends Entity {
 
 		// Switch for setting the correct sprite based on direction and movement state
 		switch (direction) {
-			case "up":
-				sprite = keyHandler.upPressed ? runBack[spriteNumber - 1] : idleB;
-				break;
-			case "down":
-				sprite = keyHandler.downPressed ? runForward[spriteNumber - 1] : idleF;
-				break;
-			case "left":
-				sprite = keyHandler.leftPressed ? runLeft[spriteNumber - 1] : idleL;
-				break;
-			case "right":
-				sprite = keyHandler.rightPressed ? runRight[spriteNumber - 1] : idleR;
-				break;
-			case "upLeft":
-				sprite = keyHandler.upLeftPressed ? runBack[spriteNumber - 1] : idleB; // Adjust for diagonal
-				break;
-			case "upRight":
-				sprite = keyHandler.upRightPressed ? runForward[spriteNumber - 1] : idleF; // Adjust for diagonal
-				break;
+			case "up" -> sprite = keyHandler.upPressed ? runBack[spriteNumber - 1] : idleB;
+			case "down" -> sprite = keyHandler.downPressed ? runForward[spriteNumber - 1] : idleF;
+			case "left" -> sprite = keyHandler.leftPressed ? runLeft[spriteNumber - 1] : idleL;
+			case "right" -> sprite = keyHandler.rightPressed ? runRight[spriteNumber - 1] : idleR;
+			case "upLeft" -> sprite = keyHandler.upLeftPressed ? runBack[spriteNumber - 1] : idleB; // Adjust for diagonal
+			case "upRight" -> sprite = keyHandler.upRightPressed ? runForward[spriteNumber - 1] : idleF; // Adjust for diagonal
 		}
 	}
 
 	public void loadPlayerImages() {
 		try {
 			for (int i = 0; i < RUNNING_FRAMES; i++) {
-				runBack[i] = ImageIO.read(
-						getClass().getResourceAsStream("/res/player/RunBack" + (i + 1) + ".png")); /* RunBack... */
+				runBack[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunBack" + (i + 1) + ".png")); /* RunBack... */
 				runForward[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunF" + (i + 1) + ".png"));
 				runLeft[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunL" + (i + 1) + ".png"));
 				runRight[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunR" + (i + 1) + ".png"));
@@ -111,8 +94,6 @@ public class Player extends Entity {
 			idleR = ImageIO.read(getClass().getResourceAsStream("/res/player/idleRight.png"));
 			idleL = ImageIO.read(getClass().getResourceAsStream("/res/player/idleLeft.png"));
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 	}
 }

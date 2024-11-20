@@ -18,11 +18,11 @@ public class Object { // Renamed for clarity
     // Draw method with optional dynamic scaling
     public void draw(Graphics2D g2) {
         if (sprite != null) {
-            g2.drawImage(sprite, x, y, width, height, null);
+            g2.drawImage(sprite, x - (width / 2), y - (height / 2), width, height, null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
             g2.setColor(Color.RED);
-            g2.fillRect(x, y, width, height);
+            g2.fillRect(x - (width / 2), y - (height / 2), width, height);
         }
     }
 
@@ -35,13 +35,11 @@ public class Object { // Renamed for clarity
 
     /**
      * Calculates the distance from one object to another
-     * 
      * @param x     The x-coordinate of the point to measuring from
      * @param y     The y-coordinate of the point to measuring from
      * @param other The object to be measured
      * @return The distance between the current object and the target
      */
-
     public double distanceTo(int x, int y, Object other) {
         return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
     }

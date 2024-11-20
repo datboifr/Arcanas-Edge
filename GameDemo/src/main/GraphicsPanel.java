@@ -1,7 +1,6 @@
 package main;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.*;
 import javax.swing.*;
 import objects.Enemy;
@@ -26,6 +25,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
     ArrayList<Enemy> enemies;
     Player player;
     Random random;
+    Object platform;
+
+    Boolean waveActive;
 
     // Constructor
     GraphicsPanel() {
@@ -42,6 +44,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         player = new Player(0, 0, 50, 50, keyHandler);
         player.loadPlayerImages();
+
+        platform = new Object(WIDTH / 2, HEIGHT / 2, 100, 100);
 
     }
 
@@ -63,15 +67,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         long lastTime = System.nanoTime();
         double delta = 0;
-
-        // Add an example enemy
-        try {
-            enemies.add(new Enemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), 50, 50, player));
-            enemies.add(new Enemy(random.nextInt(WIDTH), random.nextInt(HEIGHT), 50, 50, player));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        waveActive = false;
 
         while (isRunning) {
 
@@ -90,14 +86,19 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     // Update game state
     public void update(double delta) {
-        for (Enemy enemy : enemies) {
-            enemy.moveTowardTarget(delta); // Enemies follow the player
-        }
 
         player.update();
 
+        if (waveActive) {
+            if (enemies.size() < 1) enemies.add(new Enemy(WIDTH, HEIGHT, 50, 50, player));
+            for (Enemy enemy : enemies) { enemy.moveTowardTarget(delta); }
+        } else {
+            if (player.touching(platform)) { waveActive = true; }
+        }
+
         objects.clear();
         objects.addAll(enemies);
+        objects.add(platform);
         objects.add(player);
     }
 
