@@ -1,9 +1,7 @@
 package objects;
 
-import java.awt.image.BufferedImage;
-
 public class Entity extends Object {
-	int speed;
+	float speed;
 	String direction;
 	int spriteCounter = 0; // Counts frames for animation timing
 	int spriteIndex = 0;
