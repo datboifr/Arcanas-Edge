@@ -90,10 +90,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
         player.update();
 
         if (waveActive) {
-            if (enemies.size() < 1) enemies.add(new Enemy(WIDTH, HEIGHT, 50, 50, player));
-            for (Enemy enemy : enemies) { enemy.moveTowardTarget(delta); }
+            if (enemies.size() < 1)
+                enemies.add(new Enemy(250, 250, 50, 50, player));
+            for (Enemy enemy : enemies) {
+                enemy.update(delta);
+            }
         } else {
-            if (player.touching(platform)) { waveActive = true; }
+            if (player.touching(platform)) {
+                waveActive = true;
+            }
         }
 
         objects.clear();

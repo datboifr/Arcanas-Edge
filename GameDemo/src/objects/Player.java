@@ -23,14 +23,14 @@ public class Player extends Entity {
 		super(x, y, width, height);
 		speed = 5; // Set default speed
 		direction = "down";
-		this.keyHandler = keyHandler; //
+		this.keyHandler = keyHandler;
 
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 	}
 
-	// Handle input to update the direction
 	public void update() {
 		// Check movement flags and set direction accordingly
 		if (keyHandler.upPressed == true || keyHandler.downPressed == true || keyHandler.leftPressed == true
@@ -62,10 +62,10 @@ public class Player extends Entity {
 			// Update sprite animation
 			spriteCounter++;
 			if (spriteCounter > 5) {
-				spriteCounter = 0; // Reset counter
-				spriteNumber++; // Move to the next sprite
+				spriteCounter = 0;
+				spriteNumber++;
 				if (spriteNumber > 10) {
-					spriteNumber = 1; // Loop back to the first sprite
+					spriteNumber = 1;
 				}
 			}
 		}
@@ -76,15 +76,13 @@ public class Player extends Entity {
 			case "down" -> sprite = keyHandler.downPressed ? runForward[spriteNumber - 1] : idleF;
 			case "left" -> sprite = keyHandler.leftPressed ? runLeft[spriteNumber - 1] : idleL;
 			case "right" -> sprite = keyHandler.rightPressed ? runRight[spriteNumber - 1] : idleR;
-			case "upLeft" -> sprite = keyHandler.upLeftPressed ? runBack[spriteNumber - 1] : idleB; // Adjust for diagonal
-			case "upRight" -> sprite = keyHandler.upRightPressed ? runForward[spriteNumber - 1] : idleF; // Adjust for diagonal
 		}
 	}
 
 	public void loadPlayerImages() {
 		try {
 			for (int i = 0; i < RUNNING_FRAMES; i++) {
-				runBack[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunBack" + (i + 1) + ".png")); /* RunBack... */
+				runBack[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunBack" + (i + 1) + ".png"));
 				runForward[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunF" + (i + 1) + ".png"));
 				runLeft[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunL" + (i + 1) + ".png"));
 				runRight[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunR" + (i + 1) + ".png"));
@@ -94,6 +92,7 @@ public class Player extends Entity {
 			idleR = ImageIO.read(getClass().getResourceAsStream("/res/player/idleRight.png"));
 			idleL = ImageIO.read(getClass().getResourceAsStream("/res/player/idleLeft.png"));
 
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		}
 	}
 }

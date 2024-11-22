@@ -26,7 +26,13 @@ public class Object { // Renamed for clarity
         }
     }
 
-    // Check if this object intersects with another object
+    public void update() {
+    }
+
+    /**
+     * @param other The object to be measured
+     * @return Returns true if the two objects are touching
+     */
     public boolean touching(Object other) {
         Rectangle thisRect = new Rectangle(x, y, width, height);
         Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
@@ -34,13 +40,10 @@ public class Object { // Renamed for clarity
     }
 
     /**
-     * Calculates the distance from one object to another
-     * @param x     The x-coordinate of the point to measuring from
-     * @param y     The y-coordinate of the point to measuring from
      * @param other The object to be measured
      * @return The distance between the current object and the target
      */
-    public double distanceTo(int x, int y, Object other) {
+    public double distanceTo(Object this, Object other) {
         return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
     }
 }
