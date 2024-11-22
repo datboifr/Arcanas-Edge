@@ -3,7 +3,7 @@ package main;
 import java.awt.event.*;
 
 public class KeyHandler implements KeyListener {
-    public boolean keyDown, upPressed, downPressed, leftPressed, rightPressed, upLeftPressed, upRightPressed;
+    public boolean Abutton,keyDown, upPressed, downPressed, leftPressed, rightPressed, upLeftPressed, upRightPressed;
 
     public void keyTyped(KeyEvent e) {
 
@@ -23,7 +23,12 @@ public class KeyHandler implements KeyListener {
             leftPressed = true;
         if (code == KeyEvent.VK_D)
             rightPressed = true;
+        if (code == KeyEvent.VK_P)
+            Abutton = true;
     }
+    
+    
+
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -38,5 +43,7 @@ public class KeyHandler implements KeyListener {
             leftPressed = false;
         if (code == KeyEvent.VK_D)
             rightPressed = false;
+        if (code == KeyEvent.VK_P)
+            Abutton = false;
     }
 }
