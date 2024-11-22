@@ -28,6 +28,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Object platform;
 
     Boolean waveActive;
+    int wave;
+    int enemiesPerWave;
 
     // Constructor
     GraphicsPanel() {
@@ -46,6 +48,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
         player.loadPlayerImages();
 
         platform = new Object(WIDTH / 2, HEIGHT / 2, 100, 100);
+
+        wave = 0;
+        waveActive = false;
 
     }
 
@@ -67,7 +72,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         long lastTime = System.nanoTime();
         double delta = 0;
-        waveActive = false;
 
         while (isRunning) {
 
@@ -84,42 +88,53 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
     }
 
+    public void startWave() {
+        waveActive = true;
+        wave++;
+        enemiesPerWave = 10;
+    }
+    
     // Update game state
     public void update(double delta) {
 
         player.update();
 
         if (waveActive) {
-            if (enemies.size() < 1)
-                enemies.add(new Enemy(250, 250, 50, 50, player));
-            for (Enemy enemy : enemies) {
-                enemy.update(delta);
-            }
-        } else {
-            if (player.touching(platform)) {
-                waveActive = true;
-            }
+            if (enemies.size() < enemiesPerWave) spawnEnemy();
+            for (Enemy enemy : enemies) enemy.update(delta, enemies);
+        } else if (player.touching(platform)) startWave();        
+    }
+            
+    private void spawnEnemy() {
+        int side = random.nextInt(0, 3); // 0 = top, 1 = bottom, 2 = left, 3 = right
+        int x = 0, y = 0;
+
+        switch (side) {
+            case 0: x = random.nextInt(WIDTH); y = -50; break;
+            case 1: x = random.nextInt(WIDTH); y = HEIGHT + 50; break;
+            case 2: x = - 50; y = random.nextInt(HEIGHT); break;
+            case 3: x = WIDTH + 50; y = random.nextInt(HEIGHT); break;
         }
 
-        objects.clear();
-        objects.addAll(enemies);
-        objects.add(platform);
-        objects.add(player);
+        enemies.add(new Enemy(x, y, 50, 50, player));
     }
 
-    // Render the game objects
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        Graphics2D g2d = (Graphics2D) graphics;
+        Graphics2D g2 = (Graphics2D) graphics;
+                      
+        //render order
+        objects.clear();
+        objects.add(platform);
+        objects.addAll(enemies);
+        objects.add(player);
 
         // synchronized (objects) {
         for (Object obj : objects) {
             if (obj != null) {
-                obj.draw(g2d);
+                obj.draw(g2);
             }
         }
-
     }
-
 }
