@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class Enemy extends Entity {
 
-    Object target;
+    GameObject target;
 
-    public Enemy(int x, int y, int width, int height, Object target) {
+    public Enemy(int x, int y, int width, int height, GameObject target) {
         super(x, y, width, height);
         this.target = target;
         this.speed = (float) 2;

@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import objects.Enemy;
-import objects.Object;
+import objects.GameObject;
 import objects.Player;
 
 public class GraphicsPanel extends JPanel implements Runnable {
@@ -21,11 +21,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
     final double interval = 1000000000.0 / 60; // Time per frame in nanoseconds
 
     // Game objects
-    ArrayList<Object> objects;
+    ArrayList<GameObject> objects;
     ArrayList<Enemy> enemies;
     Player player;
     Random random;
-    Object platform;
+    GameObject platform;
 
     boolean paused;
     boolean waveActive;
@@ -48,7 +48,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         player = new Player(0, 0, 50, 50, keyHandler);
         player.loadPlayerImages();
 
-        platform = new Object(WIDTH / 2, HEIGHT / 2, 100, 100);
+        platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 
         waveActive = false;
         wave = 0;
@@ -75,10 +75,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
             lastTime = currentTime;
 
             if (delta >= 1) {
-                // 1. UPDATE game state
                 update(delta);
                 repaint();
-                delta--; // Consume one update step
+                delta--;
             }
         }
     }
@@ -149,7 +148,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         Graphics2D g = (Graphics2D) graphics;
 
         // synchronized (objects) {
-        for (Object obj : objects) {
+        for (GameObject obj : objects) {
             if (obj != null) {
                 obj.draw(g);
             }
