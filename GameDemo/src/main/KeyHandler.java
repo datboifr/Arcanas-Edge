@@ -3,7 +3,7 @@ package main;
 import java.awt.event.*;
 
 public class KeyHandler implements KeyListener {
-    public boolean pActive, keyDown, upPressed, downPressed, leftPressed, rightPressed, upLeftPressed, upRightPressed;
+    public boolean pActive, keyDown, upPressed, downPressed, leftPressed, rightPressed, upLeftPressed, upRightPressed,IPressed;
 
     public void keyTyped(KeyEvent e) {
     }
@@ -26,6 +26,11 @@ public class KeyHandler implements KeyListener {
         // SWITCH
         if (code == KeyEvent.VK_P)
             pActive = pActive ? false : true;
+
+        if (code == KeyEvent.VK_I)
+            IPressed = true;
+
+        
     }
 
     @Override
@@ -41,6 +46,9 @@ public class KeyHandler implements KeyListener {
             leftPressed = false;
         if (code == KeyEvent.VK_D)
             rightPressed = false;
+        if (code == KeyEvent.VK_I)
+        IPressed = false;
+
 
     }
 }

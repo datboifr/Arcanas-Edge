@@ -12,6 +12,7 @@ public class Player extends Entity {
 	public BufferedImage[] runForward = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
+	public BufferedImage[] LmeleeR = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage idleB, idleF, idleR, idleL;
 
 	public int spriteNumber = 1;
@@ -32,10 +33,17 @@ public class Player extends Entity {
 	}
 
 	public void update() {
+		 if (keyHandler.IPressed){
+			attacking = true;
+		}
+		 if (attacking == true){
+			attacking();
+
+		 }
 		// Check movement flags and set direction accordingly
-		if (keyHandler.upPressed == true || keyHandler.downPressed == true || keyHandler.leftPressed == true
+		else if (keyHandler.upPressed == true || keyHandler.downPressed == true || keyHandler.leftPressed == true
 				|| keyHandler.rightPressed == true
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true) {
+				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true|| keyHandler.IPressed == true) {
 
 			if (keyHandler.upLeftPressed) {
 				direction = "upLeft";
@@ -57,7 +65,11 @@ public class Player extends Entity {
 			} else if (keyHandler.rightPressed) {
 				direction = "right";
 				x += speed;
+			}else if (keyHandler.IPressed){
+				attacking = true;
 			}
+			
+			
 
 			// Update sprite animation
 			spriteCounter++;
@@ -75,7 +87,13 @@ public class Player extends Entity {
 			case "up" -> sprite = keyHandler.upPressed ? runBack[spriteNumber - 1] : idleB;
 			case "down" -> sprite = keyHandler.downPressed ? runForward[spriteNumber - 1] : idleF;
 			case "left" -> sprite = keyHandler.leftPressed ? runLeft[spriteNumber - 1] : idleL;
-			case "right" -> sprite = keyHandler.rightPressed ? runRight[spriteNumber - 1] : idleR;
+			case "right" ->{
+			 sprite = keyHandler.rightPressed ? runRight[spriteNumber - 1] : idleR;
+			 if(attacking == true){
+				sprite =LmeleeR[spriteNumber - 1] ;
+			 }
+			}
+			
 		}
 	}
 
@@ -86,6 +104,7 @@ public class Player extends Entity {
 				runForward[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunF" + (i + 1) + ".png"));
 				runLeft[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunL" + (i + 1) + ".png"));
 				runRight[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunR" + (i + 1) + ".png"));
+				
 			}
 			idleB = ImageIO.read(getClass().getResourceAsStream("/res/player/idleBack.png"));
 			idleF = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
@@ -94,5 +113,38 @@ public class Player extends Entity {
 
 		} catch (IOException e) {
 		}
+	}
+	public void attacking(){
+
+		
+		for (int i ;i < 40; i+=5) {
+			spriteNumber = 1;
+			spriteNumber++;
+
+		}
+		
+		// if (spriteCounter <=5) {
+		// 	spriteNumber =1;
+		// }
+		// if(spriteCounter > 5 &&  spriteCounter < 10) {
+		// 	spriteNumber = 2;
+		// }
+		// if (spriteCounter > 10 && spriteCounter < 15) {
+		// 	spriteNumber = 3;
+		// }
+		// if (spriteCounter > 15 && spriteCounter < 20) {
+		// 	spriteNumber = 4;
+		// }
+	}
+
+	public void loadPlayerAttackImages() {
+		try {
+		for (int i = 0; i < RUNNING_FRAMES; i++) {
+		LmeleeR[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeR" + (i + 1) + ".png"));
+		}
+	}
+	catch (IOException e) {
+	}
+
 	}
 }
