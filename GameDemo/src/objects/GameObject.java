@@ -30,8 +30,7 @@ public class GameObject { // Renamed for clarity
 
         // Set the color for the text (white)
         g2.setColor(Color.WHITE);
-
-        // Only draw the text if prompt is not null
+        
         if (prompt != null) {
             // Get FontMetrics for the current font to calculate text width and height
             FontMetrics metrics = g2.getFontMetrics(g2.getFont());
