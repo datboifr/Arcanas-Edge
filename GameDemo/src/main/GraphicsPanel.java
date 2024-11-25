@@ -27,7 +27,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Random random;
     Object platform;
 
-    Boolean waveActive;
+    boolean paused;
+    boolean waveActive;
     int wave;
     int enemiesPerWave;
 
@@ -49,24 +50,18 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         platform = new Object(WIDTH / 2, HEIGHT / 2, 100, 100);
 
-        wave = 0;
         waveActive = false;
+        wave = 0;
 
-    }
-
-    // Start the game thread
-    public void startGameThread() {
         isRunning = true;
         gameThread = new Thread(this);
         gameThread.start();
     }
 
-    // Stop the game thread
     public void stopGameThread() {
         isRunning = false;
     }
 
-    // Main game loop
     @Override
     public void run() {
 
@@ -92,49 +87,78 @@ public class GraphicsPanel extends JPanel implements Runnable {
         waveActive = true;
         wave++;
         enemiesPerWave = 10;
+        player.prompt = "I must survive!";
     }
-    
+
+    private void spawnEnemy() {
+        int spawnSide = random.nextInt(4); // 0 = top, 1 = bottom, 2 = left, 3 = right
+        int x = 0, y = 0;
+
+        switch (spawnSide) {
+            case 0: // Top
+                x = random.nextInt(WIDTH);
+                y = -30; // Above screen
+                break;
+            case 1: // Bottom
+                x = random.nextInt(WIDTH);
+                y = HEIGHT + 30; // Below screen
+                break;
+            case 2: // Left
+                x = -30; // Left of screen
+                y = random.nextInt(HEIGHT);
+                break;
+            case 3: // Right
+                x = WIDTH + 30; // Right of screen
+                y = random.nextInt(HEIGHT);
+                break;
+        }
+        enemies.add(new Enemy(x, y, 30, 30, player));
+    }
+
     // Update game state
     public void update(double delta) {
 
-        player.update();
+        paused = keyHandler.pActive ? true : false;
 
-        if (waveActive) {
-            if (enemies.size() < enemiesPerWave) spawnEnemy();
-            for (Enemy enemy : enemies) enemy.update(delta, enemies);
-        } else if (player.touching(platform)) startWave();        
-    }
-            
-    private void spawnEnemy() {
-        int side = random.nextInt(0, 3); // 0 = top, 1 = bottom, 2 = left, 3 = right
-        int x = 0, y = 0;
+        if (!paused) {
+            player.update();
 
-        switch (side) {
-            case 0: x = random.nextInt(WIDTH); y = -50; break;
-            case 1: x = random.nextInt(WIDTH); y = HEIGHT + 50; break;
-            case 2: x = - 50; y = random.nextInt(HEIGHT); break;
-            case 3: x = WIDTH + 50; y = random.nextInt(HEIGHT); break;
+            if (waveActive) {
+                if (enemies.size() < enemiesPerWave)
+                    spawnEnemy();
+                for (Enemy enemy : enemies) {
+                    enemy.update(delta, enemies);
+                }
+            } else {
+                if (player.touching(platform)) {
+                    startWave();
+                }
+            }
+
+            objects.clear();
+            objects.add(platform);
+            objects.addAll(enemies);
+            objects.add(player);
         }
-
-        enemies.add(new Enemy(x, y, 50, 50, player));
     }
 
+    // Render the game objects
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        Graphics2D g2 = (Graphics2D) graphics;
-                      
-        //render order
-        objects.clear();
-        objects.add(platform);
-        objects.addAll(enemies);
-        objects.add(player);
+        Graphics2D g = (Graphics2D) graphics;
 
         // synchronized (objects) {
         for (Object obj : objects) {
             if (obj != null) {
-                obj.draw(g2);
+                obj.draw(g);
             }
         }
+
+        g.setColor(Color.WHITE);
+        g.drawString("Wave Active? " + waveActive, 10, 230);
+        g.drawString("Wave: " + wave, 10, 250);
+        g.drawString("Paused?: " + paused, 10, 270);
     }
+
 }

@@ -13,7 +13,5 @@ public class Frame extends JFrame {
 		this.pack();
 
 		this.setVisible(true);
-
-		graphicsPanel.startGameThread();
 	}
 }
