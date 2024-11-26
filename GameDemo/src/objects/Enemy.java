@@ -40,6 +40,7 @@ public class Enemy extends Entity {
             x = (int) newX;
             y = (int) newY;
         }
+        else health -= 10;
     }
 
 }

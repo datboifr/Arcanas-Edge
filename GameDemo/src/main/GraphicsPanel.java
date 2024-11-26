@@ -45,7 +45,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         objects = new ArrayList<>();
         enemies = new ArrayList<>();
 
-        player = new Player(0, 0, 50, 50, keyHandler);
+        player = new Player(0, 0, 35, 35, keyHandler);
         player.loadPlayerImages();
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
@@ -117,17 +117,19 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        paused = keyHandler.pActive ? true : false;
+        paused = keyHandler.pActive;
 
         if (!paused) {
             player.update();
 
             if (waveActive) {
-                if (enemies.size() < enemiesPerWave)
-                    spawnEnemy();
+                if (enemies.size() < enemiesPerWave) spawnEnemy();
+                ArrayList<Enemy> dead = new ArrayList<>();
                 for (Enemy enemy : enemies) {
-                    enemy.update(delta, enemies);
+                    if (enemy.health > 0) enemy.update(delta, enemies);
+                    else dead.add(enemy);
                 }
+                enemies.removeAll(dead);
             } else {
                 if (player.touching(platform)) {
                     startWave();
