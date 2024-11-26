@@ -27,7 +27,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Random random;
     GameObject platform;
 
-    boolean paused;
+    boolean storeEnabled;
     boolean waveActive;
     int wave;
     int enemiesPerWave;
@@ -55,7 +55,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         isRunning = true;
         gameThread = new Thread(this);
-        gameThread.start();
     }
 
     public void stopGameThread() {
@@ -64,7 +63,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-
+        
+        gameThread.start();
         long lastTime = System.nanoTime();
         double delta = 0;
 
@@ -117,30 +117,28 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        paused = keyHandler.pActive;
+        storeEnabled = keyHandler.pActive;
 
-        if (!paused) {
-            player.update();
+        player.update();
 
-            if (waveActive) {
-                if (enemies.size() < enemiesPerWave) spawnEnemy();
-                ArrayList<Enemy> dead = new ArrayList<>();
-                for (Enemy enemy : enemies) {
-                    if (enemy.health > 0) enemy.update(delta, enemies);
-                    else dead.add(enemy);
-                }
-                enemies.removeAll(dead);
-            } else {
-                if (player.touching(platform)) {
-                    startWave();
-                }
+        if (waveActive) {
+            if (enemies.size() < enemiesPerWave) spawnEnemy();
+            ArrayList<Enemy> dead = new ArrayList<>();
+            for (Enemy enemy : enemies) {
+                if (enemy.health > 0) enemy.update(delta, enemies);
+                else dead.add(enemy);
             }
-
-            objects.clear();
-            objects.add(platform);
-            objects.addAll(enemies);
-            objects.add(player);
+            enemies.removeAll(dead);
+        } else {
+            if (player.touching(platform)) {
+                startWave();
+            }
         }
+
+        objects.clear();
+        objects.add(platform);
+        objects.addAll(enemies);
+        objects.add(player);
     }
 
     // Render the game objects
@@ -159,7 +157,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString("Wave Active? " + waveActive, 10, 230);
         g.drawString("Wave: " + wave, 10, 250);
-        g.drawString("Paused?: " + paused, 10, 270);
+        g.drawString("Paused?: " + storeEnabled, 10, 270);
     }
 
 }

@@ -117,7 +117,7 @@ public class Player extends Entity {
 	public void attacking(){
 
 		
-		for (int i ;i < 40; i+=5) {
+		for (int i = 0; i < 40; i+=5) {
 			spriteNumber = 1;
 			spriteNumber++;
 
