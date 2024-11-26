@@ -29,13 +29,12 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     boolean storeEnabled;
     boolean waveActive;
-    int wave;
-    int enemiesPerWave;
+    int wave, enemyLimit, enemyCounter;
 
     // Constructor
     GraphicsPanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        this.setBackground(Color.BLACK);
+        this.setBackground(new Color(.2f, .2f,.2f));
         this.setFocusable(true);
         this.addKeyListener(keyHandler);
 
@@ -65,7 +64,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
     @Override
     public void run() {
         
-
         long lastTime = System.nanoTime();
         double delta = 0;
 
@@ -86,10 +84,18 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void startWave() {
         waveActive = true;
         wave++;
-        enemiesPerWave = 10;
-        player.prompt = "I must survive!";
+        enemyLimit = 10;
     }
 
+    public void endWave() {
+        waveActive = false;
+        //fillStore
+        storeEnabled = true;
+    }
+
+    /**
+     * Creates an enemy object on a random position beyond the screen
+     */
     private void spawnEnemy() {
         int spawnSide = random.nextInt(4); // 0 = top, 1 = bottom, 2 = left, 3 = right
         int x = 0, y = 0;
@@ -113,6 +119,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 break;
         }
         enemies.add(new Enemy(x, y, 30, 30, player));
+        enemyCounter++;
     }
 
     // Update game state
@@ -123,13 +130,18 @@ public class GraphicsPanel extends JPanel implements Runnable {
         player.update();
 
         if (waveActive) {
-            if (enemies.size() < enemiesPerWave) spawnEnemy();
+
+            //spawns enemy if limit hasn't been reached
+            if (enemyCounter < enemyLimit) spawnEnemy();
+
+            //updates all enemies
             ArrayList<Enemy> dead = new ArrayList<>();
             for (Enemy enemy : enemies) {
                 if (enemy.health > 0) enemy.update(delta, enemies);
                 else dead.add(enemy);
             }
             enemies.removeAll(dead);
+
         } else {
             if (player.touching(platform)) {
                 startWave();
@@ -147,13 +159,20 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D g = (Graphics2D) graphics;
-
+        
         // synchronized (objects) {
         for (GameObject obj : objects) {
             if (obj != null) {
                 obj.draw(g);
             }
         }
+
+        /*if (storeEnabled) {
+            Color background = new Color(0f,0f,0f,.5f );
+            g.setColor(background);
+            g.fillRect(50, 50, WIDTH - 100, HEIGHT - 100);
+        }*/
+        
 
         g.setColor(Color.WHITE);
         g.drawString("Wave Active? " + waveActive, 10, 230);
