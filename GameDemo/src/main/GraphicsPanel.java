@@ -55,6 +55,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         isRunning = true;
         gameThread = new Thread(this);
+        gameThread.start();
     }
 
     public void stopGameThread() {
@@ -64,7 +65,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     @Override
     public void run() {
         
-        gameThread.start();
+
         long lastTime = System.nanoTime();
         double delta = 0;
 
