@@ -49,16 +49,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 
+        storeEnabled = false;
         waveEnabled = false;
         wave = 0;
 
         isRunning = true;
         gameThread = new Thread(this);
         gameThread.start();
-    }
-
-    public void stopGameThread() {
-        isRunning = false;
     }
 
     @Override
@@ -83,12 +80,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     public void startWave() {
         waveEnabled = true;
+        enemyLimit = wave;
         wave++;
-        enemyLimit = 10;
     }
 
     public void endWave() {
         waveEnabled = false;
+        enemyCounter = 0;
         // fillStore
         storeEnabled = true;
     }
@@ -127,6 +125,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         if (!storeEnabled)
             player.update();
+        else
+            storeEnabled = !keyHandler.IPressed;
 
         if (waveEnabled) {
 
@@ -176,6 +176,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
             Color background = new Color(0f, 0f, 0f, .5f);
             g.setColor(background);
             g.fill(store);
+            g.setColor(Color.WHITE);
+            g.drawString("Press I key to close", 10, 10);
         }
 
         // debug stuff
