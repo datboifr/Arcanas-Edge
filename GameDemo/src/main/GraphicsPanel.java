@@ -49,7 +49,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 
-        storeEnabled = false;
         waveEnabled = false;
         wave = 0;
 
@@ -79,9 +78,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public void startWave() {
-        waveEnabled = true;
-        enemyLimit = wave;
         wave++;
+        enemyLimit = wave;
+        waveEnabled = true;
     }
 
     public void endWave() {
@@ -123,17 +122,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        if (!storeEnabled)
+        if (storeEnabled) storeEnabled = !keyHandler.zActive;
+        else {
             player.update();
-        else
-            storeEnabled = !keyHandler.IPressed;
-
-        if (waveEnabled) {
-
+            if (waveEnabled) {
             // spawns enemy if limit hasn't been reached
             if (enemyCounter < enemyLimit)
                 spawnEnemy();
-            else if (enemies.size() == 0)
+            else if (enemies.isEmpty() && (enemyCounter == enemyLimit))
                 endWave();
 
             // updates all enemies
@@ -145,17 +141,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     dead.add(enemy);
             }
             enemies.removeAll(dead);
+            
+        } else if (player.touching(platform)) startWave();
 
-        } else if (!storeEnabled) {
-            if (player.touching(platform)) {
-                startWave();
-            }
+            //adds all objects to render
+            objects.clear();
+            objects.add(platform);
+            objects.addAll(enemies);
+            objects.add(player);
         }
-
-        objects.clear();
-        objects.add(platform);
-        objects.addAll(enemies);
-        objects.add(player);
     }
 
     // Render the game objects
@@ -177,7 +171,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             g.setColor(background);
             g.fill(store);
             g.setColor(Color.WHITE);
-            g.drawString("Press I key to close", 10, 10);
+            g.drawString("Press 'P' key to close", 10, 10);
         }
 
         // debug stuff
@@ -189,7 +183,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.drawString("Enemy Limit: " + enemyLimit, 10, 250);
         g.drawString("# of Enemies: " + enemies.size(), 10, 260);
         g.drawString("Enemy Counter: " + enemyCounter, 10, 270);
-
     }
 
 }

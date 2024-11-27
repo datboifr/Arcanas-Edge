@@ -33,7 +33,7 @@ public class Player extends Entity {
 	}
 
 	public void update() {
-		 if (keyHandler.IPressed){
+		if (keyHandler.bActive){
 			attacking = true;
 		}
 		 if (attacking == true){
@@ -41,9 +41,9 @@ public class Player extends Entity {
 
 		 }
 		// Check movement flags and set direction accordingly
-		else if (keyHandler.upPressed == true || keyHandler.downPressed == true || keyHandler.leftPressed == true
-				|| keyHandler.rightPressed == true
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true|| keyHandler.IPressed == true) {
+		else if (keyHandler.upActive == true || keyHandler.downActive == true || keyHandler.leftActive == true
+				|| keyHandler.rightActive == true
+				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true|| keyHandler.bActive == true) {
 
 			if (keyHandler.upLeftPressed) {
 				direction = "upLeft";
@@ -53,19 +53,19 @@ public class Player extends Entity {
 				direction = "upRight";
 				y -= speed;
 				x += speed;
-			} else if (keyHandler.upPressed) {
+			} else if (keyHandler.upActive) {
 				direction = "up";
 				y -= speed;
-			} else if (keyHandler.downPressed) {
+			} else if (keyHandler.downActive) {
 				direction = "down";
 				y += speed;
-			} else if (keyHandler.leftPressed) {
+			} else if (keyHandler.leftActive) {
 				direction = "left";
 				x -= speed;
-			} else if (keyHandler.rightPressed) {
+			} else if (keyHandler.rightActive) {
 				direction = "right";
 				x += speed;
-			}else if (keyHandler.IPressed){
+			}else if (keyHandler.bActive){
 				attacking = true;
 			}
 			
@@ -86,35 +86,35 @@ public class Player extends Entity {
 		switch (direction) {
 			
             case "up":
-            if (keyHandler.upPressed == false && attacking == false) {
+            if (keyHandler.upActive == false && attacking == false) {
                 sprite = idleB;
                 
-            }else if(keyHandler.upPressed == true && attacking == false){
+            }else if(keyHandler.upActive == true && attacking == false){
 				sprite = runBack[spriteNumber - 1];
 			} 
 			
                 break;
             case "down":
-            if (keyHandler.downPressed == false) {
+            if (keyHandler.downActive == false) {
                 sprite = idleF;
                 
             }
                 else sprite = runForward[spriteNumber - 1];
                 break;
             case "left":
-            if (keyHandler.leftPressed == false) {
+            if (keyHandler.leftActive == false) {
                 sprite = idleL;
                 
             }
                 else sprite = runLeft[spriteNumber - 1];
                 break;
             case "right":
-			if (keyHandler.rightPressed == false && attacking == false) {
+			if (keyHandler.rightActive == false && attacking == false) {
             
                 sprite = idleR;
                 
             }
-                else if (keyHandler.rightPressed == true && attacking == false){
+                else if (keyHandler.rightActive == true && attacking == false){
 					sprite = runRight[spriteNumber - 1];
 				}
 				else if (attacking == true ){

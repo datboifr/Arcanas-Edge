@@ -4,7 +4,8 @@ package main;
 import java.awt.event.*;
 
 public class KeyHandler implements KeyListener {
-    public boolean pActive, keyDown, upPressed, downPressed, leftPressed, rightPressed, upLeftPressed, upRightPressed,IPressed;
+    public boolean keyDown, upActive, downActive, leftActive, rightActive, upLeftPressed, upRightPressed;
+    public boolean aActive, bActive, cActive, xActive, yActive, zActive; //input
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -16,23 +17,29 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
         keyDown = true;
 
+        //movement 
         if (code == KeyEvent.VK_W)
-            upPressed = true;
+            upActive = true;
         if (code == KeyEvent.VK_S)
-            downPressed = true;
+            downActive = true;
         if (code == KeyEvent.VK_A)
-            leftPressed = true;
+            leftActive = true;
         if (code == KeyEvent.VK_D)
-            rightPressed = true;
+            rightActive = true;
 
-        // SWITCH
-        if (code == KeyEvent.VK_P)
-            pActive = !pActive;
-
+        //input
+        if (code == KeyEvent.VK_J)
+            aActive = true;
         if (code == KeyEvent.VK_I)
-            IPressed = true;
-
-        
+            bActive = true;
+        if (code == KeyEvent.VK_K)
+            cActive = true;
+        if (code == KeyEvent.VK_O)
+            xActive = true;
+        if (code == KeyEvent.VK_L)
+            yActive = true;
+        if (code == KeyEvent.VK_P)
+            zActive = true;        
     }
 
     @Override
@@ -40,17 +47,29 @@ public class KeyHandler implements KeyListener {
 
         int code = e.getKeyCode();
 
+        //movement
         if (code == KeyEvent.VK_W)
-            upPressed = false;
+            upActive = false;
         if (code == KeyEvent.VK_S)
-            downPressed = false;
+            downActive = false;
         if (code == KeyEvent.VK_A)
-            leftPressed = false;
+            leftActive = false;
         if (code == KeyEvent.VK_D)
-            rightPressed = false;
-        if (code == KeyEvent.VK_I)
-        IPressed = false;
+            rightActive = false;
 
+        //input
+        if (code == KeyEvent.VK_J)
+            aActive = false;
+        if (code == KeyEvent.VK_I)
+            bActive = false;
+        if (code == KeyEvent.VK_K)
+            cActive = false;
+        if (code == KeyEvent.VK_O)
+            xActive = false;
+        if (code == KeyEvent.VK_L)
+            yActive = false;
+        if (code == KeyEvent.VK_P)
+            zActive = false;   
 
     }
 }
