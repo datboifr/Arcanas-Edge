@@ -28,13 +28,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
     GameObject platform;
 
     boolean storeEnabled;
-    boolean waveActive;
+    boolean waveEnabled;
     int wave, enemyLimit, enemyCounter;
 
     // Constructor
     GraphicsPanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        this.setBackground(new Color(.2f, .2f,.2f));
+        this.setBackground(new Color(.2f, .2f, .2f));
         this.setFocusable(true);
         this.addKeyListener(keyHandler);
 
@@ -49,7 +49,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 
-        waveActive = false;
+        waveEnabled = false;
         wave = 0;
 
         isRunning = true;
@@ -63,7 +63,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        
+
         long lastTime = System.nanoTime();
         double delta = 0;
 
@@ -82,14 +82,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public void startWave() {
-        waveActive = true;
+        waveEnabled = true;
         wave++;
         enemyLimit = 10;
     }
 
     public void endWave() {
-        waveActive = false;
-        //fillStore
+        waveEnabled = false;
+        // fillStore
         storeEnabled = true;
     }
 
@@ -125,24 +125,28 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        storeEnabled = keyHandler.pActive;
+        if (!storeEnabled)
+            player.update();
 
-        player.update();
+        if (waveEnabled) {
 
-        if (waveActive) {
+            // spawns enemy if limit hasn't been reached
+            if (enemyCounter < enemyLimit)
+                spawnEnemy();
+            else if (enemies.size() == 0)
+                endWave();
 
-            //spawns enemy if limit hasn't been reached
-            if (enemyCounter < enemyLimit) spawnEnemy();
-
-            //updates all enemies
+            // updates all enemies
             ArrayList<Enemy> dead = new ArrayList<>();
             for (Enemy enemy : enemies) {
-                if (enemy.health > 0) enemy.update(delta, enemies);
-                else dead.add(enemy);
+                if (enemy.health > 0)
+                    enemy.update(delta, enemies);
+                else
+                    dead.add(enemy);
             }
             enemies.removeAll(dead);
 
-        } else {
+        } else if (!storeEnabled) {
             if (player.touching(platform)) {
                 startWave();
             }
@@ -159,7 +163,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D g = (Graphics2D) graphics;
-        
+
         // synchronized (objects) {
         for (GameObject obj : objects) {
             if (obj != null) {
@@ -167,17 +171,23 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
         }
 
-        /*if (storeEnabled) {
-            Color background = new Color(0f,0f,0f,.5f );
+        if (storeEnabled) {
+            Rectangle store = new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100);
+            Color background = new Color(0f, 0f, 0f, .5f);
             g.setColor(background);
-            g.fillRect(50, 50, WIDTH - 100, HEIGHT - 100);
-        }*/
-        
+            g.fill(store);
+        }
 
+        // debug stuff
         g.setColor(Color.WHITE);
-        g.drawString("Wave Active? " + waveActive, 10, 230);
-        g.drawString("Wave: " + wave, 10, 250);
-        g.drawString("Paused?: " + storeEnabled, 10, 270);
+        g.drawString("Store Active?: " + storeEnabled, 10, 210);
+        g.drawString("Wave Active? " + waveEnabled, 10, 220);
+        g.drawString("Wave: " + wave, 10, 230);
+
+        g.drawString("Enemy Limit: " + enemyLimit, 10, 250);
+        g.drawString("# of Enemies: " + enemies.size(), 10, 260);
+        g.drawString("Enemy Counter: " + enemyCounter, 10, 270);
+
     }
 
 }

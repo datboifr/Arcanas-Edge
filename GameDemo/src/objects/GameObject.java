@@ -8,6 +8,14 @@ public class GameObject { // Renamed for clarity
     BufferedImage sprite;
     public String prompt;
 
+    /**
+     * Constructs a new object.
+     *
+     * @param x      the initial x-coordinate
+     * @param y      the initial y-coordinate
+     * @param width  the width of the object
+     * @param height the height of the object
+     */
     public GameObject(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
@@ -18,22 +26,22 @@ public class GameObject { // Renamed for clarity
     /**
      * Draws the object on screen
      */
-    public void draw(Graphics2D g2) {
+    public void draw(Graphics2D g) {
         // Draw the sprite if it's not null
         if (sprite != null) {
-            g2.drawImage(sprite, x - (width / 2), y - (height / 2), width, height, null);
+            g.drawImage(sprite, x - (width / 2), y - (height / 2), width, height, null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
-            g2.setColor(Color.RED);
-            g2.fillRect(x - (width / 2), y - (height / 2), width, height);
+            g.setColor(Color.RED);
+            g.fillRect(x - (width / 2), y - (height / 2), width, height);
         }
 
         // Set the color for the text (white)
-        g2.setColor(Color.WHITE);
-        
+        g.setColor(Color.WHITE);
+
         if (prompt != null) {
             // Get FontMetrics for the current font to calculate text width and height
-            FontMetrics metrics = g2.getFontMetrics(g2.getFont());
+            FontMetrics metrics = g.getFontMetrics(g.getFont());
 
             // Calculate the text width and height
             int textWidth = metrics.stringWidth(prompt);
@@ -46,7 +54,7 @@ public class GameObject { // Renamed for clarity
             int textY = y - (height / 2) - textHeight / 2;
 
             // Draw the centered text above the object
-            g2.drawString(prompt, textX, textY);
+            g.drawString(prompt, textX, textY);
         }
     }
 
