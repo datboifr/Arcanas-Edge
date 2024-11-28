@@ -3,9 +3,7 @@ package main;
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
-import objects.Enemy;
-import objects.GameObject;
-import objects.Player;
+import objects.*;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
@@ -26,6 +24,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Player player;
     Random random;
     GameObject platform;
+
+    Store store;
 
     boolean storeEnabled;
     boolean waveEnabled;
@@ -55,6 +55,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         isRunning = true;
         gameThread = new Thread(this);
         gameThread.start();
+
+        store = new Store(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100), keyHandler);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void endWave() {
         waveEnabled = false;
         enemyCounter = 0;
-        // fillStore
+        store.fillStore();
         storeEnabled = true;
     }
 
@@ -122,29 +124,32 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        if (storeEnabled) storeEnabled = !keyHandler.zActive;
-        else {
+        if (storeEnabled) {
+            store.update();
+            storeEnabled = !keyHandler.zActive;
+        } else {
             player.update();
             if (waveEnabled) {
-            // spawns enemy if limit hasn't been reached
-            if (enemyCounter < enemyLimit)
-                spawnEnemy();
-            else if (enemies.isEmpty() && (enemyCounter == enemyLimit))
-                endWave();
+                // spawns enemy if limit hasn't been reached
+                if (enemyCounter < enemyLimit)
+                    spawnEnemy();
+                else if (enemies.isEmpty() && (enemyCounter == enemyLimit))
+                    endWave();
 
-            // updates all enemies
-            ArrayList<Enemy> dead = new ArrayList<>();
-            for (Enemy enemy : enemies) {
-                if (enemy.health > 0)
-                    enemy.update(delta, enemies);
-                else
-                    dead.add(enemy);
-            }
-            enemies.removeAll(dead);
-            
-        } else if (player.touching(platform)) startWave();
+                // updates all enemies
+                ArrayList<Enemy> dead = new ArrayList<>();
+                for (Enemy enemy : enemies) {
+                    if (enemy.health > 0)
+                        enemy.update(delta, enemies);
+                    else
+                        dead.add(enemy);
+                }
+                enemies.removeAll(dead);
 
-            //adds all objects to render
+            } else if (player.touching(platform))
+                startWave();
+
+            // adds all objects to render
             objects.clear();
             objects.add(platform);
             objects.addAll(enemies);
@@ -166,12 +171,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
 
         if (storeEnabled) {
-            Rectangle store = new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100);
-            Color background = new Color(0f, 0f, 0f, .5f);
-            g.setColor(background);
-            g.fill(store);
-            g.setColor(Color.WHITE);
-            g.drawString("Press 'P' key to close", 10, 10);
+            store.draw(g);
         }
 
         // debug stuff
