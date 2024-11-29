@@ -27,7 +27,7 @@ public class Slot {
         }
     }
 
-    public Upgrade getUpgrade() {
-        return upgrade;
+    public void purchase() {
+        upgrade.buy();
     }
 }

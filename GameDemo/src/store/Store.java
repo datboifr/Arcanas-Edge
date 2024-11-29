@@ -80,6 +80,9 @@ public class Store {
                 slots[row][col].isSelected = (row == currentRow && col == currentCol);
             }
         }
+
+        if (keyHandler.zActive)
+            slots[currentRow][currentCol].purchase();
     }
 
     public void draw(Graphics2D g) {
