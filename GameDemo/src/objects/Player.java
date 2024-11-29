@@ -13,6 +13,7 @@ public class Player extends Entity {
 	public BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] LmeleeR = new BufferedImage[RUNNING_FRAMES];
+	public BufferedImage[] LmeleeRD = new BufferedImage[9]; // Adjusted for the number of frames
 	public BufferedImage idleB, idleF, idleR, idleL;
 
 	public int spriteNumber = 1;
@@ -43,12 +44,10 @@ public class Player extends Entity {
 		}
 		if (attacking == true) {
 			attacking();
-
 		}
 		// Check movement flags and set direction accordingly
-		else if (keyHandler.upActive == true || keyHandler.downActive == true || keyHandler.leftActive == true
-				|| keyHandler.rightActive == true
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true || keyHandler.bActive == true) {
+		else if (keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive || keyHandler.rightActive
+				|| keyHandler.upRightPressed || keyHandler.upLeftPressed || keyHandler.bActive) {
 
 			if (keyHandler.upLeftPressed) {
 				direction = "upLeft";
@@ -70,8 +69,6 @@ public class Player extends Entity {
 			} else if (keyHandler.rightActive) {
 				direction = "right";
 				x += speed;
-			} else if (keyHandler.bActive) {
-				attacking = true;
 			}
 
 			// Update sprite animation
@@ -87,43 +84,39 @@ public class Player extends Entity {
 
 		// Switch for setting the correct sprite based on direction and movement state
 		switch (direction) {
-
 			case "up":
-				if (keyHandler.upActive == false && attacking == false) {
+				if (!keyHandler.upActive && !attacking) {
 					sprite = idleB;
-
-				} else if (keyHandler.upActive == true && attacking == false) {
+				} else if (keyHandler.upActive && !attacking) {
 					sprite = runBack[spriteNumber - 1];
 				}
-
 				break;
 			case "down":
-				if (keyHandler.downActive == false) {
+				if (!keyHandler.downActive) {
 					sprite = idleF;
-
-				} else
+				} else {
 					sprite = runForward[spriteNumber - 1];
+				}
 				break;
 			case "left":
-				if (keyHandler.leftActive == false) {
+				if (!keyHandler.leftActive) {
 					sprite = idleL;
-
-				} else
+				} else {
 					sprite = runLeft[spriteNumber - 1];
+				}
 				break;
 			case "right":
-				if (keyHandler.rightActive == false && attacking == false) {
-
+				if (!keyHandler.rightActive && !attacking) {
 					sprite = idleR;
-
-				} else if (keyHandler.rightActive == true && attacking == false) {
+				} else if (keyHandler.rightActive && !attacking) {
 					sprite = runRight[spriteNumber - 1];
-				} else if (attacking == true) {
+				} else if (attacking) {
 					sprite = LmeleeR[spriteNumber - 1];
 				}
-
+				if (attacking2) {
+					sprite = LmeleeRD[spriteNumber - 1];
+				}
 				break;
-
 		}
 	}
 
@@ -134,7 +127,6 @@ public class Player extends Entity {
 				runForward[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunF" + (i + 1) + ".png"));
 				runLeft[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunL" + (i + 1) + ".png"));
 				runRight[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunR" + (i + 1) + ".png"));
-
 			}
 			idleB = ImageIO.read(getClass().getResourceAsStream("/res/player/idleBack.png"));
 			idleF = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
@@ -144,49 +136,67 @@ public class Player extends Entity {
 			for (int i = 0; i < 8; i++) {
 				LmeleeR[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeR" + (i + 1) + ".png"));
 			}
+			for (int i = 0; i < 9; i++) {
+				LmeleeRD[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeRD" + (i + 1) + ".png"));
+			}
 
 		} catch (IOException e) {
 		}
 	}
 
 	public void attacking() {
-
-		// for (int i = 0; i < 40; i+=5) {
-		// spriteNumber = 1;
-		// spriteNumber++;
-
-		// }
 		spriteCounter++;
 
 		if (spriteCounter <= 5) {
 			spriteNumber = 1;
-		}
-		if (spriteCounter > 5 && spriteCounter < 10) {
+		} else if (spriteCounter <= 10) {
 			spriteNumber = 2;
-		}
-		if (spriteCounter > 10 && spriteCounter < 15) {
+		} else if (spriteCounter <= 15) {
 			spriteNumber = 3;
-		}
-		if (spriteCounter > 15 && spriteCounter < 20) {
+		} else if (spriteCounter <= 20) {
 			spriteNumber = 4;
-		}
-		if (spriteCounter > 20 && spriteCounter < 25) {
+		} else if (spriteCounter <= 25) {
 			spriteNumber = 5;
-		}
-		if (spriteCounter > 25 && spriteCounter < 30) {
+		} else if (spriteCounter <= 30) {
 			spriteNumber = 6;
-		}
-		if (spriteCounter > 30 && spriteCounter < 35) {
+		} else if (spriteCounter <= 35) {
 			spriteNumber = 7;
-		}
-		if (spriteCounter > 35 && spriteCounter < 39) {
+		} else if (spriteCounter <= 39) {
 			spriteNumber = 8;
 		}
+
 		if (spriteCounter > 39) {
 			spriteNumber = 1;
 			spriteCounter = 0;
 			attacking = false;
+			attacking2 = true;
+		}
 
+		if (attacking2) {
+			spriteCounter++;
+			if (spriteCounter <= 5) {
+				spriteNumber = 1;
+			} else if (spriteCounter <= 10) {
+				spriteNumber = 2;
+			} else if (spriteCounter <= 15) {
+				spriteNumber = 3;
+			} else if (spriteCounter <= 20) {
+				spriteNumber = 4;
+			} else if (spriteCounter <= 25) {
+				spriteNumber = 5;
+			} else if (spriteCounter <= 30) {
+				spriteNumber = 6;
+			} else if (spriteCounter <= 35) {
+				spriteNumber = 7;
+			} else if (spriteCounter <= 39) {
+				spriteNumber = 8;
+			}
+			if (spriteCounter > 39) {
+				spriteNumber = 1;
+				spriteCounter = 0;
+				attacking = false;
+				attacking2 = false;
+			}
 		}
 	}
 
