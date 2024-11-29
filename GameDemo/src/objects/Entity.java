@@ -6,6 +6,7 @@ public class Entity extends GameObject {
 	int spriteCounter = 0; // Counts frames for animation timing
 	//int spriteIndex = 0;
 	boolean attacking = false;
+	boolean attacking2 = false;
 	public int health;
 
 	// Constructor

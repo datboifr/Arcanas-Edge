@@ -13,6 +13,7 @@ public class Player extends Entity {
 	public BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage[] LmeleeR = new BufferedImage[RUNNING_FRAMES];
+	public BufferedImage[] LmeleeRD = new BufferedImage[RUNNING_FRAMES];
 	public BufferedImage idleB, idleF, idleR, idleL;
 
 	public int spriteNumber = 1;
@@ -119,6 +120,10 @@ public class Player extends Entity {
 				}
 				else if (attacking == true ){
 					sprite = LmeleeR[spriteNumber - 1];
+					
+					
+				}  if (attacking2 = true){
+					sprite = LmeleeRD[spriteNumber - 1];
 				}
 
                 break;
@@ -145,13 +150,17 @@ public class Player extends Entity {
 			for (int i = 0; i < 8; i++) {
 				LmeleeR[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeR" + (i + 1) + ".png"));
 				}
-
+				for (int i = 0; i < 9; i++) {
+					LmeleeRD[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeRD" + (i + 1) + ".png"));
+					}
 			
 
 		} catch (IOException e) {
 		}
 	}
 	public void attacking(){
+		attacking2= false;
+		System.out.println(spriteCounter);
 
 		
 		// for (int i = 0; i < 40; i+=5) {
@@ -185,13 +194,58 @@ public class Player extends Entity {
 		if (spriteCounter > 35 && spriteCounter < 39) {
 			spriteNumber = 8;
 		}
+		
+			
+		if (spriteCounter < 45 &&spriteCounter > 39 && keyHandler.bActive) {
+			spriteNumber = 1;
+			spriteCounter = 0;
+			attacking = false;
+			attacking2 = true;
+
+		}
+		if (attacking2 == true){
+			spriteCounter++;
+		
+		if (spriteCounter <=5) {
+			spriteNumber =1;
+		}
+		if(spriteCounter > 5 &&  spriteCounter < 10) {
+			spriteNumber = 2;
+		}
+		if (spriteCounter > 10 && spriteCounter < 15) {
+			spriteNumber = 3;
+		}
+		if (spriteCounter > 15 && spriteCounter < 20) {
+			spriteNumber = 4;
+		}
+		if (spriteCounter > 20 && spriteCounter < 25) {
+			spriteNumber = 5;
+		}
+		if (spriteCounter > 25 && spriteCounter < 30) {
+			spriteNumber = 6;
+		}
+		if (spriteCounter > 30 && spriteCounter < 35) {
+			spriteNumber = 7;
+		}
+		if (spriteCounter > 35 && spriteCounter < 39) {
+			spriteNumber = 8;
+		}
 		if (spriteCounter > 39) {
 			spriteNumber = 1;
 			spriteCounter = 0;
 			attacking = false;
+			attacking2 = false;
 
-		}
+			}
+		} if (spriteCounter > 39) {
+				spriteNumber = 1;
+				spriteCounter = 0;
+				attacking = false;
+	
+				}
+
+		
 	}
 
 	
-}
+	}
