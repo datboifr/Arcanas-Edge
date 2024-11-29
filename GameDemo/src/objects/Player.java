@@ -22,28 +22,33 @@ public class Player extends Entity {
 	// Constructor
 	public Player(int x, int y, int width, int height, KeyHandler keyHandler) {
 		super(x, y, width, height);
-		speed = 5; // Set default speed
 		direction = "down";
 		this.keyHandler = keyHandler;
+
+		speed = 5; // Set default speed
+		health = 100;
+		damage = 1;
 
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
 		} catch (IOException e) {
 		}
+
+		loadPlayerImages();
 	}
 
 	public void update() {
-		if (keyHandler.bActive){
+		if (keyHandler.bActive) {
 			attacking = true;
 		}
-		 if (attacking == true){
+		if (attacking == true) {
 			attacking();
 
-		 }
+		}
 		// Check movement flags and set direction accordingly
 		else if (keyHandler.upActive == true || keyHandler.downActive == true || keyHandler.leftActive == true
 				|| keyHandler.rightActive == true
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true|| keyHandler.bActive == true) {
+				|| keyHandler.upRightPressed || keyHandler.upLeftPressed == true || keyHandler.bActive == true) {
 
 			if (keyHandler.upLeftPressed) {
 				direction = "upLeft";
@@ -65,11 +70,9 @@ public class Player extends Entity {
 			} else if (keyHandler.rightActive) {
 				direction = "right";
 				x += speed;
-			}else if (keyHandler.bActive){
+			} else if (keyHandler.bActive) {
 				attacking = true;
 			}
-			
-			
 
 			// Update sprite animation
 			spriteCounter++;
@@ -84,48 +87,44 @@ public class Player extends Entity {
 
 		// Switch for setting the correct sprite based on direction and movement state
 		switch (direction) {
-			
-            case "up":
-            if (keyHandler.upActive == false && attacking == false) {
-                sprite = idleB;
-                
-            }else if(keyHandler.upActive == true && attacking == false){
-				sprite = runBack[spriteNumber - 1];
-			} 
-			
-                break;
-            case "down":
-            if (keyHandler.downActive == false) {
-                sprite = idleF;
-                
-            }
-                else sprite = runForward[spriteNumber - 1];
-                break;
-            case "left":
-            if (keyHandler.leftActive == false) {
-                sprite = idleL;
-                
-            }
-                else sprite = runLeft[spriteNumber - 1];
-                break;
-            case "right":
-			if (keyHandler.rightActive == false && attacking == false) {
-            
-                sprite = idleR;
-                
-            }
-                else if (keyHandler.rightActive == true && attacking == false){
-					sprite = runRight[spriteNumber - 1];
+
+			case "up":
+				if (keyHandler.upActive == false && attacking == false) {
+					sprite = idleB;
+
+				} else if (keyHandler.upActive == true && attacking == false) {
+					sprite = runBack[spriteNumber - 1];
 				}
-				else if (attacking == true ){
+
+				break;
+			case "down":
+				if (keyHandler.downActive == false) {
+					sprite = idleF;
+
+				} else
+					sprite = runForward[spriteNumber - 1];
+				break;
+			case "left":
+				if (keyHandler.leftActive == false) {
+					sprite = idleL;
+
+				} else
+					sprite = runLeft[spriteNumber - 1];
+				break;
+			case "right":
+				if (keyHandler.rightActive == false && attacking == false) {
+
+					sprite = idleR;
+
+				} else if (keyHandler.rightActive == true && attacking == false) {
+					sprite = runRight[spriteNumber - 1];
+				} else if (attacking == true) {
 					sprite = LmeleeR[spriteNumber - 1];
 				}
 
-                break;
-                
-            
-        
-	}
+				break;
+
+		}
 	}
 
 	public void loadPlayerImages() {
@@ -135,7 +134,7 @@ public class Player extends Entity {
 				runForward[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunF" + (i + 1) + ".png"));
 				runLeft[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunL" + (i + 1) + ".png"));
 				runRight[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/RunR" + (i + 1) + ".png"));
-				
+
 			}
 			idleB = ImageIO.read(getClass().getResourceAsStream("/res/player/idleBack.png"));
 			idleF = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
@@ -144,27 +143,25 @@ public class Player extends Entity {
 
 			for (int i = 0; i < 8; i++) {
 				LmeleeR[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeR" + (i + 1) + ".png"));
-				}
-
-			
+			}
 
 		} catch (IOException e) {
 		}
 	}
-	public void attacking(){
 
-		
+	public void attacking() {
+
 		// for (int i = 0; i < 40; i+=5) {
-		// 	spriteNumber = 1;
-		// 	spriteNumber++;
+		// spriteNumber = 1;
+		// spriteNumber++;
 
 		// }
 		spriteCounter++;
-		
-		if (spriteCounter <=5) {
-			spriteNumber =1;
+
+		if (spriteCounter <= 5) {
+			spriteNumber = 1;
 		}
-		if(spriteCounter > 5 &&  spriteCounter < 10) {
+		if (spriteCounter > 5 && spriteCounter < 10) {
 			spriteNumber = 2;
 		}
 		if (spriteCounter > 10 && spriteCounter < 15) {
@@ -193,5 +190,15 @@ public class Player extends Entity {
 		}
 	}
 
-	
+	public void upgradeSpeed() {
+		System.out.print("Speed Upgraded");
+	}
+
+	public void upgradeDamage() {
+		System.out.print("Damage Upgraded");
+	}
+
+	public void upgradeHealth() {
+		System.out.print("Health Upgraded");
+	}
 }

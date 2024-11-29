@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import objects.*;
+import store.Store;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
@@ -45,7 +46,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
         enemies = new ArrayList<>();
 
         player = new Player(0, 0, 35, 35, keyHandler);
-        player.loadPlayerImages();
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 

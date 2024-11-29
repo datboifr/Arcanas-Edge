@@ -5,7 +5,7 @@ import java.awt.event.*;
 
 public class KeyHandler implements KeyListener {
     public boolean keyDown, upActive, downActive, leftActive, rightActive, upLeftPressed, upRightPressed;
-    public boolean aActive, bActive, cActive, xActive, yActive, zActive; //input
+    public boolean aActive, bActive, cActive, xActive, yActive, zActive; // input
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -17,7 +17,7 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
         keyDown = true;
 
-        //movement 
+        // movement
         if (code == KeyEvent.VK_W)
             upActive = true;
         if (code == KeyEvent.VK_S)
@@ -27,7 +27,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D)
             rightActive = true;
 
-        //input
+        // input
         if (code == KeyEvent.VK_J)
             aActive = true;
         if (code == KeyEvent.VK_I)
@@ -39,7 +39,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_L)
             yActive = true;
         if (code == KeyEvent.VK_P)
-            zActive = true;        
+            zActive = true;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class KeyHandler implements KeyListener {
 
         int code = e.getKeyCode();
 
-        //movement
+        // movement
         if (code == KeyEvent.VK_W)
             upActive = false;
         if (code == KeyEvent.VK_S)
@@ -57,7 +57,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D)
             rightActive = false;
 
-        //input
+        // input
         if (code == KeyEvent.VK_J)
             aActive = false;
         if (code == KeyEvent.VK_I)
@@ -69,7 +69,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_L)
             yActive = false;
         if (code == KeyEvent.VK_P)
-            zActive = false;   
+            zActive = false;
 
     }
 }
