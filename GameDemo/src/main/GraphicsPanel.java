@@ -4,7 +4,8 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import objects.*;
-import store.Store;
+import upgrademenu.UpgradeMenu;
+import upgrademenu.UpgradePool;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
@@ -22,13 +23,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Game objects
     ArrayList<GameObject> objects;
     ArrayList<Enemy> enemies;
+    ArrayList<Projectile> projectiles;
     Player player;
     Random random;
     GameObject platform;
 
-    Store store;
+    UpgradeMenu upgradeMenu;
 
-    boolean storeEnabled;
+    boolean upgradeMenuEnabled;
     boolean waveEnabled;
     int wave, enemyLimit, enemyCounter;
 
@@ -42,10 +44,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
         random = new Random();
 
         // Initialize lists
-        objects = new ArrayList<>();
-        enemies = new ArrayList<>();
+        this.objects = new ArrayList<>();
+        this.enemies = new ArrayList<>();
+        this.projectiles = new ArrayList<>();
 
-        player = new Player(0, 0, 35, 35, keyHandler);
+        player = new Player(0, 0, 35, 35, keyHandler, projectiles);
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
 
@@ -55,8 +58,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         isRunning = true;
         gameThread = new Thread(this);
         gameThread.start();
-
-        store = new Store(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100), keyHandler);
+        upgradeMenu = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100), keyHandler,
+                UpgradePool.getUpgradePool(player));
     }
 
     @Override
@@ -88,8 +91,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void endWave() {
         waveEnabled = false;
         enemyCounter = 0;
-        store.fillStore();
-        storeEnabled = true;
+        upgradeMenu.fill();
+        upgradeMenuEnabled = true;
     }
 
     /**
@@ -124,11 +127,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     // Update game state
     public void update(double delta) {
 
-        if (storeEnabled) {
-            store.update();
-            storeEnabled = !keyHandler.zActive;
+        if (upgradeMenuEnabled) {
+            upgradeMenu.update();
+            upgradeMenuEnabled = !keyHandler.zActive;
         } else {
             player.update();
+            for (Projectile projectile : projectiles) {
+                projectile.update();
+            }
             if (waveEnabled) {
                 // spawns enemy if limit hasn't been reached
                 if (enemyCounter < enemyLimit)
@@ -139,7 +145,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 // updates all enemies
                 ArrayList<Enemy> dead = new ArrayList<>();
                 for (Enemy enemy : enemies) {
-                    if (enemy.health > 0)
+                    if (enemy.getHealth() > 0)
                         enemy.update(delta, enemies);
                     else
                         dead.add(enemy);
@@ -154,6 +160,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             objects.add(platform);
             objects.addAll(enemies);
             objects.add(player);
+            objects.addAll(projectiles);
         }
     }
 
@@ -170,19 +177,27 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
         }
 
-        if (storeEnabled) {
-            store.draw(g);
+        if (upgradeMenuEnabled) {
+            upgradeMenu.draw(g);
         }
 
         // debug stuff
         g.setColor(Color.WHITE);
-        g.drawString("Store Active?: " + storeEnabled, 10, 210);
+        g.setFont(new Font("Arial", Font.PLAIN, 10));
+
+        g.drawString("UpgradeMenu Active?: " + upgradeMenuEnabled, 10, 210);
         g.drawString("Wave Active? " + waveEnabled, 10, 220);
         g.drawString("Wave: " + wave, 10, 230);
 
         g.drawString("Enemy Limit: " + enemyLimit, 10, 250);
         g.drawString("# of Enemies: " + enemies.size(), 10, 260);
         g.drawString("Enemy Counter: " + enemyCounter, 10, 270);
+
+        g.drawString("Player Health " + player.getHealth(), 10, 290);
+        g.drawString("Player Agility " + player.getSpeed(), 10, 300);
+        g.drawString("Player Strength: " + player.getStrength(), 10, 310);
+        g.drawString("Player Projectile Speed: " + player.getProjectileSpeed(), 10, 320);
+
     }
 
 }

@@ -2,119 +2,136 @@ package objects;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 import main.KeyHandler;
 
 public class Player extends Entity {
-	final int RUNNING_FRAMES = 10;
 
-	public BufferedImage[] runBack = new BufferedImage[RUNNING_FRAMES];
-	public BufferedImage[] runForward = new BufferedImage[RUNNING_FRAMES];
-	public BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
-	public BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
-	public BufferedImage[] LmeleeR = new BufferedImage[RUNNING_FRAMES];
-	public BufferedImage[] LmeleeRD = new BufferedImage[9]; // Adjusted for the number of frames
-	public BufferedImage idleB, idleF, idleR, idleL;
-
-	public int spriteNumber = 1;
+	private final int RUNNING_FRAMES = 10;
+	private final int ATTACK1_FRAMES = 8;
+	private final int ATTACK2_FRAMES = 9;
+	private BufferedImage[] runBack = new BufferedImage[RUNNING_FRAMES];
+	private BufferedImage[] runForward = new BufferedImage[RUNNING_FRAMES];
+	private BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
+	private BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
+	private BufferedImage[] LmeleeR = new BufferedImage[ATTACK1_FRAMES];
+	private BufferedImage[] LmeleeRD = new BufferedImage[ATTACK2_FRAMES];
+	private BufferedImage idleB, idleF, idleR, idleL;
+	private int spriteNumber;
 
 	KeyHandler keyHandler;
 
+	private final float DEFAULT_HEALTH = 100;
+	private final float DEFAULT_AGILITY = 4;
+	private final float DEFAULT_STRENGTH = 5;
+	private final float DEFAULT_PROJECTILE_SPEED = 10;
+
+	ArrayList<Projectile> projectiles;
+
 	// Constructor
-	public Player(int x, int y, int width, int height, KeyHandler keyHandler) {
+	public Player(int x, int y, int width, int height, KeyHandler keyHandler, ArrayList<Projectile> projectiles) {
 		super(x, y, width, height);
 		direction = "down";
 		this.keyHandler = keyHandler;
 
-		speed = 5; // Set default speed
-		health = 100;
-		damage = 1;
+		this.health = DEFAULT_HEALTH;
+		this.speed = DEFAULT_AGILITY;
+		this.strength = DEFAULT_STRENGTH;
+		this.projectileSpeed = DEFAULT_PROJECTILE_SPEED;
+
+		this.projectiles = projectiles;
 
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
 		} catch (IOException e) {
 		}
 
+		this.spriteNumber = 1;
 		loadPlayerImages();
 	}
 
 	public void update() {
-		if (keyHandler.bActive) {
-			attacking = true;
+
+		handleMovement();
+
+		if (keyHandler.bActive && !isAttacking) {
+			System.out.println("Attacked!");
+			attack();
 		}
-		if (attacking == true) {
+
+		// Handle attack state but allow movement to happen simultaneously
+		if (isAttacking) {
 			attacking();
-		}
-		// Check movement flags and set direction accordingly
-		else if (keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive || keyHandler.rightActive
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed || keyHandler.bActive) {
-
-			if (keyHandler.upLeftPressed) {
-				direction = "upLeft";
-				y -= speed;
-				x -= speed;
-			} else if (keyHandler.upRightPressed) {
-				direction = "upRight";
-				y -= speed;
-				x += speed;
-			} else if (keyHandler.upActive) {
-				direction = "up";
-				y -= speed;
-			} else if (keyHandler.downActive) {
-				direction = "down";
-				y += speed;
-			} else if (keyHandler.leftActive) {
-				direction = "left";
-				x -= speed;
-			} else if (keyHandler.rightActive) {
-				direction = "right";
-				x += speed;
-			}
-
-			// Update sprite animation
-			spriteCounter++;
-			if (spriteCounter > 5) {
-				spriteCounter = 0;
-				spriteNumber++;
-				if (spriteNumber > 10) {
-					spriteNumber = 1;
-				}
-			}
+			updateSprite();
+			return;
 		}
 
-		// Switch for setting the correct sprite based on direction and movement state
+		// Handle movement if the player is moving
+		if (isMoving()) {
+			updateAnimation();
+		}
+
+		updateSprite();
+	}
+
+	private void attack() {
+		isAttacking = true;
+		projectiles.add(new Projectile(this, directionLiteral - 10));
+		projectiles.add(new Projectile(this, directionLiteral));
+		projectiles.add(new Projectile(this, directionLiteral + 10));
+	}
+
+	private boolean isMoving() {
+		return keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive || keyHandler.rightActive
+				|| keyHandler.upRightPressed || keyHandler.upLeftPressed;
+	}
+
+	private void handleMovement() {
+		if (keyHandler.upActive) {
+			direction = "up";
+			directionLiteral = 270;
+			y -= speed;
+		} else if (keyHandler.downActive) {
+			direction = "down";
+			directionLiteral = 90;
+			y += speed;
+		} else if (keyHandler.leftActive) {
+			direction = "left";
+			directionLiteral = 180;
+			x -= speed;
+		} else if (keyHandler.rightActive) {
+			direction = "right";
+			directionLiteral = 0;
+			x += speed;
+		}
+	}
+
+	private void updateAnimation() {
+		spriteCounter++;
+		if (spriteCounter > 5) {
+			spriteCounter = 0;
+			spriteNumber = (spriteNumber % 10) + 1; // Loops spriteNumber between 1 and 10
+		}
+	}
+
+	private void updateSprite() {
 		switch (direction) {
 			case "up":
-				if (!keyHandler.upActive && !attacking) {
-					sprite = idleB;
-				} else if (keyHandler.upActive && !attacking) {
-					sprite = runBack[spriteNumber - 1];
-				}
+				sprite = keyHandler.upActive ? runBack[spriteNumber - 1] : idleB;
 				break;
 			case "down":
-				if (!keyHandler.downActive) {
-					sprite = idleF;
-				} else {
-					sprite = runForward[spriteNumber - 1];
-				}
+				sprite = keyHandler.downActive ? runForward[spriteNumber - 1] : idleF;
 				break;
 			case "left":
-				if (!keyHandler.leftActive) {
-					sprite = idleL;
-				} else {
-					sprite = runLeft[spriteNumber - 1];
-				}
+				sprite = keyHandler.leftActive ? runLeft[spriteNumber - 1] : idleL;
 				break;
 			case "right":
-				if (!keyHandler.rightActive && !attacking) {
-					sprite = idleR;
-				} else if (keyHandler.rightActive && !attacking) {
-					sprite = runRight[spriteNumber - 1];
-				} else if (attacking) {
-					sprite = LmeleeR[spriteNumber - 1];
-				}
-				if (attacking2) {
-					sprite = LmeleeRD[spriteNumber - 1];
+				if (isAttacking) {
+					sprite = attacking2 ? LmeleeRD[spriteNumber - 1] : LmeleeR[spriteNumber - 1];
+				} else {
+					sprite = keyHandler.rightActive ? runRight[spriteNumber - 1] : idleR;
 				}
 				break;
 		}
@@ -133,10 +150,10 @@ public class Player extends Entity {
 			idleR = ImageIO.read(getClass().getResourceAsStream("/res/player/idleRight.png"));
 			idleL = ImageIO.read(getClass().getResourceAsStream("/res/player/idleLeft.png"));
 
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < ATTACK1_FRAMES; i++) {
 				LmeleeR[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeR" + (i + 1) + ".png"));
 			}
-			for (int i = 0; i < 9; i++) {
+			for (int i = 0; i < ATTACK2_FRAMES; i++) {
 				LmeleeRD[i] = ImageIO.read(getClass().getResourceAsStream("/res/player/LmeleeRD" + (i + 1) + ".png"));
 			}
 
@@ -147,68 +164,35 @@ public class Player extends Entity {
 	public void attacking() {
 		spriteCounter++;
 
-		if (spriteCounter <= 5) {
-			spriteNumber = 1;
-		} else if (spriteCounter <= 10) {
-			spriteNumber = 2;
-		} else if (spriteCounter <= 15) {
-			spriteNumber = 3;
-		} else if (spriteCounter <= 20) {
-			spriteNumber = 4;
-		} else if (spriteCounter <= 25) {
-			spriteNumber = 5;
-		} else if (spriteCounter <= 30) {
-			spriteNumber = 6;
-		} else if (spriteCounter <= 35) {
-			spriteNumber = 7;
-		} else if (spriteCounter <= 39) {
-			spriteNumber = 8;
-		}
+		// Determine the sprite frame based on spriteCounter
+		spriteNumber = (spriteCounter - 1) / 5 + 1;
 
 		if (spriteCounter > 39) {
-			spriteNumber = 1;
+			// Transition to the next phase or reset if attacking2 is active
 			spriteCounter = 0;
-			attacking = false;
-			attacking2 = true;
-		}
-
-		if (attacking2) {
-			spriteCounter++;
-			if (spriteCounter <= 5) {
-				spriteNumber = 1;
-			} else if (spriteCounter <= 10) {
-				spriteNumber = 2;
-			} else if (spriteCounter <= 15) {
-				spriteNumber = 3;
-			} else if (spriteCounter <= 20) {
-				spriteNumber = 4;
-			} else if (spriteCounter <= 25) {
-				spriteNumber = 5;
-			} else if (spriteCounter <= 30) {
-				spriteNumber = 6;
-			} else if (spriteCounter <= 35) {
-				spriteNumber = 7;
-			} else if (spriteCounter <= 39) {
-				spriteNumber = 8;
-			}
-			if (spriteCounter > 39) {
-				spriteNumber = 1;
-				spriteCounter = 0;
-				attacking = false;
+			if (isAttacking) {
+				isAttacking = false;
+				attacking2 = true;
+			} else if (attacking2) {
 				attacking2 = false;
 			}
 		}
 	}
 
-	public void upgradeSpeed() {
-		System.out.print("Speed Upgraded");
-	}
-
-	public void upgradeDamage() {
-		System.out.print("Damage Upgraded");
-	}
+	// all stats stuff
 
 	public void upgradeHealth() {
-		System.out.print("Health Upgraded");
+		this.health += DEFAULT_HEALTH / 10; // increases by 10%
+		System.out.println("Health Upgraded");
+	}
+
+	public void upgradeAgility() {
+		this.speed += DEFAULT_STRENGTH / 20; // increases by 5%
+		System.out.println("Speed Upgraded");
+	}
+
+	public void upgradeStrength() {
+		this.strength += DEFAULT_STRENGTH / 10; // increases by 10%
+		System.out.println("Strength Upgraded");
 	}
 }

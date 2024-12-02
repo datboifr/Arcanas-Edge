@@ -1,37 +1,37 @@
-package store;
+package upgrademenu;
 
 import java.awt.*;
 import java.util.*;
 
 import main.KeyHandler;
 
-public class Store {
+public class UpgradeMenu {
 
     private Slot[][] slots;
     private Rectangle frame;
     private ArrayList<Upgrade> upgradePool;
-    private float margin;
     private int selection;
     private int rows, cols;
     private KeyHandler keyHandler;
 
-    public Store(Rectangle frame, KeyHandler keyHandler) {
+    private final int MARGIN = 1; // % of frame
+
+    public UpgradeMenu(Rectangle frame, KeyHandler keyHandler, ArrayList<Upgrade> upgradePool) {
 
         this.slots = new Slot[2][3];
         this.frame = frame;
-        this.margin = 2f;
         this.selection = 0;
         this.rows = slots.length;
         this.cols = slots[0].length;
         this.keyHandler = keyHandler;
 
-        this.upgradePool = UpgradePool.getUpgradePool();
+        this.upgradePool = upgradePool;
 
     }
 
-    public void fillStore() {
-        int horizontalMargin = (int) (frame.width * margin / 100.0);
-        int verticalMargin = (int) (frame.height * margin / 100.0);
+    public void fill() {
+        int horizontalMargin = (int) (frame.width * MARGIN / 100.0);
+        int verticalMargin = (int) (frame.height * MARGIN / 100.0);
 
         int width = (frame.width - (horizontalMargin * (cols + 1))) / cols;
         int height = (frame.height - (verticalMargin * (rows + 1))) / rows;
@@ -100,6 +100,8 @@ public class Store {
 
         // debugging
         g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.PLAIN, 10));
+
         g.drawString("Press 'P' key to close", 10, 10);
         g.drawString("Selected Slot: " + selection, 10, 20);
     }

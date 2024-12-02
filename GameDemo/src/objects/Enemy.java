@@ -9,7 +9,10 @@ public class Enemy extends Entity {
     public Enemy(int x, int y, int width, int height, GameObject target) {
         super(x, y, width, height);
         this.target = target;
-        this.speed = (float) 2;
+
+        this.health = 100;
+        this.speed = 2;
+        this.strength = 5;
     }
 
     public void update(double delta, ArrayList<Enemy> enemies) {
@@ -17,12 +20,12 @@ public class Enemy extends Entity {
 
         if (distance > 1) {
             // Calculate direction vector and normalize
-            double directionX = (target.x - x) / distance;
-            double directionY = (target.y - y) / distance;
+            double directionX = (target.x - this.x) / distance;
+            double directionY = (target.y - this.y) / distance;
 
             // Update position based on speed
-            double newX = x + directionX * speed * delta;
-            double newY = y + directionY * speed * delta;
+            double newX = x + directionX * this.speed * delta;
+            double newY = y + directionY * this.speed * delta;
 
             // Check for collisions with other enemies
             for (Enemy other : enemies) {
@@ -31,16 +34,16 @@ public class Enemy extends Entity {
                     double angle = Math.atan2(other.y - y, other.x - x);
 
                     // Move away from the collision
-                    newX -= Math.cos(angle) * speed * delta;
-                    newY -= Math.sin(angle) * speed * delta;
+                    newX -= Math.cos(angle) * this.speed * delta;
+                    newY -= Math.sin(angle) * this.speed * delta;
                 }
             }
 
             // Update the position once
-            x = (int) newX;
-            y = (int) newY;
-        }
-        else health -= 10;
+            this.x = (int) newX;
+            this.y = (int) newY;
+        } else
+            this.health -= 10;
     }
 
 }

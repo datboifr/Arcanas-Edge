@@ -1,4 +1,4 @@
-package store;
+package upgrademenu;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
