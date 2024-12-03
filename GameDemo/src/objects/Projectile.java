@@ -1,7 +1,6 @@
 package objects;
 
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 
 public class Projectile extends GameObject {
@@ -10,14 +9,16 @@ public class Projectile extends GameObject {
     private boolean canPierce;
     private ProjectileType type;
 
+    private GameObject creator;
     private int spriteNumber = 1;
 
-    Projectile(Player player, float direction, ProjectileType projectileType) {
-        super(player.x, player.y, (int) (projectileType.size * player.getProjectileDamage()),
-                (int) (projectileType.size * player.getProjectileSize()));
+    Projectile(Entity creator, float direction, ProjectileType projectileType) {
+        super(creator.x, creator.y, (int) (projectileType.size * creator.getProjectileDamage()),
+                (int) (projectileType.size * creator.getProjectileSize()));
 
+        this.creator = creator;
         this.type = projectileType;
-        this.contactDamage = type.getContactDamage() * player.getProjectileDamage();
+        this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
         this.canPierce = type.canPierce();
         this.direction = direction;
     }
