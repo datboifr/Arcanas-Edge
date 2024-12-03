@@ -1,5 +1,5 @@
 package objects;
 
 public interface ProjectileBehaviour {
-    void update();
+    void update(Projectile projectile);
 }

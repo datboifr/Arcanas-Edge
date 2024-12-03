@@ -8,6 +8,15 @@ public class GameObject { // Renamed for clarity
     BufferedImage sprite;
     public String prompt;
 
+    protected boolean isDead;
+
+    protected float health;
+    protected float speed;
+    protected float contactDamage;
+
+    protected int frameCounter = 0; // Counts frames for animation timing
+    protected final int SPRITES_PER_FRAME = 5;
+
     /**
      * Constructs a new object.
      *
@@ -21,6 +30,7 @@ public class GameObject { // Renamed for clarity
         this.y = y;
         this.width = width;
         this.height = height;
+        this.isDead = false;
     }
 
     /**
@@ -29,11 +39,12 @@ public class GameObject { // Renamed for clarity
     public void draw(Graphics2D g) {
         // Draw the sprite if it's not null
         if (sprite != null) {
-            g.drawImage(sprite, x - (width / 2), y - (height / 2), width, height, null);
+            g.drawImage(this.sprite, this.x - (this.width / 2), this.y - (this.height / 2), this.width, this.height,
+                    null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
-            g.setColor(Color.RED);
-            g.fillRect(x - (width / 2), y - (height / 2), width, height);
+            g.setColor(Color.PINK);
+            g.fillRect(this.x - (this.width / 2), this.y - (this.height / 2), this.width, this.height);
         }
 
         // Set the color for the text (white)
@@ -42,23 +53,25 @@ public class GameObject { // Renamed for clarity
         if (prompt != null) {
             // Get FontMetrics for the current font to calculate text width and height
             FontMetrics metrics = g.getFontMetrics(g.getFont());
-
-            // Calculate the text width and height
             int textWidth = metrics.stringWidth(prompt);
             int textHeight = metrics.getHeight();
 
-            // Calculate the x position to center the text
-            int textX = x - textWidth / 2;
-
-            // Calculate the y position to place the text above the object
-            int textY = y - (height / 2) - textHeight / 2;
-
             // Draw the centered text above the object
-            g.drawString(prompt, textX, textY);
+            int textX = this.x - textWidth / 2;
+            int textY = this.y - (height / 2) - textHeight / 2;
+
+            g.drawString(this.prompt, textX, textY);
         }
     }
 
     public void update() {
+    }
+
+    public void hit() {
+
+    }
+
+    public void hit(GameObject other) {
     }
 
     /**
@@ -67,7 +80,7 @@ public class GameObject { // Renamed for clarity
      * @param other The object to be measured
      */
     public boolean touching(GameObject other) {
-        Rectangle thisRect = new Rectangle(x, y, width, height);
+        Rectangle thisRect = new Rectangle(this.x, this.y, this.width, this.height);
         Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
         return thisRect.intersects(otherRect);
     }
@@ -78,6 +91,32 @@ public class GameObject { // Renamed for clarity
      * @param other The object to be measured
      */
     public double distanceTo(GameObject other) {
-        return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
+        return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
+    }
+
+    // getters
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public float getHealth() {
+        return this.health;
+    }
+
+    public float getSpeed() {
+        return this.speed;
+    }
+
+    public float getContactDamage() {
+        return this.contactDamage;
     }
 }

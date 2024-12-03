@@ -124,44 +124,61 @@ public class GraphicsPanel extends JPanel implements Runnable {
         enemyCounter++;
     }
 
-    // Update game state
     public void update(double delta) {
 
+        // Handle the upgrade menu
         if (upgradeMenuEnabled) {
             upgradeMenu.update();
             upgradeMenuEnabled = !keyHandler.zActive;
         } else {
+            // Update all game objects
             player.update();
+            for (Enemy enemy : enemies) {
+                enemy.update(delta, enemies, projectiles);
+            }
             for (Projectile projectile : projectiles) {
                 projectile.update();
+                projectile.checkPositionOnScreen(WIDTH, HEIGHT);
             }
+
+            // Handle the wave logic
             if (waveEnabled) {
-                // spawns enemy if limit hasn't been reached
-                if (enemyCounter < enemyLimit)
-                    spawnEnemy();
-                else if (enemies.isEmpty() && (enemyCounter == enemyLimit))
-                    endWave();
-
-                // updates all enemies
-                ArrayList<Enemy> dead = new ArrayList<>();
-                for (Enemy enemy : enemies) {
-                    if (enemy.getHealth() > 0)
-                        enemy.update(delta, enemies);
-                    else
-                        dead.add(enemy);
+                if (enemies.isEmpty() && (enemyCounter == enemyLimit)) {
+                    endWave(); // End the wave if all enemies are defeated and the limit is reached
+                } else if (enemyCounter < enemyLimit) {
+                    spawnEnemy(); // Spawn new enemies if the enemy counter is less than the limit
                 }
-                enemies.removeAll(dead);
+            } else if (player.touching(platform)) {
+                startWave(); // Start a new wave if the player touches the platform
+            }
 
-            } else if (player.touching(platform))
-                startWave();
-
-            // adds all objects to render
+            // Clear the objects list and add all relevant objects for rendering
             objects.clear();
             objects.add(platform);
             objects.addAll(enemies);
             objects.add(player);
             objects.addAll(projectiles);
+
+            // Collect all dead objects to remove them
+            ArrayList<GameObject> dead = new ArrayList<>();
+            for (GameObject object : objects) {
+                if (object.isDead()) {
+                    dead.add(object);
+                    if (object instanceof Enemy) {
+                        enemies.remove(object); // Remove dead enemies
+                    } else if (object instanceof Projectile) {
+                        projectiles.remove(object); // Remove dead projectiles
+                    } else if (object instanceof Player) {
+                        endGame();
+                    }
+                }
+            }
+            objects.removeAll(dead);
         }
+    }
+
+    private void endGame() {
+        isRunning = false;
     }
 
     // Render the game objects
@@ -195,9 +212,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         g.drawString("Player Health " + player.getHealth(), 10, 290);
         g.drawString("Player Agility " + player.getSpeed(), 10, 300);
-        g.drawString("Player Strength: " + player.getStrength(), 10, 310);
-        g.drawString("Player Projectile Speed: " + player.getProjectileSpeed(), 10, 320);
+        g.drawString("Player Contact Damage: " + player.getContactDamage(), 10, 310);
+
+        g.drawString("Player Projectile Damage: " + player.getProjectileDamage(), 10, 320);
+        g.drawString("Player Projectile Speed: " + player.getProjectileSpeed(), 10, 330);
+        g.drawString("Player Projectile Size: " + player.getProjectileSize(), 10, 340);
+
+        g.drawString("# of Projectiles: " + projectiles.size(), 10, 360);
+
+        g.drawString("Player Attacking?: " + player.isAttacking(), 10, 380);
 
     }
-
 }

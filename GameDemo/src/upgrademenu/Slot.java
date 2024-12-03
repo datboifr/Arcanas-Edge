@@ -8,6 +8,7 @@ public class Slot {
     private Rectangle frame;
     boolean isSelected;
 
+    private final int TITLE_SIZE = 20;
     private final int BORDER = 3; // pixels
 
     public Slot(Rectangle frame, Upgrade upgrade) {
@@ -22,7 +23,7 @@ public class Slot {
 
         // title initalization
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setFont(new Font("Arial", Font.BOLD, TITLE_SIZE));
         FontMetrics metrics = g.getFontMetrics(g.getFont());
 
         // Calculate the text width and height

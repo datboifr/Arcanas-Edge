@@ -2,36 +2,29 @@ package objects;
 
 public class Entity extends GameObject {
 	String direction;
-	protected float directionLiteral;
-	int spriteCounter = 0; // Counts frames for animation timing
-	// int spriteIndex = 0;
-	boolean isAttacking = false;
-	boolean attacking2 = false;
+	protected float directionLiteral; // temporary
 
-	protected float health;
-	protected float speed;
-	protected float strength;
+	boolean isAttacking = false;
+
+	protected float projectileDamage;
 	protected float projectileSpeed;
+	protected float projectileSize;
 
 	// Constructor
 	public Entity(int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
 
-	public float getHealth() {
-		return this.health;
-	}
-
-	public float getSpeed() {
-		return this.speed;
-	}
-
-	public float getStrength() {
-		return this.strength;
+	public float getProjectileDamage() {
+		return this.projectileDamage;
 	}
 
 	public float getProjectileSpeed() {
 		return this.projectileSpeed;
+	}
+
+	public float getProjectileSize() {
+		return this.projectileSize;
 	}
 
 	public boolean isAttacking() {
