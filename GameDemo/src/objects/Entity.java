@@ -5,6 +5,7 @@ public class Entity extends GameObject {
 	protected float directionLiteral; // temporary
 
 	boolean isAttacking = false;
+	boolean attacking2 = false;
 
 	protected float projectileDamage;
 	protected float projectileSpeed;
