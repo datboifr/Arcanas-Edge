@@ -9,14 +9,21 @@ public enum ProjectileType implements ProjectileBehaviour {
             double dy = Math.sin(Math.toRadians(projectile.getDirection())) * this.speed;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
         }
+    },
+
+    STRUCTURE_TRAP(100, 10, 50, true, "lightning/Lightning", 5) {
+        @Override
+        public void update(Projectile projectile) {
+        }
     };
 
-    protected final int size; // Projectile size
-    protected final float speed; // Projectile speed
-    protected final float contactDamage;
-    protected final boolean canPierce;
-    protected final String spritePath;
-    protected final int animationLength;
+    protected int size;
+    protected float speed;
+    protected float contactDamage;
+    protected boolean canPierce;
+
+    protected String spritePath;
+    protected int animationLength;
 
     // Constructor
     ProjectileType(int size, float speed, int damage, boolean canPierce, String spritePath, int animationLength) {

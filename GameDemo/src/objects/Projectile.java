@@ -9,6 +9,7 @@ public class Projectile extends GameObject {
     private boolean canPierce;
     private ProjectileType type;
 
+    @SuppressWarnings("unused")
     private GameObject creator;
     private int spriteNumber = 1;
 
@@ -18,9 +19,11 @@ public class Projectile extends GameObject {
 
         this.creator = creator;
         this.type = projectileType;
-        this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
         this.canPierce = type.canPierce();
         this.direction = direction;
+
+        this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
+        this.speed = type.getSpeed() * creator.getProjectileSpeed();
     }
 
     public void update() {

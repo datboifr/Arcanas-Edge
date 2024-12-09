@@ -22,8 +22,8 @@ public class Enemy extends Entity {
         } else {
             for (Projectile projectile : projectiles) {
                 if (touching(projectile)) {
-                    health -= projectile.getContactDamage();
                     projectile.hit();
+                    health -= projectile.getContactDamage();
                 }
             }
 
