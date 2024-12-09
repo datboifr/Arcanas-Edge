@@ -2,9 +2,12 @@ package objects;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class GameObject { // Renamed for clarity
     int x, y, width, height;
+    protected String spritePath;
     BufferedImage sprite;
     public String prompt;
 
@@ -31,6 +34,15 @@ public class GameObject { // Renamed for clarity
         this.width = width;
         this.height = height;
         this.isDead = false;
+    }
+
+    public GameObject(int x, int y, int width, int height, String spritePath) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.isDead = false;
+        setSprite();
     }
 
     /**
@@ -92,6 +104,16 @@ public class GameObject { // Renamed for clarity
      */
     public double distanceTo(GameObject other) {
         return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
+    }
+
+    public void setSprite() {
+        try {
+            this.sprite = ImageIO
+                    .read(getClass()
+                            .getResourceAsStream("/res/" + this.spritePath + ".png"));
+        } catch (IOException e) {
+            this.sprite = null;
+        }
     }
 
     // getters

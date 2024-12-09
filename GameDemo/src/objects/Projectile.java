@@ -1,8 +1,5 @@
 package objects;
 
-import java.io.IOException;
-import javax.imageio.ImageIO;
-
 public class Projectile extends GameObject {
 
     private float direction;
@@ -34,23 +31,13 @@ public class Projectile extends GameObject {
                 spriteIterator = 1;
             }
         }
+        this.spritePath = "projectiles/" + type.getSpritePath() + spriteIterator;
         setSprite();
     }
 
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {
         if (this.x < 0 || this.x > screenWidth || this.y < 0 || this.y > screenHeight) {
             this.isDead = true;
-        }
-    }
-
-    private void setSprite() {
-        try {
-            this.sprite = ImageIO
-                    .read(getClass()
-                            .getResourceAsStream("/res/projectiles/" + type.getSpritePath() + spriteIterator + ".png"));
-        } catch (IOException e) {
-            System.out.println("Couldn't load sprite");
-            this.sprite = null;
         }
     }
 
