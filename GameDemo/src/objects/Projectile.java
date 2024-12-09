@@ -11,7 +11,7 @@ public class Projectile extends GameObject {
 
     @SuppressWarnings("unused")
     private GameObject creator;
-    private int spriteNumber = 1;
+    private int spriteIterator = 1;
 
     Projectile(Entity creator, float direction, ProjectileType projectileType) {
         super(creator.x, creator.y, (int) (projectileType.size * creator.getProjectileDamage()),
@@ -29,9 +29,9 @@ public class Projectile extends GameObject {
     public void update() {
         type.update(this);
         if (type.animationLength != 0) {
-            spriteNumber++;
-            if (spriteNumber > type.getAnimationLength()) {
-                spriteNumber = 1;
+            spriteIterator++;
+            if (spriteIterator > type.getAnimationLength()) {
+                spriteIterator = 1;
             }
         }
         setSprite();
@@ -47,7 +47,7 @@ public class Projectile extends GameObject {
         try {
             this.sprite = ImageIO
                     .read(getClass()
-                            .getResourceAsStream("/res/projectiles/" + type.getSpritePath() + spriteNumber + ".png"));
+                            .getResourceAsStream("/res/projectiles/" + type.getSpritePath() + spriteIterator + ".png"));
         } catch (IOException e) {
             System.out.println("Couldn't load sprite");
             this.sprite = null;
