@@ -10,8 +10,8 @@ import upgrademenu.UpgradePool;
 public class GraphicsPanel extends JPanel implements Runnable {
 
     // Screen settings
-    final int WIDTH = 800;
-    final int HEIGHT = 600;
+    final int WIDTH = 1920;
+    final int HEIGHT = 1080;
 
     Thread gameThread;
     boolean isRunning = false;
