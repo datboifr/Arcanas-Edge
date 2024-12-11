@@ -10,7 +10,7 @@ public class Projectile extends GameObject {
     private GameObject creator;
     private int spriteIterator = 1;
 
-    Projectile(Entity creator, float direction, ProjectileType projectileType) {
+    Projectile(GameObject creator, float direction, ProjectileType projectileType) {
         super(creator.x, creator.y, (int) (projectileType.size * creator.getProjectileDamage()),
                 (int) (projectileType.size * creator.getProjectileSize()));
 
@@ -32,7 +32,7 @@ public class Projectile extends GameObject {
             }
         }
         this.spritePath = "projectiles/" + type.getSpritePath() + spriteIterator;
-        setSprite();
+        setSprite(spritePath);
     }
 
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {

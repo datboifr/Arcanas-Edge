@@ -5,17 +5,27 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class GameObject { // Renamed for clarity
+public class GameObject { 
+
+    String direction;
+	protected float directionLiteral; // temporary
+
     int x, y, width, height;
     protected String spritePath;
     BufferedImage sprite;
     public String prompt;
 
     protected boolean isDead;
+    protected boolean isAttacking = false;
 
     protected float health;
     protected float speed;
     protected float contactDamage;
+
+    //entity stats
+    protected float projectileDamage;
+	protected float projectileSpeed;
+	protected float projectileSize;
 
     protected int frameCounter = 0; // Counts frames for animation timing
     protected final int SPRITES_PER_FRAME = 5;
@@ -34,6 +44,7 @@ public class GameObject { // Renamed for clarity
         this.width = width;
         this.height = height;
         this.isDead = false;
+        this.sprite = null;
     }
 
     public GameObject(int x, int y, int width, int height, String spritePath) {
@@ -42,7 +53,7 @@ public class GameObject { // Renamed for clarity
         this.width = width;
         this.height = height;
         this.isDead = false;
-        setSprite();
+        setSprite(spritePath);
     }
 
     /**
@@ -55,7 +66,7 @@ public class GameObject { // Renamed for clarity
                     null);
         } else {
             // Draw a placeholder rectangle if no sprite is set
-            g.setColor(Color.PINK);
+            g.setColor(Color.WHITE);
             g.fillRect(this.x - (this.width / 2), this.y - (this.height / 2), this.width, this.height);
         }
 
@@ -79,10 +90,6 @@ public class GameObject { // Renamed for clarity
     public void update() {
     }
 
-    public void hit() {
-
-    }
-
     public void hit(GameObject other) {
     }
 
@@ -91,7 +98,7 @@ public class GameObject { // Renamed for clarity
      * 
      * @param other The object to be measured
      */
-    public boolean touching(GameObject other) {
+    public boolean isTouching(GameObject other) {
         Rectangle thisRect = new Rectangle(this.x, this.y, this.width, this.height);
         Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
         return thisRect.intersects(otherRect);
@@ -106,15 +113,27 @@ public class GameObject { // Renamed for clarity
         return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
     }
 
-    public void setSprite() {
+    // setters
+
+    public void setSprite(String spritePath) {
         try {
             this.sprite = ImageIO
                     .read(getClass()
-                            .getResourceAsStream("/res/" + this.spritePath + ".png"));
+                            .getResourceAsStream("/res/" + spritePath + ".png"));
         } catch (IOException e) {
             this.sprite = null;
+            System.out.print("Couldn't Fetch Sprite");
         }
     }
+
+    public void setSize(float decrease) {
+        this.width *= decrease;
+        this.height *= decrease;
+    }
+
+    public boolean isAttacking() {
+		return isAttacking;
+	}
 
     // getters
 
@@ -140,5 +159,25 @@ public class GameObject { // Renamed for clarity
 
     public float getContactDamage() {
         return this.contactDamage;
+    }
+
+    public float getProjectileDamage() {
+		return this.projectileDamage;
+	}
+
+	public float getProjectileSpeed() {
+		return this.projectileSpeed;
+	}
+
+	public float getProjectileSize() {
+		return this.projectileSize;
+	}
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 }

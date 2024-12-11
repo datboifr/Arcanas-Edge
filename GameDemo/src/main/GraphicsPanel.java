@@ -10,8 +10,8 @@ import upgrademenu.UpgradePool;
 public class GraphicsPanel extends JPanel implements Runnable {
 
     // Screen settings
-    final int WIDTH = 1920;
-    final int HEIGHT = 1080;
+    final int WIDTH = 800;
+    final int HEIGHT = 600;
 
     Thread gameThread;
     boolean isRunning = false;
@@ -148,7 +148,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 } else if (enemyCounter < enemyLimit) {
                     spawnEnemy(); // Spawn new enemies if the enemy counter is less than the limit
                 }
-            } else if (player.touching(platform)) {
+            } else if (player.isTouching(platform)) {
                 startWave(); // Start a new wave if the player touches the platform
             }
 

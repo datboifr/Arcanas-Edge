@@ -2,7 +2,7 @@ package objects;
 
 import java.util.ArrayList;
 
-public class Enemy extends Entity {
+public class Enemy extends GameObject {
 
     GameObject target;
 
@@ -21,7 +21,7 @@ public class Enemy extends Entity {
             this.isDead = true;
         } else {
             for (Projectile projectile : projectiles) {
-                if (touching(projectile)) {
+                if (isTouching(projectile)) {
                     projectile.hit();
                     health -= projectile.getContactDamage();
                 }
@@ -39,7 +39,7 @@ public class Enemy extends Entity {
 
                 // Check for collisions with other enemies
                 for (Enemy other : enemies) {
-                    if (other != this && touching(other)) {
+                    if (other != this && isTouching(other)) {
                         // Calculate angle of repulsion
                         double angle = Math.atan2(other.y - y, other.x - x);
 

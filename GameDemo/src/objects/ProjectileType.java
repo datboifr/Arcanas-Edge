@@ -1,12 +1,16 @@
 package objects;
 
+import java.util.Random;
+
 public enum ProjectileType implements ProjectileBehaviour {
 
-    LIGHTNING(20, 10, 50, true, "lightning/Lightning", 5) {
+    LIGHTNING(20, 5, 50, true, "lightning/Lightning", 5) {
         @Override
         public void update(Projectile projectile) {
-            double dx = Math.cos(Math.toRadians(projectile.getDirection())) * this.speed;
-            double dy = Math.sin(Math.toRadians(projectile.getDirection())) * this.speed;
+            double dx = Math.cos(Math.toRadians(projectile.getDirection() + random.nextInt(-25, 25))) * this.speed;
+            double dy = Math.sin(Math.toRadians(projectile.getDirection() + random.nextInt(-25, 25))) * this.speed;
+            projectile.setSize(0.9f);
+            if (projectile.getWidth() <= 1) projectile.isDead = true;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
         }
     },
@@ -24,6 +28,8 @@ public enum ProjectileType implements ProjectileBehaviour {
 
     protected String spritePath;
     protected int animationLength;
+
+    Random random = new Random();
 
     // Constructor
     ProjectileType(int size, float speed, int damage, boolean canPierce, String spritePath, int animationLength) {

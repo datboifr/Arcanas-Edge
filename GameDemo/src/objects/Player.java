@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.KeyHandler;
 
-public class Player extends Entity {
+public class Player extends GameObject {
 
 	private final int RUNNING_FRAMES = 10;
 	private final int ATTACK_FRAMES = 9;
@@ -77,6 +77,12 @@ public class Player extends Entity {
 
 	private void attack() {
 		isAttacking = true;
+		projectiles.add(new Projectile(this, directionLiteral, ProjectileType.LIGHTNING));
+	}
+
+	// attack types!
+
+	private void lightningAttack() {
 		projectiles.add(new Projectile(this, directionLiteral, ProjectileType.LIGHTNING));
 	}
 
