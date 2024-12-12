@@ -3,7 +3,6 @@ package objects;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
 import main.KeyHandler;
 
@@ -77,12 +76,6 @@ public class Player extends GameObject {
 
 	private void attack() {
 		isAttacking = true;
-		projectiles.add(new Projectile(this, directionLiteral, ProjectileType.LIGHTNING));
-	}
-
-	// attack types!
-
-	private void lightningAttack() {
 		projectiles.add(new Projectile(this, directionLiteral, ProjectileType.LIGHTNING));
 	}
 

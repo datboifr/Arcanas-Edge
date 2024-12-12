@@ -180,4 +180,10 @@ public class GameObject {
     public int getHeight() {
         return this.height;
     }
+
+    // setters
+    
+    public void setContactDamage(float contactDamage) {
+        this.contactDamage = contactDamage;
+    }
 }
