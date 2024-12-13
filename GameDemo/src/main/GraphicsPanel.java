@@ -19,6 +19,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     // time
     final double interval = 1000000000.0 / 60; // Time per frame in nanoseconds
+    // FPS calculation variables
+    private long lastTime = System.nanoTime();
+    private int fps = 0;
+    private int fpsCounter = 0;
 
     // Game objects
     ArrayList<GameObject> objects;
@@ -63,24 +67,33 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     @Override
-    public void run() {
+public void run() {
+    long lastTime = System.nanoTime();  // Track time for frame rate control
+    long timer = System.currentTimeMillis();  // Timer for FPS calculation
+    double delta = 0;
 
-        long lastTime = System.nanoTime();
-        double delta = 0;
+    while (isRunning) {
+        long currentTime = System.nanoTime();
+        delta += (currentTime - lastTime) / interval;  // Calculate the frame delta
+        lastTime = currentTime;  // Update the lastTime for the next loop
 
-        while (isRunning) {
+        // Update FPS every second (1000 milliseconds)
+        if (System.currentTimeMillis() - timer >= 1000) {
+            fps = fpsCounter;  // Update FPS
+            fpsCounter = 0;  // Reset FPS counter
+            timer += 1000;  // Reset the timer
+        }
 
-            long currentTime = System.nanoTime();
-            delta += (currentTime - lastTime) / interval;
-            lastTime = currentTime;
-
-            if (delta >= 1) {
-                update(delta);
-                repaint();
-                delta--;
-            }
+        if (delta >= 1) {
+            update(delta);  // Update game objects
+            repaint();  // Repaint the screen
+            delta--;  // Decrease delta to maintain frame rate
+            fpsCounter++;  // Increment FPS counter
         }
     }
+}
+
+
 
     public void startWave() {
         wave++;
@@ -201,6 +214,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // debug stuff
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.PLAIN, 10));
+
+        // Debug: Show FPS
+        g.drawString("FPS: " + fps, 10, 190); // Display FPS at the bottom of the debug section
 
         g.drawString("UpgradeMenu Active?: " + upgradeMenuEnabled, 10, 210);
         g.drawString("Wave Active? " + waveEnabled, 10, 220);

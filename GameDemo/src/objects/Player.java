@@ -4,6 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
+import combat.Ability;
+import combat.AbilityTypes;
 import main.KeyHandler;
 
 public class Player extends GameObject {
@@ -21,6 +24,8 @@ public class Player extends GameObject {
 
 	KeyHandler keyHandler;
 
+	private Ability[] abilities;
+
 	private final float DEFAULT_HEALTH = 100;
 	private final float DEFAULT_SPEED = 4;
 	private final float DEFAULT_CONTACT_DAMAGE = 5;
@@ -36,6 +41,9 @@ public class Player extends GameObject {
 		super(x, y, width, height);
 		direction = "down";
 		this.keyHandler = keyHandler;
+
+		this.abilities = new Ability[3];
+		abilities[0] = AbilityTypes.electric;
 
 		this.health = DEFAULT_HEALTH;
 		this.speed = DEFAULT_SPEED;
@@ -76,7 +84,7 @@ public class Player extends GameObject {
 
 	private void attack() {
 		isAttacking = true;
-		projectiles.add(new Projectile(this, directionLiteral, ProjectileType.LIGHTNING));
+		abilities[0].doAbility(this, directionLiteral, projectiles);
 	}
 
 	@SuppressWarnings("unused")

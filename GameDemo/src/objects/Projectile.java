@@ -11,7 +11,7 @@ public class Projectile extends GameObject {
     private final GameObject creator;
     private int spriteIterator = 1;
 
-    Projectile(GameObject creator, float direction, ProjectileType projectileType) {
+    public Projectile(GameObject creator, float direction, ProjectileType projectileType) {
         super(creator.getX(), creator.getY(), (int) (projectileType.getSize() * creator.getProjectileDamage()),
                 (int) (projectileType.getSize() * creator.getProjectileSize()));
 

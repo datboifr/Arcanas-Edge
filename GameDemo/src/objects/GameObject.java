@@ -8,21 +8,20 @@ import javax.imageio.ImageIO;
 public class GameObject { 
 
     String direction;
-	protected float directionLiteral; // temporary
+	protected int directionLiteral;
 
     int x, y, width, height;
     protected String spritePath;
     BufferedImage sprite;
     public String prompt;
 
-    protected boolean isDead;
+    protected boolean isDead = false;
     protected boolean isAttacking = false;
 
+    // stats
     protected float health;
     protected float speed;
     protected float contactDamage;
-
-    //entity stats
     protected float projectileDamage;
 	protected float projectileSpeed;
 	protected float projectileSize;
@@ -43,7 +42,6 @@ public class GameObject {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.isDead = false;
         this.sprite = null;
     }
 
@@ -52,7 +50,6 @@ public class GameObject {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.isDead = false;
         setSprite(spritePath);
     }
 
@@ -88,9 +85,11 @@ public class GameObject {
     }
 
     public void update() {
+        // does nothing by default
     }
 
     public void hit(GameObject other) {
+        // does nothing by default
     }
 
     /**
@@ -125,15 +124,6 @@ public class GameObject {
             System.out.print("Couldn't Fetch Sprite");
         }
     }
-
-    public void setSize(float decrease) {
-        this.width *= decrease;
-        this.height *= decrease;
-    }
-
-    public boolean isAttacking() {
-		return isAttacking;
-	}
 
     // getters
 
@@ -181,7 +171,16 @@ public class GameObject {
         return this.height;
     }
 
+    public boolean isAttacking() {
+		return isAttacking;
+	}
+
     // setters
+
+    public void setSize(float decrease) {
+        this.width *= decrease;
+        this.height *= decrease;
+    }
     
     public void setContactDamage(float contactDamage) {
         this.contactDamage = contactDamage;
