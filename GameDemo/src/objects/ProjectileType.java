@@ -14,8 +14,6 @@ public enum ProjectileType implements ProjectileBehaviour {
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
 
             projectile.setContactDamage(this.contactDamage * (projectile.getWidth() / (float) this.size));
-            System.out.println("Damage: " + projectile.getContactDamage());
-
             if (projectile.getWidth() <= 5) projectile.isDead = true; 
         }
         @Override
