@@ -1,6 +1,9 @@
-package objects;
+package objects.enemies;
 
 import java.util.ArrayList;
+
+import objects.GameObject;
+import objects.Projectile;
 
 public class Enemy extends GameObject {
 
@@ -30,8 +33,8 @@ public class Enemy extends GameObject {
             double distance = distanceTo(target); // Calculate distance once
             if (distance > 1) {
                 // Calculate direction vector and normalize
-                double directionX = (target.x - this.x) / distance;
-                double directionY = (target.y - this.y) / distance;
+                double directionX = (target.getX() - this.x) / distance;
+                double directionY = (target.getY() - this.y) / distance;
 
                 // Update position based on speed
                 double newX = x + directionX * this.speed;

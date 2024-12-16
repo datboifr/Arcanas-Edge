@@ -8,9 +8,9 @@ import javax.imageio.ImageIO;
 public class GameObject { 
 
     String direction;
-	protected int directionLiteral;
+	protected float directionLiteral;
 
-    int x, y, width, height;
+    protected int x, y, width, height;
     protected String spritePath;
     BufferedImage sprite;
     public String prompt;
@@ -22,6 +22,7 @@ public class GameObject {
     protected float health;
     protected float speed;
     protected float contactDamage;
+    
     protected float projectileDamage;
 	protected float projectileSpeed;
 	protected float projectileSize;
@@ -174,6 +175,10 @@ public class GameObject {
     public boolean isAttacking() {
 		return isAttacking;
 	}
+
+    public float getdirectionLiteral() {
+        return this.directionLiteral;
+    }
 
     // setters
 

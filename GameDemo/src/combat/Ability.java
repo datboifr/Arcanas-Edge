@@ -18,7 +18,7 @@ public class Ability {
         this.cooldown = cooldown * 60;
     }
 
-    public void doAbility(GameObject creator, int direction, ArrayList<Projectile> projectiles) {
+    public void doAbility(GameObject creator, float directionLiteral, ArrayList<Projectile> projectiles) {
 
     }
     

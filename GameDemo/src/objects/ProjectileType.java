@@ -9,8 +9,8 @@ public enum ProjectileType implements ProjectileBehaviour {
         }
         @Override
         public void update(Projectile projectile) {
-            double dx = Math.cos(Math.toRadians(projectile.getDirection())) * this.speed;
-            double dy = Math.sin(Math.toRadians(projectile.getDirection())) * this.speed;
+            double dx = Math.cos(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
+            double dy = Math.sin(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
 
             projectile.setContactDamage(this.contactDamage * (projectile.getWidth() / (float) this.size));
@@ -22,6 +22,24 @@ public enum ProjectileType implements ProjectileBehaviour {
         @Override
         public void cooldownFinished(Projectile projectile) {
             projectile.setSize(0.5f);
+        }
+    },
+    EARTH(40, 4, 10, true, -1, "earth/Drill", 3) {
+        
+        @Override
+        public void created(Projectile projectile) {
+        }
+        @Override
+        public void update(Projectile projectile) {
+            double dx = Math.cos(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
+            double dy = Math.sin(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
+            projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
+        }
+        @Override
+        public void hit(Projectile projectile, GameObject other) {
+        }
+        @Override
+        public void cooldownFinished(Projectile projectile) {
         }
     };
 

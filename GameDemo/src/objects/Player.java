@@ -25,6 +25,7 @@ public class Player extends GameObject {
 	KeyHandler keyHandler;
 
 	private Ability[] abilities;
+	private Ability ability;
 
 	private final float DEFAULT_HEALTH = 100;
 	private final float DEFAULT_SPEED = 4;
@@ -44,6 +45,7 @@ public class Player extends GameObject {
 
 		this.abilities = new Ability[3];
 		abilities[0] = AbilityTypes.electric;
+		abilities[1] = AbilityTypes.earth;
 
 		this.health = DEFAULT_HEALTH;
 		this.speed = DEFAULT_SPEED;
@@ -70,7 +72,7 @@ public class Player extends GameObject {
 			this.isDead = true;
 		} else {
 			handleMovement();
-			if (keyHandler.bActive && !isAttacking) {
+			if (inputDetected() && !isAttacking) {
 				attack();
 			}
 			updateAnimation();
@@ -84,13 +86,21 @@ public class Player extends GameObject {
 
 	private void attack() {
 		isAttacking = true;
-		abilities[0].doAbility(this, directionLiteral, projectiles);
+		if (keyHandler.aActive) this.ability = abilities[0];
+		else if (keyHandler.bActive) this.ability = abilities[1];
+		else if (keyHandler.cActive) this.ability = abilities[2];
+		else return;
+		if (ability != null) ability.doAbility(this, directionLiteral, projectiles);
 	}
 
 	@SuppressWarnings("unused")
 	private boolean isMoving() {
 		return keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive || keyHandler.rightActive
 				|| keyHandler.upRightPressed || keyHandler.upLeftPressed;
+	}
+
+	private boolean inputDetected() {
+		return keyHandler.aActive || keyHandler.bActive || keyHandler.cActive;
 	}
 
 	private void handleMovement() {
@@ -211,6 +221,10 @@ public class Player extends GameObject {
 	public void upgradeProjectileSize() {
 		this.projectileSize += DEFAULT_PROJECTILE_SIZE / 10; // increases by 10%
 		System.out.println("Projectile Size Upgraded");
+	}
+
+	public Ability getAbility() {
+		return this.ability;
 	}
 
 }

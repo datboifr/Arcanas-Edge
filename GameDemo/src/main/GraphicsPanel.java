@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import objects.*;
+import objects.enemies.Enemy;
 import upgrademenu.UpgradeMenu;
 import upgrademenu.UpgradePool;
 
@@ -237,6 +238,6 @@ public void run() {
         g.drawString("# of Projectiles: " + projectiles.size(), 10, 360);
 
         g.drawString("Player Attacking?: " + player.isAttacking(), 10, 380);
-
+        g.drawString("Player Ability: " + player.getAbility(), 10, 390);
     }
 }

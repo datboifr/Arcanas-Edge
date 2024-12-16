@@ -2,7 +2,6 @@ package objects;
 
 public class Projectile extends GameObject {
 
-    private float direction;
     private boolean canPierce;
     private ProjectileType type;
     private int cooldown;
@@ -11,15 +10,16 @@ public class Projectile extends GameObject {
     private final GameObject creator;
     private int spriteIterator = 1;
 
-    public Projectile(GameObject creator, float direction, ProjectileType projectileType) {
+    public Projectile(GameObject creator, float directionLiteral, ProjectileType projectileType) {
         super(creator.getX(), creator.getY(), (int) (projectileType.getSize() * creator.getProjectileDamage()),
                 (int) (projectileType.getSize() * creator.getProjectileSize()));
 
         this.creator = creator;
         this.type = projectileType;
         this.canPierce = type.canPierce();
-        this.cooldown = (int) type.getCooldown();
-        this.direction = direction;
+        
+        if (cooldown == 0) this.cooldown = (int) type.getCooldown();
+        this.directionLiteral = directionLiteral;
 
         this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
         this.speed = type.getSpeed() * creator.getProjectileSpeed();
@@ -29,7 +29,7 @@ public class Projectile extends GameObject {
 
     @Override
     public void update() {
-        this.cooldown--;
+        if (cooldown != -1) this.cooldown--;
         if (cooldown == 0) {
                 type.cooldownFinished(this);
                 this.cooldown = (int) type.getCooldown();
@@ -55,9 +55,7 @@ public class Projectile extends GameObject {
         type.hit(this, creator);
     }
 
-    public float getDirection() {
-        return this.direction;
-    }
+
 
     public int getCooldown() {
         return this.cooldown;
