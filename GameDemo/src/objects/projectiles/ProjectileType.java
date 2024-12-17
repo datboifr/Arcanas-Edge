@@ -1,4 +1,6 @@
-package objects;
+package objects.projectiles;
+
+import objects.GameObject;
 
 public enum ProjectileType implements ProjectileBehaviour {
 
@@ -14,7 +16,7 @@ public enum ProjectileType implements ProjectileBehaviour {
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
 
             projectile.setContactDamage(this.contactDamage * (projectile.getWidth() / (float) this.size));
-            if (projectile.getWidth() <= 5) projectile.isDead = true; 
+            if (projectile.getWidth() <= 5) projectile.setState(true); 
         }
         @Override
         public void hit(Projectile projectile, GameObject other) {
@@ -24,7 +26,7 @@ public enum ProjectileType implements ProjectileBehaviour {
             projectile.setSize(0.5f);
         }
     },
-    EARTH(40, 4, 10, true, -1, "earth/Drill", 3) {
+    EARTH(40, 7, 10, true, -1, "earth/Drill", 3) {
         
         @Override
         public void created(Projectile projectile) {
@@ -58,10 +60,11 @@ public enum ProjectileType implements ProjectileBehaviour {
         this.speed = speed;
         this.contactDamage = damage;
         this.canPierce = canPierce;
-        this.spritePath = spritePath;
-        this.animationLength = animationLength;
 
         this.cooldown = cooldown * 60; // seconds * fps = frames
+
+        this.spritePath = spritePath;
+        this.animationLength = animationLength;
     }
 
     // Constructor, no animation

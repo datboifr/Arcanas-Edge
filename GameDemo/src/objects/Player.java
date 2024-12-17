@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import combat.Ability;
 import combat.AbilityTypes;
 import main.KeyHandler;
+import objects.projectiles.Projectile;
 
 public class Player extends GameObject {
 
@@ -20,7 +21,6 @@ public class Player extends GameObject {
 	private BufferedImage[] LmeleeR = new BufferedImage[ATTACK_FRAMES];
 	private BufferedImage[] LmeleeRD = new BufferedImage[ATTACK_FRAMES];
 	private BufferedImage idleB, idleF, idleR, idleL;
-	private int spriteNumber;
 
 	KeyHandler keyHandler;
 
@@ -62,7 +62,7 @@ public class Player extends GameObject {
 		} catch (IOException e) {
 		}
 
-		this.spriteNumber = 1;
+		this.spriteIterator = 1;
 		loadPlayerImages();
 	}
 
@@ -127,33 +127,33 @@ public class Player extends GameObject {
 		frameCounter++;
 
 		if (isAttacking) {
-			spriteNumber = (frameCounter - 1) / SPRITES_PER_FRAME + 1;
-			if (spriteNumber > ATTACK_FRAMES) {
+			spriteIterator = (frameCounter - 1) / FRAMES_PER_SPRITE + 1;
+			if (spriteIterator > ATTACK_FRAMES) {
 				isAttacking = false;
 				frameCounter = 0;
 			}
-		} else if (frameCounter > SPRITES_PER_FRAME) {
+		} else if (frameCounter > FRAMES_PER_SPRITE) {
 			frameCounter = 0;
-			spriteNumber = (spriteNumber % 10) + 1; // Loops spriteNumber between 1 and 10
+			spriteIterator = (spriteIterator % 10) + 1; // Loops spriteNumber between 1 and 10
 		}
 	}
 
 	private void updateSprite() {
 		if (isAttacking) // add switch statement for directions later
-			sprite = LmeleeR[spriteNumber - 1];
+			sprite = LmeleeR[spriteIterator - 1];
 		else
 			switch (direction) {
 				case "up":
-					sprite = keyHandler.upActive ? runBack[spriteNumber - 1] : idleB;
+					sprite = keyHandler.upActive ? runBack[spriteIterator - 1] : idleB;
 					break;
 				case "down":
-					sprite = keyHandler.downActive ? runForward[spriteNumber - 1] : idleF;
+					sprite = keyHandler.downActive ? runForward[spriteIterator - 1] : idleF;
 					break;
 				case "left":
-					sprite = keyHandler.leftActive ? runLeft[spriteNumber - 1] : idleL;
+					sprite = keyHandler.leftActive ? runLeft[spriteIterator - 1] : idleL;
 					break;
 				case "right":
-					sprite = keyHandler.rightActive ? runRight[spriteNumber - 1] : idleR;
+					sprite = keyHandler.rightActive ? runRight[spriteIterator - 1] : idleR;
 					break;
 			}
 	}

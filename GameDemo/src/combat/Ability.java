@@ -3,16 +3,18 @@ package combat;
 import java.util.ArrayList;
 
 import objects.GameObject;
-import objects.Projectile;
-import objects.ProjectileType;
+import objects.projectiles.Projectile;
+import objects.projectiles.ProjectileType;
 
 public class Ability {
 
+    protected final String name;
     protected final int numberOfProjectiles;
     protected final ProjectileType projectileType;
     protected final float cooldown; //in seconds
 
-    Ability(ProjectileType projectileType, int numberofProjectiles, int cooldown) {
+    Ability(String name, ProjectileType projectileType, int numberofProjectiles, int cooldown) {
+        this.name = name;
         this.projectileType = projectileType;
         this.numberOfProjectiles = numberofProjectiles;
         this.cooldown = cooldown * 60;

@@ -3,7 +3,7 @@ package objects.enemies;
 import java.util.ArrayList;
 
 import objects.GameObject;
-import objects.Projectile;
+import objects.projectiles.Projectile;
 
 public class Enemy extends GameObject {
 

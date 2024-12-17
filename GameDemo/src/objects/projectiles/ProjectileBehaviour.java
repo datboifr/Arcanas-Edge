@@ -1,4 +1,6 @@
-package objects;
+package objects.projectiles;
+
+import objects.GameObject;
 
 public interface ProjectileBehaviour {
     void created(Projectile projectile);

@@ -5,6 +5,7 @@ import java.util.*;
 import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
+import objects.projectiles.Projectile;
 import upgrademenu.UpgradeMenu;
 import upgrademenu.UpgradePool;
 
@@ -170,8 +171,8 @@ public void run() {
             objects.clear();
             objects.add(platform);
             objects.addAll(enemies);
-            objects.add(player);
             objects.addAll(projectiles);
+            objects.add(player);
 
             // Collect all dead objects to remove them
             ArrayList<GameObject> dead = new ArrayList<>();

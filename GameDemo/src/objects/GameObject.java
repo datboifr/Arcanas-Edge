@@ -7,18 +7,16 @@ import javax.imageio.ImageIO;
 
 public class GameObject { 
 
+    // direction
     String direction;
 	protected float directionLiteral;
 
+    // values
     protected int x, y, width, height;
-    protected String spritePath;
-    BufferedImage sprite;
-    public String prompt;
-
     protected boolean isDead = false;
     protected boolean isAttacking = false;
 
-    // stats
+    // traits
     protected float health;
     protected float speed;
     protected float contactDamage;
@@ -27,8 +25,14 @@ public class GameObject {
 	protected float projectileSpeed;
 	protected float projectileSize;
 
-    protected int frameCounter = 0; // Counts frames for animation timing
-    protected final int SPRITES_PER_FRAME = 5;
+    // animation
+    protected String spritePath;
+    BufferedImage sprite;
+    public String prompt;
+
+    protected int spriteIterator = 1;
+    protected final int FRAMES_PER_SPRITE = 5;
+    protected int frameCounter = FRAMES_PER_SPRITE; // Counts frames for animation timing
 
     /**
      * Constructs a new object.
@@ -43,6 +47,7 @@ public class GameObject {
         this.y = y;
         this.width = width;
         this.height = height;
+
         this.sprite = null;
     }
 
@@ -51,6 +56,7 @@ public class GameObject {
         this.y = y;
         this.width = width;
         this.height = height;
+
         setSprite(spritePath);
     }
 
@@ -91,6 +97,17 @@ public class GameObject {
 
     public void hit(GameObject other) {
         // does nothing by default
+    }
+
+    public void updateAnimation(int animationLength) {
+        this.frameCounter--;
+        if (this.frameCounter == 0) {
+            this.spriteIterator++;
+            if (this.spriteIterator > animationLength) {
+                this.spriteIterator = 1;
+            }
+            this.frameCounter = FRAMES_PER_SPRITE;
+        }
     }
 
     /**
@@ -181,6 +198,10 @@ public class GameObject {
     }
 
     // setters
+
+    public void setState(boolean state) {
+        this.isDead = state;
+    }
 
     public void setSize(float decrease) {
         this.width *= decrease;

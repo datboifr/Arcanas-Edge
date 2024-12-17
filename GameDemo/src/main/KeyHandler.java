@@ -70,6 +70,5 @@ public class KeyHandler implements KeyListener {
             yActive = false;
         if (code == KeyEvent.VK_P)
             zActive = false;
-
     }
 }
