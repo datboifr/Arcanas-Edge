@@ -62,7 +62,7 @@ public class Player extends GameObject {
 		} catch (IOException e) {
 		}
 
-		this.spriteIterator = 1;
+		this.currentFrame = 1;
 		loadPlayerImages();
 	}
 
@@ -75,7 +75,7 @@ public class Player extends GameObject {
 			if (inputDetected() && !isAttacking) {
 				attack();
 			}
-			updateAnimation();
+			updateThisAnimation();
 			updateSprite();
 		}
 	}
@@ -86,11 +86,16 @@ public class Player extends GameObject {
 
 	private void attack() {
 		isAttacking = true;
-		if (keyHandler.aActive) this.ability = abilities[0];
-		else if (keyHandler.bActive) this.ability = abilities[1];
-		else if (keyHandler.cActive) this.ability = abilities[2];
-		else return;
-		if (ability != null) ability.doAbility(this, directionLiteral, projectiles);
+		if (keyHandler.aActive)
+			this.ability = abilities[0];
+		else if (keyHandler.bActive)
+			this.ability = abilities[1];
+		else if (keyHandler.cActive)
+			this.ability = abilities[2];
+		else
+			return;
+		if (ability != null)
+			ability.doAbility(this, directionLiteral, projectiles);
 	}
 
 	@SuppressWarnings("unused")
@@ -123,37 +128,37 @@ public class Player extends GameObject {
 		}
 	}
 
-	private void updateAnimation() {
-		frameCounter++;
+	private void updateThisAnimation() {
+		animationCounter++;
 
 		if (isAttacking) {
-			spriteIterator = (frameCounter - 1) / FRAMES_PER_SPRITE + 1;
-			if (spriteIterator > ATTACK_FRAMES) {
+			currentFrame = (animationCounter - 1) / FRAMES_PER_SPRITE + 1;
+			if (currentFrame > ATTACK_FRAMES) {
 				isAttacking = false;
-				frameCounter = 0;
+				animationCounter = 0;
 			}
-		} else if (frameCounter > FRAMES_PER_SPRITE) {
-			frameCounter = 0;
-			spriteIterator = (spriteIterator % 10) + 1; // Loops spriteNumber between 1 and 10
+		} else if (animationCounter > FRAMES_PER_SPRITE) {
+			animationCounter = 0;
+			currentFrame = (currentFrame % 10) + 1; // Loops spriteNumber between 1 and 10
 		}
 	}
 
 	private void updateSprite() {
 		if (isAttacking) // add switch statement for directions later
-			sprite = LmeleeR[spriteIterator - 1];
+			sprite = LmeleeR[currentFrame - 1];
 		else
 			switch (direction) {
 				case "up":
-					sprite = keyHandler.upActive ? runBack[spriteIterator - 1] : idleB;
+					sprite = keyHandler.upActive ? runBack[currentFrame - 1] : idleB;
 					break;
 				case "down":
-					sprite = keyHandler.downActive ? runForward[spriteIterator - 1] : idleF;
+					sprite = keyHandler.downActive ? runForward[currentFrame - 1] : idleF;
 					break;
 				case "left":
-					sprite = keyHandler.leftActive ? runLeft[spriteIterator - 1] : idleL;
+					sprite = keyHandler.leftActive ? runLeft[currentFrame - 1] : idleL;
 					break;
 				case "right":
-					sprite = keyHandler.rightActive ? runRight[spriteIterator - 1] : idleR;
+					sprite = keyHandler.rightActive ? runRight[currentFrame - 1] : idleR;
 					break;
 			}
 	}

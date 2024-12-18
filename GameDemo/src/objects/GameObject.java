@@ -3,13 +3,15 @@ package objects;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+
 import javax.imageio.ImageIO;
 
-public class GameObject { 
+public class GameObject {
 
     // direction
     String direction;
-	protected float directionLiteral;
+    protected float directionLiteral;
 
     // values
     protected int x, y, width, height;
@@ -20,19 +22,24 @@ public class GameObject {
     protected float health;
     protected float speed;
     protected float contactDamage;
-    
-    protected float projectileDamage;
-	protected float projectileSpeed;
-	protected float projectileSize;
 
-    // animation
+    protected float projectileDamage;
+    protected float projectileSpeed;
+    protected float projectileSize;
+
+    // sprites & animation
+
+    protected final int FRAMES_PER_SPRITE = 5;
+
     protected String spritePath;
     BufferedImage sprite;
     public String prompt;
 
-    protected int spriteIterator = 1;
-    protected final int FRAMES_PER_SPRITE = 5;
-    protected int frameCounter = FRAMES_PER_SPRITE; // Counts frames for animation timing
+    protected HashMap<String, BufferedImage[]> animations = new HashMap<>();
+    protected String currentAnimation;
+    protected boolean animationLooping;
+    protected int currentFrame = 1;
+    protected int animationCounter = FRAMES_PER_SPRITE; // Counts frames for animation timing
 
     /**
      * Constructs a new object.
@@ -47,8 +54,6 @@ public class GameObject {
         this.y = y;
         this.width = width;
         this.height = height;
-
-        this.sprite = null;
     }
 
     public GameObject(int x, int y, int width, int height, String spritePath) {
@@ -99,14 +104,40 @@ public class GameObject {
         // does nothing by default
     }
 
-    public void updateAnimation(int animationLength) {
-        this.frameCounter--;
-        if (this.frameCounter == 0) {
-            this.spriteIterator++;
-            if (this.spriteIterator > animationLength) {
-                this.spriteIterator = 1;
+    public void loadAnimation(String name, String path, int animationLength) {
+        BufferedImage[] loadedFrames = new BufferedImage[animationLength];
+        for (int i = 0; i < animationLength; i++) {
+            try {
+                loadedFrames[i] = ImageIO.read(getClass().getResourceAsStream("/res/" + path + (i + 1) + ".png"));
+            } catch (IOException e) {
+                System.out.println("Error loading frame: " + path + (i + 1) + ".png");
             }
-            this.frameCounter = FRAMES_PER_SPRITE;
+        }
+        this.animations.put(name, loadedFrames);
+    }
+
+    public void setAnimation(String name, boolean animationLooping) {
+        this.currentAnimation = name;
+        this.currentFrame = 1;
+        this.animationLooping = animationLooping;
+    }
+
+    // Animation Update
+    public void updateAnimation() {
+        if (this.animations.containsKey(this.currentAnimation)) {
+            this.animationCounter--;
+            if (this.animationCounter == 0) {
+                this.animationCounter = FRAMES_PER_SPRITE;
+                this.currentFrame++;
+                if (this.currentFrame >= this.animations.get(this.currentAnimation).length) {
+                    if (this.animationLooping) {
+                        this.currentFrame = 0;
+                    } else {
+                        this.currentFrame = this.animations.get(this.currentAnimation).length - 1;
+                    }
+                }
+                this.sprite = this.animations.get(currentAnimation)[currentFrame];
+            }
         }
     }
 
@@ -133,6 +164,7 @@ public class GameObject {
     // setters
 
     public void setSprite(String spritePath) {
+        System.out.println("/res/" + spritePath + ".png");
         try {
             this.sprite = ImageIO
                     .read(getClass()
@@ -170,16 +202,16 @@ public class GameObject {
     }
 
     public float getProjectileDamage() {
-		return this.projectileDamage;
-	}
+        return this.projectileDamage;
+    }
 
-	public float getProjectileSpeed() {
-		return this.projectileSpeed;
-	}
+    public float getProjectileSpeed() {
+        return this.projectileSpeed;
+    }
 
-	public float getProjectileSize() {
-		return this.projectileSize;
-	}
+    public float getProjectileSize() {
+        return this.projectileSize;
+    }
 
     public int getWidth() {
         return this.width;
@@ -190,8 +222,8 @@ public class GameObject {
     }
 
     public boolean isAttacking() {
-		return isAttacking;
-	}
+        return isAttacking;
+    }
 
     public float getdirectionLiteral() {
         return this.directionLiteral;
@@ -207,7 +239,7 @@ public class GameObject {
         this.width *= decrease;
         this.height *= decrease;
     }
-    
+
     public void setContactDamage(float contactDamage) {
         this.contactDamage = contactDamage;
     }

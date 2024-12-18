@@ -4,7 +4,6 @@ import objects.GameObject;
 
 public class Projectile extends GameObject {
 
-    private boolean canPierce;
     private ProjectileType type;
     private int cooldown;
 
@@ -16,26 +15,24 @@ public class Projectile extends GameObject {
 
         this.creator = creator;
         this.type = projectileType;
-        this.canPierce = type.canPierce();
-
-        this.frameCounter = FRAMES_PER_SPRITE;
-        
-        if (cooldown == 0) this.cooldown = (int) type.getCooldown();
-        this.directionLiteral = directionLiteral;
-
         this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
         this.speed = type.getSpeed() * creator.getProjectileSpeed();
 
-        this.spritePath = "projectiles/" + type.getSpritePath() + this.spriteIterator;
+        this.cooldown = (int) type.getCooldown();
+        this.directionLiteral = directionLiteral;
+
+        this.spritePath = "projectiles/" + type.getSpritePath();
+        this.loadAnimation("default", spritePath, type.getAnimationLength());
+
+        this.setAnimation("default", true);
+
         type.created(this);
     }
 
     @Override
     public void update() {
-
         type.update(this);
 
-        // projectile cooldown
         if (cooldown != -1) {
             this.cooldown--;
             if (cooldown == 0) {
@@ -43,13 +40,7 @@ public class Projectile extends GameObject {
                 this.cooldown = (int) type.getCooldown();
             }
         }
-
-        // projectile animation
-        if (type.getAnimationLength() != -1) {
-            updateAnimation(type.getAnimationLength()); 
-            this.spritePath = "projectiles/" + type.getSpritePath() + this.spriteIterator;
-            setSprite(spritePath);
-        }
+        updateAnimation();
     }
 
     public void hit() {
@@ -59,7 +50,7 @@ public class Projectile extends GameObject {
     public int getCooldown() {
         return this.cooldown;
     }
-    
+
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {
         if (this.x < 0 || this.x > screenWidth || this.y < 0 || this.y > screenHeight) {
             this.isDead = true;
@@ -70,5 +61,4 @@ public class Projectile extends GameObject {
         this.x = x;
         this.y = y;
     }
-
 }
