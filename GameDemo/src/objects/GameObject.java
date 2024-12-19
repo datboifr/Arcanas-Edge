@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-
 import javax.imageio.ImageIO;
 
 public class GameObject {
@@ -120,6 +119,7 @@ public class GameObject {
         this.currentAnimation = name;
         this.currentFrame = 1;
         this.animationLooping = animationLooping;
+        this.sprite = this.animations.get(this.currentAnimation)[this.currentFrame];
     }
 
     // Animation Update
@@ -136,7 +136,7 @@ public class GameObject {
                         this.currentFrame = this.animations.get(this.currentAnimation).length - 1;
                     }
                 }
-                this.sprite = this.animations.get(currentAnimation)[currentFrame];
+                this.sprite = this.animations.get(this.currentAnimation)[this.currentFrame];
             }
         }
     }

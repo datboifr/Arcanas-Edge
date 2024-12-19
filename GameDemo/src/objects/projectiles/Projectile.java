@@ -10,8 +10,8 @@ public class Projectile extends GameObject {
     private final GameObject creator;
 
     public Projectile(GameObject creator, float directionLiteral, ProjectileType projectileType) {
-        super(creator.getX(), creator.getY(), (int) (projectileType.getSize() * creator.getProjectileDamage()),
-                (int) (projectileType.getSize() * creator.getProjectileSize()));
+        super(creator.getX(), creator.getY(), (int) ((projectileType.getWidth() * projectileType.getSize()) * creator.getProjectileSize()), 
+        (int) ((projectileType.getHeight() * projectileType.getSize()) * creator.getProjectileSize()));
 
         this.creator = creator;
         this.type = projectileType;
@@ -20,12 +20,9 @@ public class Projectile extends GameObject {
 
         this.cooldown = (int) type.getCooldown();
         this.directionLiteral = directionLiteral;
-
-        this.spritePath = "projectiles/" + type.getSpritePath();
-        this.loadAnimation("default", spritePath, type.getAnimationLength());
+        this.animations = type.animations;
 
         this.setAnimation("default", true);
-
         type.created(this);
     }
 
@@ -40,7 +37,10 @@ public class Projectile extends GameObject {
                 this.cooldown = (int) type.getCooldown();
             }
         }
-        updateAnimation();
+
+        if (type.isAnimated()) { 
+            updateAnimation(); 
+        }
     }
 
     public void hit() {
