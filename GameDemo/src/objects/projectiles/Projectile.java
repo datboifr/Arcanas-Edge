@@ -6,6 +6,7 @@ public class Projectile extends GameObject {
 
     private ProjectileType type;
     private int cooldown;
+    public int xv, vy;
 
     private final GameObject creator;
 
@@ -20,7 +21,7 @@ public class Projectile extends GameObject {
         this.speed = type.getSpeed() * creator.getProjectileSpeed();
 
         this.cooldown = (int) type.getCooldown();
-        this.directionLiteral = directionLiteral;
+        this.direction = directionLiteral;
         this.animations = type.animations;
 
         this.rotates = true;

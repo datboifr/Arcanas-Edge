@@ -1,18 +1,17 @@
 package objects;
 
+import combat.Ability;
+import combat.AbilityTypes;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import combat.Ability;
-import combat.AbilityTypes;
 import main.KeyHandler;
 import objects.projectiles.Projectile;
 
 public class Player extends GameObject {
 
-	private String direction;
+	private String literalDirection;
 
 	private final int RUNNING_FRAMES = 10;
 	private final int ATTACK_FRAMES = 9;
@@ -43,7 +42,7 @@ public class Player extends GameObject {
 	// Constructor
 	public Player(int x, int y, int width, int height, KeyHandler keyHandler, ArrayList<Projectile> projectiles) {
 		super(x, y, width, height);
-		direction = "down";
+		literalDirection = "down";
 		this.keyHandler = keyHandler;
 
 		this.abilities = new Ability[3];
@@ -104,20 +103,20 @@ public class Player extends GameObject {
 
 	private void handleMovement() {
 		if (keyHandler.upActive) {
-			direction = "up";
-			directionLiteral = 270;
+			literalDirection = "up";
+			super.direction = 270;
 			y -= speed;
 		} else if (keyHandler.downActive) {
-			direction = "down";
-			directionLiteral = 90;
+			literalDirection = "down";
+			super.direction = 90;
 			y += speed;
 		} else if (keyHandler.leftActive) {
-			direction = "left";
-			directionLiteral = 180;
+			literalDirection = "left";
+			super.direction = 180;
 			x -= speed;
 		} else if (keyHandler.rightActive) {
-			direction = "right";
-			directionLiteral = 0;
+			literalDirection = "right";
+			super.direction = 0;
 			x += speed;
 		}
 	}
@@ -141,7 +140,7 @@ public class Player extends GameObject {
 		if (isAttacking) // add switch statement for directions later
 			sprite = LmeleeR[currentFrame - 1];
 		else
-			switch (direction) {
+			switch (literalDirection) {
 				case "up":
 					sprite = keyHandler.upActive ? runBack[currentFrame - 1] : idleB;
 					break;

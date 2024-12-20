@@ -1,12 +1,9 @@
 package objects.projectiles;
 
-import java.awt.Color;
-import java.awt.PageAttributes;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
-
 import javax.imageio.ImageIO;
 import objects.Animation;
 import objects.GameObject;
@@ -23,7 +20,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         @Override
         public void update(Projectile projectile) {
             int[] directions = { -45, 0, 45 };
-            float jitter = projectile.getdirectionLiteral() + directions[random.nextInt(directions.length)];
+            float jitter = projectile.getDirection() + directions[random.nextInt(directions.length)];
             double dx = Math.cos(Math.toRadians(jitter)) * this.speed;
             double dy = Math.sin(Math.toRadians(jitter)) * this.speed;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
@@ -47,15 +44,31 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
 
         @Override
         public void created(Projectile projectile) {
+            // Initial upward velocity, simulate launch
+            projectile.vy = -15;  // Negative value to launch upwards
+            projectile.xv = 0;    // Optional: Set horizontal velocity to zero if no horizontal movement is needed
+            projectile.setDirection(projectile.getDirection() + random.nextInt(-15, 15));
         }
-
+        
         @Override
         public void update(Projectile projectile) {
-            double dx = Math.cos(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
-            double dy = Math.sin(Math.toRadians(projectile.getdirectionLiteral())) * this.speed;
-            projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
-        }
+            // Apply gravity (this will make the projectile fall after initial upward motion)
+            projectile.vy += this.GRAVITY;  // Gravity pulls the projectile down
 
+            // Update projectile's position based on horizontal and vertical velocity
+            int newX = (int) (projectile.getX() + projectile.xv);  // Horizontal movement
+            int newY = (int) (projectile.getY() + projectile.vy);  // Vertical movement with gravity
+            projectile.setPosition(newX, newY);  // Update the position of the projectile
+
+            // Calculate the angle based on velocity (in radians)
+            double angle = Math.atan2(projectile.vy, projectile.xv);  // atan2 returns the angle in radians
+            projectile.setDirection((float)  angle);  // Set the rotation of the projectile
+
+            // Optional: You can add additional checks for screen bounds, collisions, etc.
+
+            // If the projectile should not rotate or have animations, you can skip that logic here.
+        }
+        
         @Override
         public void hit(Projectile projectile, GameObject other) {
         }
@@ -65,6 +78,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         }
     };
 
+    final float GRAVITY = 1f;
     protected float size;
     protected int width, height;
     protected float speed;

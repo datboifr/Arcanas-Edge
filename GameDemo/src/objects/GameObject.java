@@ -10,14 +10,14 @@ import javax.imageio.ImageIO;
 public class GameObject {
 
     // direction
-    protected float directionLiteral;
-    protected boolean rotates = false;
+    protected float direction;
+    protected boolean rotates = false; //purely visual
 
     // values
     protected int x, y, width, height;
     protected boolean isDead = false;
     protected boolean isAttacking = false;
-    protected Color deathColor = new Color(139, 0, 0);
+    protected Color deathColor = new Color(160, 0, 0); //default red
 
     // traits
     protected float maxHealth;
@@ -82,7 +82,7 @@ public class GameObject {
                 int centerX = x;
                 int centerY = y;
                 // Rotate around the center of the object
-                g.rotate(Math.toRadians(directionLiteral + 90), centerX, centerY);
+                g.rotate(Math.toRadians(direction + 90), centerX, centerY);
             }
 
             // Draw the rotated sprite
@@ -257,8 +257,8 @@ public class GameObject {
         return isAttacking;
     }
 
-    public float getdirectionLiteral() {
-        return this.directionLiteral;
+    public float getDirection() {
+        return this.direction;
     }
 
     // setters
@@ -274,5 +274,9 @@ public class GameObject {
 
     public void setContactDamage(float contactDamage) {
         this.contactDamage = contactDamage;
+    }
+
+    public void setDirection(float direction) {
+        this.direction = direction;
     }
 }

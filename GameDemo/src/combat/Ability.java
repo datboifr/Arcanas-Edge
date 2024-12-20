@@ -1,7 +1,6 @@
 package combat;
 
 import java.util.ArrayList;
-
 import objects.GameObject;
 import objects.projectiles.Projectile;
 import objects.projectiles.ProjectileType;
@@ -28,7 +27,7 @@ public class Ability {
 
     public void update(GameObject creator, ArrayList<Projectile> projectiles) {
         this.cooldownTimer--;
-        if (this.cooldownTimer == 0) {
+        if (this.cooldownTimer <= 0) {
             this.cooldownTimer = (int) cooldown;
             this.doAbility(creator, projectiles);
         }

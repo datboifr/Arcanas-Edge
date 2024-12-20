@@ -1,7 +1,6 @@
 package objects.enemies;
 
 import java.util.ArrayList;
-
 import objects.GameObject;
 import objects.projectiles.Projectile;
 
