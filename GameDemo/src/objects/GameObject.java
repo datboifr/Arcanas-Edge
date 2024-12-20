@@ -1,6 +1,7 @@
 package objects;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,18 +10,22 @@ import javax.imageio.ImageIO;
 public class GameObject {
 
     // direction
-    String direction;
     protected float directionLiteral;
+    protected boolean rotates = false;
 
     // values
     protected int x, y, width, height;
     protected boolean isDead = false;
     protected boolean isAttacking = false;
+    protected Color deathColor = new Color(139, 0, 0);
 
     // traits
+    protected float maxHealth;
     protected float health;
     protected float speed;
+
     protected float contactDamage;
+    protected float abilityCooldown;
 
     protected float projectileDamage;
     protected float projectileSpeed;
@@ -55,13 +60,13 @@ public class GameObject {
         this.height = height;
     }
 
-    public GameObject(int x, int y, int width, int height, String spritePath) {
+    public GameObject(int x, int y, String spritePath) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
 
         setSprite(spritePath);
+        this.width = this.sprite.getWidth();
+        this.height = this.sprite.getHeight();
     }
 
     /**
@@ -70,12 +75,26 @@ public class GameObject {
     public void draw(Graphics2D g) {
         // Draw the sprite if it's not null
         if (sprite != null) {
-            g.drawImage(this.sprite, this.x - (this.width / 2), this.y - (this.height / 2), this.width, this.height,
-                    null);
+            // Save the original transform
+            AffineTransform originalTransform = g.getTransform();
+            if (rotates) {
+                // Calculate the center of the object
+                int centerX = x;
+                int centerY = y;
+                // Rotate around the center of the object
+                g.rotate(Math.toRadians(directionLiteral + 90), centerX, centerY);
+            }
+
+            // Draw the rotated sprite
+            g.drawImage(sprite, x - width / 2, y - height / 2, width, height, null);
+
+            // Reset the transform
+            g.setTransform(originalTransform);
         } else {
-            // Draw a placeholder rectangle if no sprite is set
-            g.setColor(Color.WHITE);
-            g.fillRect(this.x - (this.width / 2), this.y - (this.height / 2), this.width, this.height);
+            // Draw a placeholder if no sprite is set
+            g.setColor(new Color(255, (int) (255 * (this.health / this.maxHealth)),
+                    (int) (255 * (this.health / this.maxHealth))));
+            g.fillRect(x - width / 2, y - height / 2, width, height);
         }
 
         // Set the color for the text (white)
@@ -147,8 +166,9 @@ public class GameObject {
      * @param other The object to be measured
      */
     public boolean isTouching(GameObject other) {
-        Rectangle thisRect = new Rectangle(this.x, this.y, this.width, this.height);
-        Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
+        Rectangle thisRect = new Rectangle(x - width / 2, y - height / 2, width, height);
+        Rectangle otherRect = new Rectangle(other.x - other.width / 2, other.y - other.height / 2, other.width,
+                other.height);
         return thisRect.intersects(otherRect);
     }
 
@@ -189,6 +209,14 @@ public class GameObject {
         return isDead;
     }
 
+    public Color getDeathColor() {
+        return this.deathColor;
+    }
+
+    public float getMaxHealth() {
+        return this.maxHealth;
+    }
+
     public float getHealth() {
         return this.health;
     }
@@ -199,6 +227,10 @@ public class GameObject {
 
     public float getContactDamage() {
         return this.contactDamage;
+    }
+
+    public float getAbilityCooldown() {
+        return this.abilityCooldown;
     }
 
     public float getProjectileDamage() {

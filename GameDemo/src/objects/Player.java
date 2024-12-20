@@ -12,6 +12,8 @@ import objects.projectiles.Projectile;
 
 public class Player extends GameObject {
 
+	private String direction;
+
 	private final int RUNNING_FRAMES = 10;
 	private final int ATTACK_FRAMES = 9;
 	private BufferedImage[] runBack = new BufferedImage[RUNNING_FRAMES];
@@ -25,11 +27,12 @@ public class Player extends GameObject {
 	KeyHandler keyHandler;
 
 	private Ability[] abilities;
-	private Ability ability;
 
 	private final float DEFAULT_HEALTH = 100;
 	private final float DEFAULT_SPEED = 4;
-	private final float DEFAULT_CONTACT_DAMAGE = 5;
+
+	private final float DEFAULT_CONTACT_DAMAGE = 0;
+	private final float DEFAULT_ABILITY_COOLDOWN = 1;
 
 	private final float DEFAULT_PROJECTILE_DAMAGE = 1;
 	private final float DEFAULT_PROJECTILE_SPEED = 1;
@@ -49,7 +52,9 @@ public class Player extends GameObject {
 
 		this.health = DEFAULT_HEALTH;
 		this.speed = DEFAULT_SPEED;
-		this.contactDamage = 0;
+
+		this.contactDamage = DEFAULT_CONTACT_DAMAGE;
+		this.abilityCooldown = DEFAULT_ABILITY_COOLDOWN;
 
 		this.projectileDamage = DEFAULT_PROJECTILE_DAMAGE;
 		this.projectileSpeed = DEFAULT_PROJECTILE_SPEED;
@@ -72,30 +77,19 @@ public class Player extends GameObject {
 			this.isDead = true;
 		} else {
 			handleMovement();
-			if (inputDetected() && !isAttacking) {
-				attack();
-			}
 			updateThisAnimation();
 			updateSprite();
+		}
+
+		for (Ability ability : abilities) {
+			if (ability != null) {
+				ability.update(this, projectiles);
+			}
 		}
 	}
 
 	public void hit(GameObject other) {
 		this.health -= other.getContactDamage();
-	}
-
-	private void attack() {
-		isAttacking = true;
-		if (keyHandler.aActive)
-			this.ability = abilities[0];
-		else if (keyHandler.bActive)
-			this.ability = abilities[1];
-		else if (keyHandler.cActive)
-			this.ability = abilities[2];
-		else
-			return;
-		if (ability != null)
-			ability.doAbility(this, directionLiteral, projectiles);
 	}
 
 	@SuppressWarnings("unused")
@@ -209,7 +203,7 @@ public class Player extends GameObject {
 	}
 
 	public void upgradeContactDamage() {
-		this.contactDamage += DEFAULT_CONTACT_DAMAGE; // increases by 5
+		this.contactDamage += 5; // increases by 5
 		System.out.println("Contact Damage Upgraded");
 	}
 
@@ -228,8 +222,8 @@ public class Player extends GameObject {
 		System.out.println("Projectile Size Upgraded");
 	}
 
-	public Ability getAbility() {
-		return this.ability;
+	public Ability[] getAbilities() {
+		return this.abilities;
 	}
 
 }

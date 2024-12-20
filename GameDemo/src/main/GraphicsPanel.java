@@ -6,6 +6,7 @@ import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
 import objects.projectiles.Projectile;
+import objects.particles.ParticleManager;
 import upgrademenu.UpgradeMenu;
 import upgrademenu.UpgradePool;
 
@@ -18,11 +19,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Thread gameThread;
     boolean isRunning = false;
     KeyHandler keyHandler = new KeyHandler();
+    ParticleManager particleManager;
 
     // time
     final double interval = 1000000000.0 / 60; // Time per frame in nanoseconds
-    // FPS calculation variables
-    private long lastTime = System.nanoTime();
     private int fps = 0;
     private int fpsCounter = 0;
 
@@ -48,6 +48,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler);
 
         random = new Random();
+        particleManager = new ParticleManager();
 
         // Initialize lists
         this.objects = new ArrayList<>();
@@ -56,7 +57,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         player = new Player(0, 0, 35, 35, keyHandler, projectiles);
 
-        platform = new GameObject(WIDTH / 2, HEIGHT / 2, 100, 100);
+        platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
 
         waveEnabled = false;
         wave = 0;
@@ -69,33 +70,31 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     @Override
-public void run() {
-    long lastTime = System.nanoTime();  // Track time for frame rate control
-    long timer = System.currentTimeMillis();  // Timer for FPS calculation
-    double delta = 0;
+    public void run() {
+        long lastTime = System.nanoTime(); // Track time for frame rate control
+        long timer = System.currentTimeMillis(); // Timer for FPS calculation
+        double delta = 0;
 
-    while (isRunning) {
-        long currentTime = System.nanoTime();
-        delta += (currentTime - lastTime) / interval;  // Calculate the frame delta
-        lastTime = currentTime;  // Update the lastTime for the next loop
+        while (isRunning) {
+            long currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / interval; // Calculate the frame delta
+            lastTime = currentTime; // Update the lastTime for the next loop
 
-        // Update FPS every second (1000 milliseconds)
-        if (System.currentTimeMillis() - timer >= 1000) {
-            fps = fpsCounter;  // Update FPS
-            fpsCounter = 0;  // Reset FPS counter
-            timer += 1000;  // Reset the timer
-        }
+            // Update FPS every second (1000 milliseconds)
+            if (System.currentTimeMillis() - timer >= 1000) {
+                fps = fpsCounter; // Update FPS
+                fpsCounter = 0; // Reset FPS counter
+                timer += 1000; // Reset the timer
+            }
 
-        if (delta >= 1) {
-            update(delta);  // Update game objects
-            repaint();  // Repaint the screen
-            delta--;  // Decrease delta to maintain frame rate
-            fpsCounter++;  // Increment FPS counter
+            if (delta >= 1) {
+                update(delta); // Update game objects
+                repaint(); // Repaint the screen
+                delta--; // Decrease delta to maintain frame rate
+                fpsCounter++; // Increment FPS counter
+            }
         }
     }
-}
-
-
 
     public void startWave() {
         wave++;
@@ -167,6 +166,8 @@ public void run() {
                 startWave(); // Start a new wave if the player touches the platform
             }
 
+            particleManager.update();
+
             // Clear the objects list and add all relevant objects for rendering
             objects.clear();
             objects.add(platform);
@@ -179,6 +180,18 @@ public void run() {
             for (GameObject object : objects) {
                 if (object.isDead()) {
                     dead.add(object);
+                    if (object instanceof Enemy) {
+                        particleManager.spawn(
+                                object.getX(),
+                                object.getY(),
+                                20, // Number of particles
+                                object.getDeathColor(),
+                                8, // Size of particles
+                                2, // Speed
+                                30, // Lifetime
+                                0f // Gravity effect
+                        );
+                    }
                     if (object instanceof Enemy) {
                         enemies.remove(object); // Remove dead enemies
                     } else if (object instanceof Projectile) {
@@ -209,6 +222,8 @@ public void run() {
             }
         }
 
+        particleManager.draw(g);
+
         if (upgradeMenuEnabled) {
             upgradeMenu.draw(g);
         }
@@ -230,15 +245,17 @@ public void run() {
 
         g.drawString("Player Health " + player.getHealth(), 10, 290);
         g.drawString("Player Agility " + player.getSpeed(), 10, 300);
+
         g.drawString("Player Contact Damage: " + player.getContactDamage(), 10, 310);
+        g.drawString("Player Ability Cooldown: " + player.getAbilityCooldown(), 10, 320);
 
-        g.drawString("Player Projectile Damage: " + player.getProjectileDamage(), 10, 320);
-        g.drawString("Player Projectile Speed: " + player.getProjectileSpeed(), 10, 330);
-        g.drawString("Player Projectile Size: " + player.getProjectileSize(), 10, 340);
+        g.drawString("Player Projectile Damage: " + player.getProjectileDamage(), 10, 330);
+        g.drawString("Player Projectile Speed: " + player.getProjectileSpeed(), 10, 340);
+        g.drawString("Player Projectile Size: " + player.getProjectileSize(), 10, 350);
 
-        g.drawString("# of Projectiles: " + projectiles.size(), 10, 360);
+        g.drawString("Player Cooldown 1: " + player.getAbilities()[0].getCooldownTimer(), 10, 370);
+        g.drawString("Player Cooldown 2: " + player.getAbilities()[1].getCooldownTimer(), 10, 380);
 
-        g.drawString("Player Attacking?: " + player.isAttacking(), 10, 380);
-        g.drawString("Player Ability: " + player.getAbility(), 10, 390);
+        g.drawString("# of Projectiles: " + projectiles.size(), 10, 400);
     }
 }

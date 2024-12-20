@@ -8,25 +8,32 @@ import objects.projectiles.Projectile;
 public class Enemy extends GameObject {
 
     GameObject target;
+    private final int I_FRAMES = 5;
+    int iFrames = I_FRAMES;
 
     public Enemy(int x, int y, int width, int height, GameObject target) {
         super(x, y, width, height);
         this.target = target;
 
         this.health = 100;
+        this.maxHealth = 100;
         this.contactDamage = 1;
         this.speed = 2;
 
     }
 
     public void update(double delta, ArrayList<Enemy> enemies, ArrayList<Projectile> projectiles) {
+        iFrames--;
         if (this.health <= 0) {
             this.isDead = true;
         } else {
             for (Projectile projectile : projectiles) {
                 if (isTouching(projectile)) {
-                    projectile.hit();
-                    health -= projectile.getContactDamage();
+                    if (this.iFrames <= 0) {
+                        projectile.hit();
+                        this.health -= projectile.getContactDamage();
+                        this.iFrames = I_FRAMES;
+                    }
                 }
             }
 

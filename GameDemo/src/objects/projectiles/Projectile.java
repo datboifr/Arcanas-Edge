@@ -10,8 +10,9 @@ public class Projectile extends GameObject {
     private final GameObject creator;
 
     public Projectile(GameObject creator, float directionLiteral, ProjectileType projectileType) {
-        super(creator.getX(), creator.getY(), (int) ((projectileType.getWidth() * projectileType.getSize()) * creator.getProjectileSize()), 
-        (int) ((projectileType.getHeight() * projectileType.getSize()) * creator.getProjectileSize()));
+        super(creator.getX(), creator.getY(),
+                (int) ((projectileType.getWidth() * projectileType.getSize()) * creator.getProjectileSize()),
+                (int) ((projectileType.getHeight() * projectileType.getSize()) * creator.getProjectileSize()));
 
         this.creator = creator;
         this.type = projectileType;
@@ -21,6 +22,8 @@ public class Projectile extends GameObject {
         this.cooldown = (int) type.getCooldown();
         this.directionLiteral = directionLiteral;
         this.animations = type.animations;
+
+        this.rotates = true;
 
         this.setAnimation("default", true);
         type.created(this);
@@ -38,8 +41,8 @@ public class Projectile extends GameObject {
             }
         }
 
-        if (type.isAnimated()) { 
-            updateAnimation(); 
+        if (type.isAnimated()) {
+            updateAnimation();
         }
     }
 
