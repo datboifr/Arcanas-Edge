@@ -51,6 +51,18 @@ public class UpgradePool {
                                 100,
                                 () -> player.upgradeProjectileSize()));
 
+                upgradePool.add(new Upgrade(
+                                "Ability Cooldown",
+                                "",
+                                100,
+                                () -> player.upgradeAbilityCooldown()));
+
+                upgradePool.add(new Upgrade(
+                                "More Projectiles",
+                                "",
+                                100,
+                                () -> player.upgradeProjectileBonus()));
+
                 return upgradePool;
 
         }

@@ -28,7 +28,7 @@ public class Ability {
     public void update(GameObject creator, ArrayList<Projectile> projectiles) {
         this.cooldownTimer--;
         if (this.cooldownTimer <= 0) {
-            this.cooldownTimer = (int) cooldown;
+            this.cooldownTimer = (int) (cooldown * creator.getAbilityCooldown());
             this.doAbility(creator, projectiles);
         }
     }

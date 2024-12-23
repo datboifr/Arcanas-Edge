@@ -33,12 +33,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
     Player player;
     Random random;
     GameObject platform;
+    GameObject background;
 
     UpgradeMenu upgradeMenu;
 
     boolean upgradeMenuEnabled;
     boolean waveEnabled;
-    int wave, enemyLimit, enemyCounter;
+    int wave, enemyLimit, enemyCounter, spawnTimer;
 
     // Constructor
     GraphicsPanel() {
@@ -55,9 +56,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
 
-        player = new Player(0, 0, 35, 35, keyHandler, projectiles);
+        player = new Player(150, 150, 35, 35, keyHandler, projectiles);
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
+        background = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Map");
 
         waveEnabled = false;
         wave = 0;
@@ -67,6 +69,17 @@ public class GraphicsPanel extends JPanel implements Runnable {
         gameThread.start();
         upgradeMenu = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100), keyHandler,
                 UpgradePool.getUpgradePool(player));
+    }
+
+    // Inside your update method, just before rendering the objects
+    public void sortObjectsByX() {
+        Collections.sort(objects, new Comparator<GameObject>() {
+            @Override
+            public int compare(GameObject o1, GameObject o2) {
+                // Compare based on the x-coordinate, from highest to lowest
+                return Integer.compare(o2.getX(), o1.getX());
+            }
+        });
     }
 
     @Override
@@ -98,8 +111,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     public void startWave() {
         wave++;
-        enemyLimit = wave;
+        enemyLimit = wave + 4;
         waveEnabled = true;
+        this.spawnTimer = 0;
     }
 
     public void endWave() {
@@ -134,7 +148,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 y = random.nextInt(HEIGHT);
                 break;
         }
-        enemies.add(new Enemy(x, y, 30, 30, player));
+        enemies.add(new Enemy(x, y, 30, 30, player, particleManager));
         enemyCounter++;
     }
 
@@ -157,20 +171,24 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             // Handle the wave logic
             if (waveEnabled) {
-                if (enemies.isEmpty() && (enemyCounter == enemyLimit)) {
+                if (keyHandler.aActive) {
+                    enemies.clear();
+                    endWave();
+                } else if (enemies.isEmpty() && (enemyCounter == enemyLimit)) {
                     endWave(); // End the wave if all enemies are defeated and the limit is reached
-                } else if (enemyCounter < enemyLimit) {
+                } else if ((enemyCounter < enemyLimit) && (spawnTimer <= 0)) {
                     spawnEnemy(); // Spawn new enemies if the enemy counter is less than the limit
+                    spawnTimer = (int) (random.nextFloat(1, 3) * 60);
                 }
             } else if (player.isTouching(platform)) {
                 startWave(); // Start a new wave if the player touches the platform
             }
 
+            spawnTimer--;
             particleManager.update();
 
             // Clear the objects list and add all relevant objects for rendering
             objects.clear();
-            objects.add(platform);
             objects.addAll(enemies);
             objects.addAll(projectiles);
             objects.add(player);
@@ -181,18 +199,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if (object.isDead()) {
                     dead.add(object);
                     if (object instanceof Enemy) {
-                        particleManager.spawn(
-                                object.getX(),
-                                object.getY(),
-                                20, // Number of particles
-                                object.getDeathColor(),
-                                8, // Size of particles
-                                2, // Speed
-                                30, // Lifetime
-                                0f // Gravity effect
-                        );
-                    }
-                    if (object instanceof Enemy) {
                         enemies.remove(object); // Remove dead enemies
                     } else if (object instanceof Projectile) {
                         projectiles.remove(object); // Remove dead projectiles
@@ -202,6 +208,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 }
             }
             objects.removeAll(dead);
+            sortObjectsByX();
         }
     }
 
@@ -214,6 +221,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D g = (Graphics2D) graphics;
+
+        background.draw(g);
+        platform.draw(g);
 
         // synchronized (objects) {
         for (GameObject obj : objects) {
@@ -233,8 +243,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setFont(new Font("Arial", Font.PLAIN, 10));
 
         // Debug: Show FPS
-        g.drawString("FPS: " + fps, 10, 190); // Display FPS at the bottom of the debug section
+        g.drawString("FPS: " + fps, 10, 180); // Display FPS at the bottom of the debug section
 
+        g.drawString("Spawn Timer: " + spawnTimer, 10, 200);
         g.drawString("UpgradeMenu Active?: " + upgradeMenuEnabled, 10, 210);
         g.drawString("Wave Active? " + waveEnabled, 10, 220);
         g.drawString("Wave: " + wave, 10, 230);

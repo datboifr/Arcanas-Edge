@@ -11,13 +11,15 @@ public class GameObject {
 
     // direction
     protected float direction;
-    protected boolean rotates = false; //purely visual
+    protected boolean rotates = false; // purely visual
 
     // values
     protected int x, y, width, height;
-    protected boolean isDead = false;
+    protected boolean dead = false;
     protected boolean isAttacking = false;
-    protected Color deathColor = new Color(160, 0, 0); //default red
+    protected Color deathColor = new Color(160, 0, 0); // default red
+    protected final int I_FRAMES = 5;
+    protected int iFrames = I_FRAMES;
 
     // traits
     protected float maxHealth;
@@ -30,6 +32,7 @@ public class GameObject {
     protected float projectileDamage;
     protected float projectileSpeed;
     protected float projectileSize;
+    protected float projectileBonus;
 
     // sprites & animation
 
@@ -74,26 +77,19 @@ public class GameObject {
      */
     public void draw(Graphics2D g) {
         // Draw the sprite if it's not null
-        if (sprite != null) {
+        if (this.sprite != null) {
             // Save the original transform
             AffineTransform originalTransform = g.getTransform();
             if (rotates) {
-                // Calculate the center of the object
-                int centerX = x;
-                int centerY = y;
-                // Rotate around the center of the object
-                g.rotate(Math.toRadians(direction + 90), centerX, centerY);
+                g.rotate(Math.toRadians(direction + 90), x, y);
             }
 
             // Draw the rotated sprite
             g.drawImage(sprite, x - width / 2, y - height / 2, width, height, null);
-
-            // Reset the transform
             g.setTransform(originalTransform);
         } else {
             // Draw a placeholder if no sprite is set
-            g.setColor(new Color(255, (int) (255 * (this.health / this.maxHealth)),
-                    (int) (255 * (this.health / this.maxHealth))));
+            g.setColor(Color.WHITE);
             g.fillRect(x - width / 2, y - height / 2, width, height);
         }
 
@@ -184,7 +180,6 @@ public class GameObject {
     // setters
 
     public void setSprite(String spritePath) {
-        System.out.println("/res/" + spritePath + ".png");
         try {
             this.sprite = ImageIO
                     .read(getClass()
@@ -206,7 +201,7 @@ public class GameObject {
     }
 
     public boolean isDead() {
-        return isDead;
+        return dead;
     }
 
     public Color getDeathColor() {
@@ -245,6 +240,10 @@ public class GameObject {
         return this.projectileSize;
     }
 
+    public float getProjectileBonus() {
+        return this.projectileBonus;
+    }
+
     public int getWidth() {
         return this.width;
     }
@@ -264,7 +263,7 @@ public class GameObject {
     // setters
 
     public void setState(boolean state) {
-        this.isDead = state;
+        this.dead = state;
     }
 
     public void setSize(float decrease) {

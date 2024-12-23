@@ -7,14 +7,24 @@ import java.util.Random;
 
 public class ParticleManager {
     private List<Particle> particles = new ArrayList<>();
-    private Random rand = new Random();
+    private Random random = new Random();
 
     public void spawn(float x, float y, int count, Color color, float size, float speed, float life, float gravity) {
         for (int i = 0; i < count; i++) {
-            float angle = (float) (Math.toRadians(rand.nextInt(360)));
-            float vx = (float) (Math.cos(angle) * speed * rand.nextFloat());
-            float vy = (float) (Math.sin(angle) * speed * rand.nextFloat());
+            float angle = (float) (Math.toRadians(random.nextInt(360)));
+            float vx = (float) (Math.cos(angle) * speed * random.nextFloat());
+            float vy = (float) (Math.sin(angle) * speed * random.nextFloat());
             particles.add(new Particle(x, y, vx, vy, life, color, size, gravity));
+        }
+    }
+
+    public void spawn(float x, float y, int count, Color color, float size, float speed, float life, float gravity,
+            int number) {
+        for (int i = 0; i < count; i++) {
+            float angle = (float) (Math.toRadians(random.nextInt(360)));
+            float vx = (float) (Math.cos(angle) * speed * random.nextFloat());
+            float vy = (float) (Math.sin(angle) * speed * random.nextFloat());
+            particles.add(new Particle(x, y, vx, vy, life, color, size, gravity, "" + number));
         }
     }
 

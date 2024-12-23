@@ -6,24 +6,26 @@ public class Projectile extends GameObject {
 
     private ProjectileType type;
     private int cooldown;
-    public int xv, vy;
+    public float vx, vy;
+
+    private boolean active = true;
 
     private final GameObject creator;
 
-    public Projectile(GameObject creator, float directionLiteral, ProjectileType projectileType) {
+    public Projectile(GameObject creator, float direction, ProjectileType projectileType) {
         super(creator.getX(), creator.getY(),
                 (int) ((projectileType.getWidth() * projectileType.getSize()) * creator.getProjectileSize()),
                 (int) ((projectileType.getHeight() * projectileType.getSize()) * creator.getProjectileSize()));
 
         this.creator = creator;
         this.type = projectileType;
+
         this.contactDamage = type.getContactDamage() * creator.getProjectileDamage();
         this.speed = type.getSpeed() * creator.getProjectileSpeed();
 
         this.cooldown = (int) type.getCooldown();
-        this.direction = directionLiteral;
+        this.direction = direction;
         this.animations = type.animations;
-
         this.rotates = true;
 
         this.setAnimation("default", true);
@@ -57,7 +59,7 @@ public class Projectile extends GameObject {
 
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {
         if (this.x < 0 || this.x > screenWidth || this.y < 0 || this.y > screenHeight) {
-            this.isDead = true;
+            this.dead = true;
         }
     }
 

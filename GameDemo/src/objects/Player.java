@@ -58,6 +58,7 @@ public class Player extends GameObject {
 		this.projectileDamage = DEFAULT_PROJECTILE_DAMAGE;
 		this.projectileSpeed = DEFAULT_PROJECTILE_SPEED;
 		this.projectileSize = DEFAULT_PROJECTILE_SIZE;
+		this.projectileBonus = 0;
 
 		this.projectiles = projectiles;
 
@@ -73,7 +74,7 @@ public class Player extends GameObject {
 	public void update() {
 
 		if (health < 0) {
-			this.isDead = true;
+			this.dead = true;
 		} else {
 			handleMovement();
 			updateThisAnimation();
@@ -219,6 +220,16 @@ public class Player extends GameObject {
 	public void upgradeProjectileSize() {
 		this.projectileSize += DEFAULT_PROJECTILE_SIZE / 10; // increases by 10%
 		System.out.println("Projectile Size Upgraded");
+	}
+
+	public void upgradeAbilityCooldown() {
+		this.abilityCooldown -= DEFAULT_ABILITY_COOLDOWN / 20; // decreases by 5%
+		System.out.println("Additional Projectile");
+	}
+
+	public void upgradeProjectileBonus() {
+		this.projectileBonus += 1; // 1 more projectile
+		System.out.println("Additional Projectile");
 	}
 
 	public Ability[] getAbilities() {

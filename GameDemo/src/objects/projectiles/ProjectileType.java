@@ -11,7 +11,7 @@ import objects.particles.ParticleManager;
 
 public enum ProjectileType implements ProjectileBehaviour, Animation {
 
-    LIGHTNING(1, 5, 10, true, .2f, "lightning/LightningSpear", 6) {
+    LIGHTNING(1, 5, 50, true, .2f, "lightning/LightningSpear", 6) {
 
         @Override
         public void created(Projectile projectile) {
@@ -19,13 +19,14 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
 
         @Override
         public void update(Projectile projectile) {
-            int[] directions = { -45, 0, 45 };
-            float jitter = projectile.getDirection() + directions[random.nextInt(directions.length)];
-            double dx = Math.cos(Math.toRadians(jitter)) * this.speed;
-            double dy = Math.sin(Math.toRadians(jitter)) * this.speed;
+            int[] directions = { -15, 0, 15 };
+            projectile.setDirection(projectile.getDirection() + directions[random.nextInt(directions.length)]);
+
+            double dx = Math.cos(Math.toRadians(projectile.getDirection())) * speed;
+            double dy = Math.sin(Math.toRadians(projectile.getDirection())) * speed;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
 
-            projectile.setContactDamage(this.contactDamage * (projectile.getWidth() / (float) this.size));
+            projectile.setContactDamage(contactDamage * (projectile.getWidth() / (float) width));
             if (projectile.getWidth() <= 6) {
                 projectile.setState(true);
             }
@@ -40,35 +41,25 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
             projectile.setSize(random.nextFloat(0.3f, 0.5f));
         }
     },
-    EARTH(2, 7, 10, true, -1, "earth/Drill", 3) {
+    EARTH(1.5f, 3, 100, true, -1, "earth/Drill", 3) {
 
         @Override
         public void created(Projectile projectile) {
             // Initial upward velocity, simulate launch
-            projectile.vy = -15;  // Negative value to launch upwards
-            projectile.xv = 0;    // Optional: Set horizontal velocity to zero if no horizontal movement is needed
-            projectile.setDirection(projectile.getDirection() + random.nextInt(-15, 15));
+            projectile.vy = -10; // Negative value to launch upwards
+            projectile.vx = (random.nextFloat(-4, 4)); // Random slight horizontal velocity (-2 or 2)
         }
-        
+
         @Override
         public void update(Projectile projectile) {
-            // Apply gravity (this will make the projectile fall after initial upward motion)
-            projectile.vy += this.GRAVITY;  // Gravity pulls the projectile down
+            projectile.vy += GRAVITY * this.speed;
 
-            // Update projectile's position based on horizontal and vertical velocity
-            int newX = (int) (projectile.getX() + projectile.xv);  // Horizontal movement
-            int newY = (int) (projectile.getY() + projectile.vy);  // Vertical movement with gravity
-            projectile.setPosition(newX, newY);  // Update the position of the projectile
+            projectile.setPosition((int) (projectile.getX() + projectile.vx),
+                    (int) (projectile.getY() + projectile.vy));
 
-            // Calculate the angle based on velocity (in radians)
-            double angle = Math.atan2(projectile.vy, projectile.xv);  // atan2 returns the angle in radians
-            projectile.setDirection((float)  angle);  // Set the rotation of the projectile
-
-            // Optional: You can add additional checks for screen bounds, collisions, etc.
-
-            // If the projectile should not rotate or have animations, you can skip that logic here.
+            projectile.setDirection((float) Math.toDegrees(Math.atan2(projectile.vy, projectile.vx)));
         }
-        
+
         @Override
         public void hit(Projectile projectile, GameObject other) {
         }
@@ -78,7 +69,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         }
     };
 
-    final float GRAVITY = 1f;
+    final float GRAVITY = 0.2f;
     protected float size;
     protected int width, height;
     protected float speed;

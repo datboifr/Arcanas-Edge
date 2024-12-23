@@ -12,7 +12,7 @@ public class AbilityTypes {
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             // Start angle adjusted to ensure full circle distribution
             float startDirection = -180 + (360f / this.numberOfProjectiles) / 2;
-            for (int i = 0; i < this.numberOfProjectiles; i++) {
+            for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 // Each projectile is spaced equally within the full 360 degrees
                 projectiles.add(new Projectile(creator,
                         creator.getDirection() + startDirection + (360f / this.numberOfProjectiles) * i,
@@ -22,10 +22,10 @@ public class AbilityTypes {
 
     };
 
-    public static Ability earth = new Ability("Earth", ProjectileType.EARTH, 1, 1) {
+    public static Ability earth = new Ability("Earth", ProjectileType.EARTH, 1, 7) {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
-            for (int i = 0; i < this.numberOfProjectiles; i++) {
+            for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 projectiles.add(new Projectile(creator, 90, this.projectileType));
             }
         }

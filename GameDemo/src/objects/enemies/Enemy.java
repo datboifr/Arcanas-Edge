@@ -1,18 +1,21 @@
 package objects.enemies;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import objects.GameObject;
+import objects.particles.ParticleManager;
 import objects.projectiles.Projectile;
 
 public class Enemy extends GameObject {
 
     GameObject target;
-    private final int I_FRAMES = 5;
-    int iFrames = I_FRAMES;
 
-    public Enemy(int x, int y, int width, int height, GameObject target) {
+    ParticleManager particleManager;
+
+    public Enemy(int x, int y, int width, int height, GameObject target, ParticleManager particleManager) {
         super(x, y, width, height);
         this.target = target;
+        this.particleManager = particleManager;
 
         this.health = 100;
         this.maxHealth = 100;
@@ -24,7 +27,16 @@ public class Enemy extends GameObject {
     public void update(double delta, ArrayList<Enemy> enemies, ArrayList<Projectile> projectiles) {
         iFrames--;
         if (this.health <= 0) {
-            this.isDead = true;
+            this.dead = true;
+            particleManager.spawn(
+                    x,
+                    y,
+                    10,
+                    deathColor,
+                    8,
+                    2,
+                    30,
+                    0f);
         } else {
             for (Projectile projectile : projectiles) {
                 if (isTouching(projectile)) {
@@ -32,6 +44,16 @@ public class Enemy extends GameObject {
                         projectile.hit();
                         this.health -= projectile.getContactDamage();
                         this.iFrames = I_FRAMES;
+                        particleManager.spawn(
+                                x,
+                                y,
+                                1,
+                                Color.WHITE,
+                                10,
+                                2,
+                                30,
+                                0f,
+                                (int) projectile.getContactDamage());
                     }
                 }
             }
