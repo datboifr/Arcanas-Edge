@@ -27,6 +27,10 @@ public class Player extends GameObject {
 
 	private Ability[] abilities;
 
+	private int currentAura;
+	private int requiredAura;
+	private int level;
+
 	private final float DEFAULT_HEALTH = 100;
 	private final float DEFAULT_SPEED = 4;
 
@@ -38,16 +42,23 @@ public class Player extends GameObject {
 	private final float DEFAULT_PROJECTILE_SIZE = 1;
 
 	ArrayList<Projectile> projectiles;
+	ArrayList<Aura> aura;
 
 	// Constructor
-	public Player(int x, int y, int width, int height, KeyHandler keyHandler, ArrayList<Projectile> projectiles) {
+	public Player(int x, int y, int width, int height, KeyHandler keyHandler, ArrayList<Projectile> projectiles,
+			ArrayList<Aura> aura) {
 		super(x, y, width, height);
 		literalDirection = "down";
 		this.keyHandler = keyHandler;
 
+		this.level = 1;
+		this.currentAura = 0;
+		this.requiredAura = 5;
+
 		this.abilities = new Ability[3];
 		abilities[0] = AbilityTypes.electric;
-		abilities[1] = AbilityTypes.earth;
+		abilities[1] = AbilityTypes.falcon;
+		abilities[2] = AbilityTypes.earth;
 
 		this.health = DEFAULT_HEALTH;
 		this.speed = DEFAULT_SPEED;
@@ -61,6 +72,7 @@ public class Player extends GameObject {
 		this.projectileBonus = 0;
 
 		this.projectiles = projectiles;
+		this.aura = aura;
 
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
@@ -74,18 +86,36 @@ public class Player extends GameObject {
 	public void update() {
 
 		if (health < 0) {
-			this.dead = true;
+			die();
 		} else {
+
+			if (currentAura >= requiredAura) {
+				levelUp();
+			}
+
 			handleMovement();
+
+			for (Aura aura : aura) {
+				if (distanceTo(aura) < 50) {
+					aura.collect(this);
+				}
+			}
+
 			updateThisAnimation();
 			updateSprite();
-		}
-
-		for (Ability ability : abilities) {
-			if (ability != null) {
-				ability.update(this, projectiles);
+			for (Ability ability : abilities) {
+				if (ability != null) {
+					ability.update(this, projectiles);
+				}
 			}
 		}
+
+	}
+
+	public void levelUp() {
+		level++;
+		this.currentAura = 0;
+		requiredAura = 5 * level;
 	}
 
 	public void hit(GameObject other) {
@@ -234,6 +264,24 @@ public class Player extends GameObject {
 
 	public Ability[] getAbilities() {
 		return this.abilities;
+	}
+
+	public void collectAura(Aura aura) {
+		this.currentAura += aura.getValue();
+	}
+
+	// getters
+
+	public int getLevel() {
+		return this.level;
+	}
+
+	public int getCurrentAura() {
+		return this.currentAura;
+	}
+
+	public int getRequiredAura() {
+		return this.requiredAura;
 	}
 
 }

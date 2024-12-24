@@ -11,7 +11,7 @@ import objects.particles.ParticleManager;
 
 public enum ProjectileType implements ProjectileBehaviour, Animation {
 
-    LIGHTNING(1, 5, 50, true, .2f, "lightning/LightningSpear", 6) {
+    LIGHTNING(1, 5, 20, true, .2f, "lightning/LightningSpear", 6) {
 
         @Override
         public void created(Projectile projectile) {
@@ -28,7 +28,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
 
             projectile.setContactDamage(contactDamage * (projectile.getWidth() / (float) width));
             if (projectile.getWidth() <= 6) {
-                projectile.setState(true);
+                projectile.die();
             }
         }
 
@@ -41,7 +41,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
             projectile.setSize(random.nextFloat(0.3f, 0.5f));
         }
     },
-    EARTH(1.5f, 3, 100, true, -1, "earth/Drill", 3) {
+    EARTH(1.5f, 3, 35, true, -1, "earth/Drill", 3) {
 
         @Override
         public void created(Projectile projectile) {
@@ -66,6 +66,47 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
 
         @Override
         public void cooldownFinished(Projectile projectile) {
+        }
+    },
+    FALCON(1.5f, 0.05f, 20, true, 5, "falcon/Falcon") {
+
+        @Override
+        public void created(Projectile projectile) {
+            // Initial circular motion parameters
+            projectile.angle = 0; // Starting angle (in radians)
+            projectile.radius = 70; // Radius of the circular path
+            // Calculate new X and Y positions based on circular motion equations
+            projectile.centerX = projectile.getCreator().getX(); // The X position of the creator
+            projectile.centerY = projectile.getCreator().getY(); // The Y position of the creator
+        }
+
+        @Override
+        public void update(Projectile projectile) {
+            // Increment the angle to create smooth circular motion
+            projectile.angle += projectile.getSpeed();
+
+            // Ensure the angle stays within 0 to 2*pi radians for smooth circular motion
+            if (projectile.angle >= 2 * Math.PI) {
+                projectile.angle -= 2 * Math.PI;
+            }
+
+            float newX = projectile.centerX + (float) Math.cos(projectile.angle) * projectile.radius;
+            float newY = projectile.centerY + (float) Math.sin(projectile.angle) * projectile.radius;
+
+            // Update projectile's position
+            projectile.setPosition((int) newX, (int) newY);
+
+            // Optional: Adjust the direction based on the current angle for smooth rotation
+            projectile.setDirection((float) Math.toDegrees(projectile.angle - 30));
+        }
+
+        @Override
+        public void hit(Projectile projectile, GameObject other) {
+        }
+
+        @Override
+        public void cooldownFinished(Projectile projectile) {
+            projectile.die();
         }
     };
 
@@ -108,6 +149,8 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         this.cooldown = cooldown * 60; // seconds * fps = frames
         this.animated = false;
         this.loadAnimation("default", spritePath, 1);
+        this.width = this.animations.get("default")[0].getWidth();
+        this.height = this.animations.get("default")[0].getHeight();
     }
 
     @Override

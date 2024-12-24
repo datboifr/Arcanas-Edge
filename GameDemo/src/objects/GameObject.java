@@ -15,11 +15,12 @@ public class GameObject {
 
     // values
     protected int x, y, width, height;
-    protected boolean dead = false;
+    protected boolean alive = true;
     protected boolean isAttacking = false;
     protected Color deathColor = new Color(160, 0, 0); // default red
     protected final int I_FRAMES = 5;
     protected int iFrames = I_FRAMES;
+    protected GameObject target;
 
     // traits
     protected float maxHealth;
@@ -81,7 +82,7 @@ public class GameObject {
             // Save the original transform
             AffineTransform originalTransform = g.getTransform();
             if (rotates) {
-                g.rotate(Math.toRadians(direction + 90), x, y);
+                g.rotate(Math.toRadians(direction), x, y);
             }
 
             // Draw the rotated sprite
@@ -132,7 +133,7 @@ public class GameObject {
 
     public void setAnimation(String name, boolean animationLooping) {
         this.currentAnimation = name;
-        this.currentFrame = 1;
+        this.currentFrame = 0; // Start at the first frame (0-indexed)
         this.animationLooping = animationLooping;
         this.sprite = this.animations.get(this.currentAnimation)[this.currentFrame];
     }
@@ -148,7 +149,7 @@ public class GameObject {
                     if (this.animationLooping) {
                         this.currentFrame = 0;
                     } else {
-                        this.currentFrame = this.animations.get(this.currentAnimation).length - 1;
+                        this.currentFrame = this.animations.get(this.currentAnimation).length;
                     }
                 }
                 this.sprite = this.animations.get(this.currentAnimation)[this.currentFrame];
@@ -200,8 +201,8 @@ public class GameObject {
         return this.y;
     }
 
-    public boolean isDead() {
-        return dead;
+    public boolean isAlive() {
+        return alive;
     }
 
     public Color getDeathColor() {
@@ -260,10 +261,14 @@ public class GameObject {
         return this.direction;
     }
 
+    public GameObject getTarget() {
+        return this.target;
+    }
+
     // setters
 
     public void setState(boolean state) {
-        this.dead = state;
+        this.alive = state;
     }
 
     public void setSize(float decrease) {
@@ -278,4 +283,13 @@ public class GameObject {
     public void setDirection(float direction) {
         this.direction = direction;
     }
+
+    public void die() {
+        this.alive = false;
+    }
+
+    public void collectAura(Aura aura) {
+        // does nothing by default
+    }
+
 }

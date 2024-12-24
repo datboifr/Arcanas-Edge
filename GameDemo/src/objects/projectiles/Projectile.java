@@ -7,7 +7,11 @@ public class Projectile extends GameObject {
     private ProjectileType type;
     private int cooldown;
     public float vx, vy;
+    public float angle, radius;
+    public float angularSpeed;
+    public int centerX, centerY;
 
+    private boolean allowedOffScreen = false;
     private boolean active = true;
 
     private final GameObject creator;
@@ -29,6 +33,7 @@ public class Projectile extends GameObject {
         this.rotates = true;
 
         this.setAnimation("default", true);
+        updateAnimation();
         type.created(this);
     }
 
@@ -57,14 +62,22 @@ public class Projectile extends GameObject {
         return this.cooldown;
     }
 
+    public GameObject getCreator() {
+        return this.creator;
+    }
+
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {
         if (this.x < 0 || this.x > screenWidth || this.y < 0 || this.y > screenHeight) {
-            this.dead = true;
+            die();
         }
     }
 
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void setAllowedOffscreen(boolean allowedOffScreen) {
+        this.allowedOffScreen = allowedOffScreen;
     }
 }

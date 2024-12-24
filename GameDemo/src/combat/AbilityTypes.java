@@ -31,4 +31,13 @@ public class AbilityTypes {
         }
     };
 
+    public static Ability falcon = new Ability("Falcon", ProjectileType.FALCON, 1, 5.5f) {
+        @Override
+        public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
+            for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                projectiles.add(new Projectile(creator, 90, this.projectileType));
+            }
+        }
+    };
+
 }

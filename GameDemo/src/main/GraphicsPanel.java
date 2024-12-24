@@ -30,6 +30,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     ArrayList<GameObject> objects;
     ArrayList<Enemy> enemies;
     ArrayList<Projectile> projectiles;
+    ArrayList<Aura> aura;
+
     Player player;
     Random random;
     GameObject platform;
@@ -55,8 +57,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
         this.objects = new ArrayList<>();
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
+        this.aura = new ArrayList<>();
 
-        player = new Player(150, 150, 35, 35, keyHandler, projectiles);
+        player = new Player(150, 150, 35, 35, keyHandler, projectiles, aura);
 
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
         background = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Map");
@@ -111,7 +114,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     public void startWave() {
         wave++;
-        enemyLimit = wave + 4;
+        enemyLimit = (wave + 4);
         waveEnabled = true;
         this.spawnTimer = 0;
     }
@@ -128,27 +131,29 @@ public class GraphicsPanel extends JPanel implements Runnable {
      */
     private void spawnEnemy() {
         int spawnSide = random.nextInt(4); // 0 = top, 1 = bottom, 2 = left, 3 = right
-        int x = 0, y = 0;
+        for (int i = 0; i < random.nextInt(3, 3 + wave); i++) {
+            int x = 0, y = 0;
 
-        switch (spawnSide) {
-            case 0: // Top
-                x = random.nextInt(WIDTH);
-                y = -30; // Above screen
-                break;
-            case 1: // Bottom
-                x = random.nextInt(WIDTH);
-                y = HEIGHT + 30; // Below screen
-                break;
-            case 2: // Left
-                x = -30; // Left of screen
-                y = random.nextInt(HEIGHT);
-                break;
-            case 3: // Right
-                x = WIDTH + 30; // Right of screen
-                y = random.nextInt(HEIGHT);
-                break;
+            switch (spawnSide) {
+                case 0: // Top
+                    x = random.nextInt(WIDTH);
+                    y = -random.nextInt(30, 100); // Above screen
+                    break;
+                case 1: // Bottom
+                    x = random.nextInt(WIDTH);
+                    y = HEIGHT + random.nextInt(30, 100); // Below screen
+                    break;
+                case 2: // Left
+                    x = -random.nextInt(30, 100); // Left of screen
+                    y = random.nextInt(HEIGHT);
+                    break;
+                case 3: // Right
+                    x = WIDTH + random.nextInt(30, 100); // Right of screen
+                    y = random.nextInt(HEIGHT);
+                    break;
+            }
+            enemies.add(new Enemy(x, y, 30, 30, player, particleManager, projectiles, aura, enemies));
         }
-        enemies.add(new Enemy(x, y, 30, 30, player, particleManager));
         enemyCounter++;
     }
 
@@ -162,7 +167,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
             // Update all game objects
             player.update();
             for (Enemy enemy : enemies) {
-                enemy.update(delta, enemies, projectiles);
+                enemy.update(delta);
+            }
+            for (Aura aura : aura) {
+                aura.update();
             }
             for (Projectile projectile : projectiles) {
                 projectile.update();
@@ -191,17 +199,20 @@ public class GraphicsPanel extends JPanel implements Runnable {
             objects.clear();
             objects.addAll(enemies);
             objects.addAll(projectiles);
+            objects.addAll(aura);
             objects.add(player);
 
             // Collect all dead objects to remove them
             ArrayList<GameObject> dead = new ArrayList<>();
             for (GameObject object : objects) {
-                if (object.isDead()) {
+                if (!object.isAlive()) {
                     dead.add(object);
                     if (object instanceof Enemy) {
                         enemies.remove(object); // Remove dead enemies
                     } else if (object instanceof Projectile) {
                         projectiles.remove(object); // Remove dead projectiles
+                    } else if (object instanceof Aura) {
+                        aura.remove(object); // Remove dead projectiles
                     } else if (object instanceof Player) {
                         endGame();
                     }
@@ -240,7 +251,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         // debug stuff
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.PLAIN, 10));
+        g.setFont(new Font("Arial", Font.PLAIN, 9));
 
         // Debug: Show FPS
         g.drawString("FPS: " + fps, 10, 180); // Display FPS at the bottom of the debug section
@@ -267,6 +278,17 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.drawString("Player Cooldown 1: " + player.getAbilities()[0].getCooldownTimer(), 10, 370);
         g.drawString("Player Cooldown 2: " + player.getAbilities()[1].getCooldownTimer(), 10, 380);
 
-        g.drawString("# of Projectiles: " + projectiles.size(), 10, 400);
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        g.drawString("Aura: " + player.getCurrentAura(), 150, 10);
+        g.drawString("Required: " + player.getRequiredAura(), 150, 30);
+
+        g.setColor(Color.BLACK);
+        g.fillRect(0, HEIGHT - 10, WIDTH, 10);
+
+        g.setColor(Color.WHITE);
+        if (player.getCurrentAura() != 0) {
+            g.fillRect(0, HEIGHT - 10, (int) (WIDTH * ((float) player.getCurrentAura() / player.getRequiredAura())),
+                    10);
+        }
     }
 }
