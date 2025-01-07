@@ -1,12 +1,16 @@
 package upgrademenu;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class Slot {
 
     private Upgrade upgrade;
     private Rectangle frame;
     boolean isSelected;
+    BufferedImage sprite;
 
     private final int TITLE_SIZE = 20;
     private final int BORDER = 3; // pixels
@@ -15,12 +19,25 @@ public class Slot {
         this.frame = frame;
         this.upgrade = upgrade;
         this.isSelected = false;
+        setSprite("cards/CardSpawnUnindexed_23");
+    }
+
+    public void setSprite(String spritePath) {
+        try {
+            this.sprite = ImageIO
+                    .read(getClass()
+                            .getResourceAsStream("/res/" + spritePath + ".png"));
+        } catch (IOException e) {
+            this.sprite = null;
+            System.out.print("Couldn't Fetch Sprite");
+        }
     }
 
     public void draw(Graphics2D g) {
         g.setColor(Color.BLACK);
-        g.fill(frame);
 
+        g.fill(frame);
+                g.drawImage(sprite, frame.x, frame.y, 150, 150, null);
         // title initalization
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, TITLE_SIZE));
