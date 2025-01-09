@@ -1,61 +1,43 @@
 package objects.enemies;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
+import main.GamePanel;
 import objects.Aura;
 import objects.GameObject;
-import objects.particles.ParticleManager;
 import objects.projectiles.Projectile;
 
 public class Enemy extends GameObject {
 
     GameObject target;
 
-    ParticleManager particleManager;
-    ArrayList<Projectile> projectiles;
-    ArrayList<Aura> aura;
-    ArrayList<Enemy> enemies;
-
-    public Enemy(int x, int y, int width, int height, GameObject target, ParticleManager particleManager,
-            ArrayList<Projectile> projectiles, ArrayList<Aura> aura, ArrayList<Enemy> enemies) {
-        super(x, y, width, height);
+    public Enemy(GamePanel gp, int x, int y, EnemyType type, GameObject target) {
+        super(x, y, type.getWidth(), type.getHeight());
         this.target = target;
-        this.particleManager = particleManager;
-        this.projectiles = projectiles;
-        this.aura = aura;
-        this.enemies = enemies;
+        this.panel = gp;
 
-        this.maxHealth = 20;
+        this.maxHealth = type.getHealth();
         this.health = maxHealth;
-        this.contactDamage = 1;
-        this.speed = 2;
+        this.contactDamage = type.getContactDamage();
+        this.speed = type.getSpeed();
     }
 
-    public void update(double delta) {
+    public void update() {
         iFrames--;
         if (health <= 0) {
             die();
-            particleManager.spawn(
-                    x,
-                    y,
-                    10,
-                    deathColor,
-                    8,
-                    2,
-                    30,
-                    0f);
-            aura.add(new Aura(x, y));
+            panel.spawnParticles(this, PARTICLE_DAMAGE, 5, 1);
+            panel.getAura().add(new Aura(x, y));
         } else {
-            for (Projectile projectile : projectiles) {
-                if (isTouching(projectile)) {
+            for (Projectile projectile : panel.getProjectiles()) {
+                if (touching(projectile)) {
                     if (iFrames <= 0) {
                         projectile.hit();
                         this.health -= projectile.getContactDamage();
                         this.iFrames = I_FRAMES;
-                        particleManager.spawn(
-                                x,
-                                y,
+                        panel.getParticleManager().spawn(
+                                projectile.getX(),
+                                projectile.getY(),
                                 1,
                                 Color.BLACK,
                                 10,
@@ -78,8 +60,8 @@ public class Enemy extends GameObject {
                 double newY = y + directionY * speed;
 
                 // Check for collisions with other enemies
-                for (Enemy other : enemies) {
-                    if (other != this && isTouching(other)) {
+                for (Enemy other : panel.getEnemies()) {
+                    if (other != this && touching(other)) {
                         // Calculate angle of repulsion
                         double angle = Math.atan2(other.y - y, other.x - x);
 
@@ -92,8 +74,6 @@ public class Enemy extends GameObject {
                 // Update the position once
                 this.x = (int) newX;
                 this.y = (int) newY;
-            } else {
-                target.hit(this);
             }
         }
     }

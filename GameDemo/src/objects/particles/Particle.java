@@ -12,6 +12,15 @@ public class Particle {
     private float gravity;
     private String text;
 
+    private boolean active = true;
+
+    public Particle(float life, Color color, float size, float gravity) {
+        this.life = life;
+        this.color = color;
+        this.size = size;
+        this.gravity = gravity;
+    }
+
     public Particle(float x, float y, float vx, float vy, float life, Color color, float size, float gravity) {
         this.x = x;
         this.y = y;
@@ -37,9 +46,11 @@ public class Particle {
     }
 
     public void update() {
-        x += vx;
-        y += vy;
-        vy += gravity; // Simulate gravity
+        if (active) {
+            x += vx;
+            y += vy;
+            vy += gravity; // Simulate gravity
+        }
         life -= 1; // Reduce life
     }
 
@@ -48,7 +59,7 @@ public class Particle {
         if (text == null) {
             g.fillRect((int) (x - size / 2), (int) (y - size / 2), (int) size, (int) size);
         } else {
-            g.setFont(new Font("Arial", Font.BOLD, (int) size));
+            g.setFont(new Font("Impact", Font.BOLD, (int) size));
             AffineTransform transform = new AffineTransform();
             transform.translate(x, y);
             g.drawString(text, (int) x, (int) y);
@@ -57,5 +68,21 @@ public class Particle {
 
     public boolean isDead() {
         return life <= 0;
+    }
+
+    public float getLife() {
+        return this.life;
+    }
+
+    public Color getColor() {
+        return this.color;
+    }
+
+    public float getSize() {
+        return this.size;
+    }
+
+    public float getGravity() {
+        return this.gravity;
     }
 }

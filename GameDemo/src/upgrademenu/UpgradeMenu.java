@@ -1,109 +1,158 @@
 package upgrademenu;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
+import main.GamePanel;
 import main.KeyHandler;
 
 public class UpgradeMenu {
 
+    private GamePanel gp;
+    private KeyHandler keyHandler;
+
     private Slot[][] slots;
     private Rectangle frame;
     private ArrayList<Upgrade> upgradePool;
+
+    private Slot selectedSlot;
     private int selection;
     private int rows, cols;
-    private KeyHandler keyHandler;
 
-    private final int MARGIN = 1; // % of frame
+    private final int MARGIN = 1; // Margin as a percentage of frame width/height
 
-    public UpgradeMenu(Rectangle frame, KeyHandler keyHandler, ArrayList<Upgrade> upgradePool) {
+    public final int BORDER = 3; // pixels
+    public final int COST_MARGIN = 5;
 
-        this.slots = new Slot[2][3];
+    public final Color TITLE_COLOR = new Color(255, 255, 255);
+    public final Font TITLE_TEXT = new Font("Inria Serif", Font.BOLD, 20);
+
+    public UpgradeMenu(Rectangle frame, ArrayList<Upgrade> upgradePool, GamePanel gp, int cols, int rows) {
+        this.gp = gp;
+        this.keyHandler = gp.getKeyHandler();
+
+        this.cols = cols;
+        this.rows = rows;
         this.frame = frame;
+        this.slots = new Slot[rows][cols];
         this.selection = 0;
-        this.rows = slots.length;
-        this.cols = slots[0].length;
-        this.keyHandler = keyHandler;
 
         this.upgradePool = upgradePool;
 
+        fillSlots(); // Populate the slots during initialization
     }
 
-    public void fill() {
+    /**
+     * Fills the slots with unique upgrades from the upgrade pool.
+     */
+    public void fillSlots() {
         int horizontalMargin = (int) (frame.width * MARGIN / 100.0);
         int verticalMargin = (int) (frame.height * MARGIN / 100.0);
 
-        int width = (frame.width - (horizontalMargin * (cols + 1))) / cols;
-        int height = (frame.height - (verticalMargin * (rows + 1))) / rows;
+        int slotWidth = (frame.width - (horizontalMargin * (cols + 1))) / cols;
+        int slotHeight = (frame.height - (verticalMargin * (rows + 1))) / rows;
+
+        Collections.shuffle(upgradePool);
+
+        int upgradeIndex = 0; // Tracks the index in the shuffled pool
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                int x = frame.x + horizontalMargin + col * (width + horizontalMargin);
-                int y = frame.y + verticalMargin + row * (height + verticalMargin);
-                Rectangle slotFrame = new Rectangle(x, y, width, height);
+                int x = frame.x + horizontalMargin + col * (slotWidth + horizontalMargin);
+                int y = frame.y + verticalMargin + row * (slotHeight + verticalMargin);
+                Rectangle slotFrame = new Rectangle(x, y, slotWidth, slotHeight);
 
-                Random random = new Random();
-                slots[row][col] = new Slot(slotFrame, upgradePool.get(random.nextInt(upgradePool.size())));
+                // Get the next upgrade from the shuffled pool
+                Upgrade upgrade = upgradePool.get(upgradeIndex);
+                slots[row][col] = new Slot(this, slotFrame, upgrade);
+
+                // Increment the index, reset if we exhaust the pool
+                upgradeIndex = (upgradeIndex + 1) % upgradePool.size();
             }
         }
     }
 
+    /**
+     * Updates the menu logic, including selection navigation and cancel logic.
+     */
     public void update() {
-
         int currentRow = selection / cols;
         int currentCol = selection % cols;
 
-        // Move selection based on key presses
+        // Handle navigation
         if (keyHandler.upActive) {
-            currentRow = (currentRow - 1 + rows) % rows; // Wrap to last row if moving up from first
-            keyHandler.upActive = false; // Prevent continuous movement
+            currentRow = (currentRow - 1 + rows) % rows;
+            keyHandler.upActive = false;
         }
         if (keyHandler.downActive) {
-            currentRow = (currentRow + 1) % rows; // Wrap to first row if moving down from last
+            currentRow = (currentRow + 1) % rows;
             keyHandler.downActive = false;
         }
         if (keyHandler.leftActive) {
-            currentCol = (currentCol - 1 + cols) % cols; // Wrap to last column if moving left from first
+            currentCol = (currentCol - 1 + cols) % cols;
             keyHandler.leftActive = false;
         }
         if (keyHandler.rightActive) {
-            currentCol = (currentCol + 1) % cols; // Wrap to first column if moving right from last
+            currentCol = (currentCol + 1) % cols;
             keyHandler.rightActive = false;
         }
 
-        // Update selection
+        // Update the selected slot
         selection = currentRow * cols + currentCol;
+        selectedSlot = slots[currentRow][currentCol];
 
         // Highlight the selected slot
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                slots[row][col].isSelected = (row == currentRow && col == currentCol);
-            }
+        highlightSelectedSlot();
+
+        // Handle purchase logic
+        if (keyHandler.zActive) {
+            attemptPurchase();
         }
 
-        if (keyHandler.zActive)
-            slots[currentRow][currentCol].purchase();
+        if (keyHandler.xActive) {
+            gp.closeUpgradeMenu();
+        }
     }
 
-    public void draw(Graphics2D g) {
+    /**
+     * Highlights the selected slot in the menu.
+     */
+    private void highlightSelectedSlot() {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                slots[row][col].isSelected = (slots[row][col] == selectedSlot);
+            }
+        }
+    }
 
-        // draw frame
-        g.setColor(new Color(0f, 0f, 0f, .5f));
+    /**
+     * Attempts to purchase the selected upgrade.
+     */
+    private void attemptPurchase() {
+        if (selectedSlot != null && gp.getPlayer().getLevels() >= selectedSlot.getUpgrade().getCost()) {
+            selectedSlot.purchase();
+            gp.getPlayer().addLevels(-selectedSlot.getUpgrade().getCost());
+            gp.closeUpgradeMenu();
+        }
+    }
+
+    /**
+     * Draws the upgrade menu, slots, and the cancel button.
+     * 
+     * @param g Graphics2D object for rendering
+     */
+    public void draw(Graphics2D g) {
+        // Draw menu frame
+        g.setColor(new Color(0f, 0f, 0f, 0.5f));
         g.fill(frame);
 
-        // draw slots
+        // Draw each slot
         for (Slot[] row : slots) {
             for (Slot slot : row) {
                 slot.draw(g);
             }
         }
-
-        // debugging
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.PLAIN, 10));
-
-        g.drawString("Press 'P' key to close", 10, 10);
-        g.drawString("Selected Slot: " + selection, 10, 20);
     }
-
 }

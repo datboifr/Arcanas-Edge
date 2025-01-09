@@ -1,5 +1,6 @@
 package objects.projectiles;
 
+import main.GamePanel;
 import objects.GameObject;
 
 public class Projectile extends GameObject {
@@ -55,6 +56,9 @@ public class Projectile extends GameObject {
     }
 
     public void hit() {
+        if (!type.canPierce) {
+            die();
+        }
         type.hit(this, creator);
     }
 

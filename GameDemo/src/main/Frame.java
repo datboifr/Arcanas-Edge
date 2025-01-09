@@ -4,15 +4,20 @@ import javax.swing.*;
 
 public class Frame extends JFrame {
 
-	Frame() {
+	public Frame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
 		this.setUndecorated(false);
-
-		GraphicsPanel graphicsPanel = new GraphicsPanel();
-		this.add(graphicsPanel);
-		this.pack();
-
+		openGame(); // Start with the menu
 		this.setVisible(true);
+	}
+
+	public void openGame() {
+		this.getContentPane().removeAll();
+		GamePanel gamePanel = new GamePanel();
+		this.add(gamePanel);
+		this.revalidate();
+		this.repaint();
+		this.pack();
 	}
 }

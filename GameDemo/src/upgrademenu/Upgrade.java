@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Upgrade {
+
     private String title;
     private BufferedImage sprite;
     private int cost;
@@ -16,12 +17,23 @@ public class Upgrade {
         this.cost = cost;
         this.action = action;
 
-        try {
-            this.sprite = ImageIO.read(getClass().getResourceAsStream(spritePath));
-        } catch (IOException e) {
-            System.out.println("Couldn't load sprite");
+        if (!spritePath.equals("")) {
+            try {
+                this.sprite = ImageIO
+                        .read(getClass().getResourceAsStream("/res/icons/upgrades/" + spritePath + ".png"));
+            } catch (IOException e) {
+                System.out.println("Couldn't load sprite");
+            }
         }
     }
+
+    public void buy() {
+        if (action != null) {
+            action.execute();
+        }
+    }
+
+    // getters
 
     public String getTitle() {
         return title;
@@ -35,9 +47,7 @@ public class Upgrade {
         return cost;
     }
 
-    public void buy() {
-        if (action != null) {
-            action.execute();
-        }
+    public UpgradeAction getUpgradeAction() {
+        return action;
     }
 }

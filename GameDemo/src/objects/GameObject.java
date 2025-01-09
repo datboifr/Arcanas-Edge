@@ -7,7 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
 
+import main.GamePanel;
+import objects.particles.Particle;
+
 public class GameObject {
+
+    protected GamePanel panel;
 
     // direction
     protected float direction;
@@ -17,19 +22,17 @@ public class GameObject {
     protected int x, y, width, height;
     protected boolean alive = true;
     protected boolean isAttacking = false;
-    protected Color deathColor = new Color(160, 0, 0); // default red
-    protected final int I_FRAMES = 5;
+    protected final int I_FRAMES = 15;
     protected int iFrames = I_FRAMES;
     protected GameObject target;
 
     // traits
     protected float maxHealth;
     protected float health;
+    protected float recovery;
     protected float speed;
-
     protected float contactDamage;
     protected float abilityCooldown;
-
     protected float projectileDamage;
     protected float projectileSpeed;
     protected float projectileSize;
@@ -37,17 +40,22 @@ public class GameObject {
 
     // sprites & animation
 
+    protected boolean hasShadow = false;
     protected final int FRAMES_PER_SPRITE = 5;
 
     protected String spritePath;
-    BufferedImage sprite;
-    public String prompt;
+    BufferedImage sprite = null;
 
     protected HashMap<String, BufferedImage[]> animations = new HashMap<>();
     protected String currentAnimation;
     protected boolean animationLooping;
     protected int currentFrame = 1;
     protected int animationCounter = FRAMES_PER_SPRITE; // Counts frames for animation timing
+
+    // miscellaneous
+    protected Color deathColor = new Color(160, 0, 0); // default red
+    protected final Particle PARTICLE_DAMAGE = new Particle(30, Color.RED, 8, 0.1f);
+    protected String prompt;
 
     /**
      * Constructs a new object.
@@ -67,7 +75,6 @@ public class GameObject {
     public GameObject(int x, int y, String spritePath) {
         this.x = x;
         this.y = y;
-
         setSprite(spritePath);
         this.width = this.sprite.getWidth();
         this.height = this.sprite.getHeight();
@@ -77,6 +84,19 @@ public class GameObject {
      * Draws the object on screen
      */
     public void draw(Graphics2D g) {
+
+        // Draw the shadow if enabled
+        if (hasShadow) {
+            g.setColor(Color.BLACK);
+            // Align shadow with the bottom of the sprite or placeholder rectangle
+            int shadowWidth = width / 2;
+            int shadowHeight = 10;
+            int shadowX = x - shadowWidth / 2;
+            int shadowY = y + (height / 2) - shadowHeight / 2;
+
+            g.fillOval(shadowX, shadowY, shadowWidth, shadowHeight);
+        }
+
         // Draw the sprite if it's not null
         if (this.sprite != null) {
             // Save the original transform
@@ -162,10 +182,10 @@ public class GameObject {
      * 
      * @param other The object to be measured
      */
-    public boolean isTouching(GameObject other) {
-        Rectangle thisRect = new Rectangle(x - width / 2, y - height / 2, width, height);
-        Rectangle otherRect = new Rectangle(other.x - other.width / 2, other.y - other.height / 2, other.width,
-                other.height);
+    public boolean touching(GameObject other) {
+        Rectangle thisRect = new Rectangle(x, y, width, height);
+        Rectangle otherRect = new Rectangle(other.getX(), other.getY(), other.getWidth(),
+                other.getHeight());
         return thisRect.intersects(otherRect);
     }
 
@@ -175,7 +195,7 @@ public class GameObject {
      * @param other The object to be measured
      */
     public double distanceTo(GameObject other) {
-        return Math.sqrt(Math.pow(other.x - this.x, 2) + Math.pow(other.y - this.y, 2));
+        return Math.sqrt(Math.pow(other.getX() - x, 2) + Math.pow(other.getY() - y, 2));
     }
 
     // setters
@@ -192,6 +212,10 @@ public class GameObject {
     }
 
     // getters
+
+    public GamePanel getGamePanel() {
+        return this.panel;
+    }
 
     public int getX() {
         return this.x;
@@ -265,10 +289,14 @@ public class GameObject {
         return this.target;
     }
 
+    public int getIFrames() {
+        return this.iFrames;
+    }
+
     // setters
 
-    public void setState(boolean state) {
-        this.alive = state;
+    public void doDamage(float damage) {
+        this.health -= damage;
     }
 
     public void setSize(float decrease) {
@@ -286,6 +314,10 @@ public class GameObject {
 
     public void die() {
         this.alive = false;
+    }
+
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
     }
 
     public void collectAura(Aura aura) {

@@ -28,17 +28,17 @@ public class KeyHandler implements KeyListener {
             rightActive = true;
 
         // input
-        if (code == KeyEvent.VK_J)
+        if (code == KeyEvent.VK_U)
             aActive = true;
-        if (code == KeyEvent.VK_I)
+        if (code == KeyEvent.VK_J)
             bActive = true;
-        if (code == KeyEvent.VK_K)
+        if (code == KeyEvent.VK_I)
             cActive = true;
-        if (code == KeyEvent.VK_O)
+        if (code == KeyEvent.VK_K)
             xActive = true;
-        if (code == KeyEvent.VK_L)
+        if (code == KeyEvent.VK_O)
             yActive = true;
-        if (code == KeyEvent.VK_P)
+        if (code == KeyEvent.VK_L)
             zActive = true;
     }
 
@@ -58,17 +58,17 @@ public class KeyHandler implements KeyListener {
             rightActive = false;
 
         // input
-        if (code == KeyEvent.VK_J)
+        if (code == KeyEvent.VK_U)
             aActive = false;
-        if (code == KeyEvent.VK_I)
+        if (code == KeyEvent.VK_J)
             bActive = false;
-        if (code == KeyEvent.VK_K)
+        if (code == KeyEvent.VK_I)
             cActive = false;
-        if (code == KeyEvent.VK_O)
+        if (code == KeyEvent.VK_K)
             xActive = false;
-        if (code == KeyEvent.VK_L)
+        if (code == KeyEvent.VK_O)
             yActive = false;
-        if (code == KeyEvent.VK_P)
+        if (code == KeyEvent.VK_L)
             zActive = false;
     }
 }

@@ -1,13 +1,17 @@
 package combat;
 
 import java.util.ArrayList;
+import java.util.Random;
+
 import objects.GameObject;
 import objects.projectiles.Projectile;
 import objects.projectiles.ProjectileType;
 
 public class AbilityTypes {
 
-    public static Ability electric = new Ability("Electric", ProjectileType.LIGHTNING, 12, 5) {
+    static Random random = new Random();
+
+    public static Ability electric = new Ability("Electric Blast", ProjectileType.LIGHTNING, 12, 5) {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             // Start angle adjusted to ensure full circle distribution
@@ -22,7 +26,7 @@ public class AbilityTypes {
 
     };
 
-    public static Ability earth = new Ability("Earth", ProjectileType.EARTH, 1, 7) {
+    public static Ability earth = new Ability("Earth ", ProjectileType.EARTH, 1, 7) {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
@@ -31,11 +35,21 @@ public class AbilityTypes {
         }
     };
 
-    public static Ability falcon = new Ability("Falcon", ProjectileType.FALCON, 1, 5.5f) {
+    public static Ability falcon = new Ability("Falcon Whisper", ProjectileType.FALCON, 1, 5.5f) {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 projectiles.add(new Projectile(creator, 90, this.projectileType));
+            }
+        }
+    };
+
+    public static Ability fire = new Ability("Fire Shot", ProjectileType.FIRE, 3, 2f) {
+        @Override
+        public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
+            int direction = random.nextInt(360);
+            for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                projectiles.add(new Projectile(creator, direction + (15 * i), this.projectileType));
             }
         }
     };

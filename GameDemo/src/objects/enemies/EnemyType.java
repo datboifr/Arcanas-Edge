@@ -1,20 +1,18 @@
 package objects.enemies;
 
-public enum EnemyType {
-
-    BASIC(25, 100, 2, 5, "monster.png");
+public class EnemyType {
 
     protected int width;
     protected int height;
 
-    protected int health;
-    protected int speed;
-    protected int contactDamage;
+    protected float health;
+    protected float speed;
+    protected float contactDamage;
 
     protected String spritePath;
     protected int animationLength = -1;
 
-    EnemyType(int size, int health, int speed, int contactDamage, String spritePath) {
+    EnemyType(int size, float health, float speed, float contactDamage, String spritePath) {
         this.width = size;
         this.height = size;
 
@@ -25,7 +23,7 @@ public enum EnemyType {
         this.spritePath = spritePath;
     }
 
-    EnemyType(int size, int health, int speed, int contactDamage, String spritePath, int animationLength) {
+    EnemyType(int size, float health, float speed, float contactDamage, String spritePath, int animationLength) {
         this.width = size;
         this.height = size;
 
@@ -38,6 +36,18 @@ public enum EnemyType {
     }
 
     // Getters
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    public float getHealth() {
+        return this.health;
+    }
 
     public float getSpeed() {
         return speed;

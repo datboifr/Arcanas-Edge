@@ -73,7 +73,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         @Override
         public void created(Projectile projectile) {
             // Initial circular motion parameters
-            projectile.angle = 0; // Starting angle (in radians)
+            projectile.angle = random.nextInt(0, 360); // Starting angle (in radians)
             projectile.radius = 70; // Radius of the circular path
             // Calculate new X and Y positions based on circular motion equations
             projectile.centerX = projectile.getCreator().getX(); // The X position of the creator
@@ -108,6 +108,30 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         public void cooldownFinished(Projectile projectile) {
             projectile.die();
         }
+    },
+    FIRE(1, 2.5f, 20, false, 5, "fireArrow/FireArrowhead", 4) {
+
+        @Override
+        public void created(Projectile projectile) {
+        }
+
+        @Override
+        public void update(Projectile projectile) {
+            // Calculate the movement using direction and speed
+            double dx = Math.cos(Math.toRadians(projectile.getDirection())) * speed;
+            double dy = Math.sin(Math.toRadians(projectile.getDirection())) * speed;
+
+            // Update projectile's position
+            projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
+        }
+
+        @Override
+        public void hit(Projectile projectile, GameObject other) {
+        }
+
+        @Override
+        public void cooldownFinished(Projectile projectile) {
+        }
     };
 
     final float GRAVITY = 0.2f;
@@ -134,7 +158,6 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         this.cooldown = cooldown * 60; // seconds * fps = frames
 
         this.loadAnimation("default", spritePath, animationLength);
-
         this.width = this.animations.get("default")[0].getWidth();
         this.height = this.animations.get("default")[0].getHeight();
     }

@@ -29,7 +29,7 @@ public class Aura extends GameObject {
             y += dy * speed;
 
             // Check if the aura has reached the target
-            if (isTouching(target)) {
+            if (touching(target)) {
                 if (target instanceof Player) {
                     target.collectAura(this);
                 }
