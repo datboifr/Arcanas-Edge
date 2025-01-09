@@ -35,7 +35,6 @@ public class Slot {
 
         // Draw the frame
         g.setColor(Color.BLACK);
-        g.fill(frame);
 
         // Title initialization
         g.setColor(menu.TITLE_COLOR);
