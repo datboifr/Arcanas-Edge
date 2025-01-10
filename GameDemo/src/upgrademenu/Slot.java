@@ -62,25 +62,6 @@ public class Slot {
             g.drawImage(sprite, spriteX, spriteY, spriteWidth, spriteHeight, null);
         }
 
-        // Draw cost indicators
-        if (costIcon != null) {
-            int cost = upgrade.getCost(); // Costs range from 1 to 3
-            int iconWidth = costIcon.getWidth();
-            int iconHeight = costIcon.getHeight();
-
-            int totalWidth = (iconWidth * cost) + (menu.COST_MARGIN * (cost - 1));
-
-            // Starting position for the first cost icon (centered horizontally)
-            int startX = frame.x + (frame.width / 2) - (totalWidth / 2);
-            int startY = frame.y + frame.height - iconHeight - 10; // 10px padding from bottom
-
-            // Draw each cost icon
-            for (int i = 0; i < cost; i++) {
-                int iconX = startX + (i * (iconWidth + menu.COST_MARGIN));
-                g.drawImage(costIcon, iconX, startY, null);
-            }
-        }
-
         // Draw border if selected
         if (isSelected) {
             g.setStroke(new BasicStroke(menu.BORDER));

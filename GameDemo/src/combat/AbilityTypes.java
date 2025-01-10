@@ -30,6 +30,7 @@ public class AbilityTypes {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                if (i < 6)
                 projectiles.add(new Projectile(creator, 90, this.projectileType));
             }
         }
@@ -39,6 +40,7 @@ public class AbilityTypes {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                if (i < 3)
                 projectiles.add(new Projectile(creator, 90, this.projectileType));
             }
         }
@@ -49,6 +51,7 @@ public class AbilityTypes {
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             int direction = random.nextInt(360);
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                if (i < 6)
                 projectiles.add(new Projectile(creator, direction + (15 * i), this.projectileType));
             }
         }

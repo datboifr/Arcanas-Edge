@@ -68,7 +68,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
         public void cooldownFinished(Projectile projectile) {
         }
     },
-    FALCON(1.5f, 0.05f, 20, true, 5, "falcon/Falcon") {
+    FALCON(1.5f, 0.07f, 20, true, 5, "falcon/Falcon") {
 
         @Override
         public void created(Projectile projectile) {
@@ -109,7 +109,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
             projectile.die();
         }
     },
-    FIRE(1, 2.5f, 20, false, 5, "fireArrow/FireArrowhead", 4) {
+    FIRE(1, 5f, 20, false, 5, "fireArrow/FireArrowhead", 4) {
 
         @Override
         public void created(Projectile projectile) {

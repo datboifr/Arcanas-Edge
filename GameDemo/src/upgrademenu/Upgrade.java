@@ -9,12 +9,17 @@ public class Upgrade {
 
     private String title;
     private BufferedImage sprite;
-    private int cost;
     private UpgradeAction action;
 
-    public Upgrade(String title, String spritePath, int cost, UpgradeAction action) {
+    private int purchaseCount = 0;
+    private int cost;
+    private int costIncreasePercentage;
+
+
+    public Upgrade(String title, String spritePath, int costUpgradeAction, UpgradeAction action) {
         this.title = title;
         this.cost = cost;
+        //this.costIncreasePercentage = costIncreasePercentage;
         this.action = action;
 
         if (!spritePath.equals("")) {
@@ -28,6 +33,7 @@ public class Upgrade {
     }
 
     public void buy() {
+        purchaseCount++;
         if (action != null) {
             action.execute();
         }

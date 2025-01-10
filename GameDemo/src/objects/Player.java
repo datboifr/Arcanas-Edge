@@ -1,3 +1,4 @@
+
 package objects;
 
 import combat.Ability;
@@ -297,6 +298,12 @@ public class Player extends GameObject {
 		this.projectileBonus += 1; // 1 more projectile
 		System.out.println("Additional Projectile");
 	}
+
+	
+	public void upgradePickupRange() {
+		this.pickupRange += DEFAULT_PICKUP_RANGE / 5;
+	}
+
 
 	// setters
 

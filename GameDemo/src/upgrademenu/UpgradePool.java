@@ -20,54 +20,54 @@ public class UpgradePool {
                 upgradePool.add(new Upgrade(
                                 "Max Health",
                                 "",
-                                1,
+                                25,
                                 () -> player.upgradeMaxHealth()));
 
                 // speed upgrade
                 upgradePool.add(new Upgrade(
                                 "Agility",
                                 "",
-                                1,
+                                20,
                                 () -> player.upgradeAgility()));
 
                 // contact damage upgrade
                 upgradePool.add(new Upgrade(
                                 "Contact Damage",
                                 "ContactDamage",
-                                1,
+                                35,
                                 () -> player.upgradeContactDamage()));
 
                 // shot damage upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Damage",
                                 "",
-                                1,
+                                35,
                                 () -> player.upgradeProjectileDamage()));
 
                 // projectile speed upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Speed",
                                 "ProjectileSpeed",
-                                1,
+                                40,
                                 () -> player.upgradeProjectileSpeed()));
 
                 // projectile size upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Size",
                                 "",
-                                1,
+                                30,
                                 () -> player.upgradeProjectileSize()));
 
                 upgradePool.add(new Upgrade(
                                 "Magic Cooldown",
                                 "",
-                                2,
+                                45,
                                 () -> player.upgradeAbilityCooldown()));
 
                 upgradePool.add(new Upgrade(
                                 "More Projectiles",
                                 "ProjectileBonus",
-                                2,
+                                45,
                                 () -> player.upgradeProjectileBonus()));
 
                 upgradePool.add(new Upgrade(
@@ -75,6 +75,12 @@ public class UpgradePool {
                                 "",
                                 5,
                                 () -> player.newAbility(AbilityTypes.electric)));
+
+                upgradePool.add(new Upgrade(
+                              "Lenses",
+                               "",
+                                25,
+                               () -> player.upgradePickupRange()));
 
                 return upgradePool;
 
