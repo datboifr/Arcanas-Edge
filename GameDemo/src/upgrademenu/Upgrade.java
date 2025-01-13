@@ -15,21 +15,6 @@ public class Upgrade {
     private int cost;
     private float costIncrease;
 
-    public Upgrade(String title, String spritePath, int costUpgradeAction, UpgradeAction action) {
-        this.title = title;
-        this.cost = costUpgradeAction;
-        this.action = action;
-
-        if (!spritePath.equals("")) {
-            try {
-                this.sprite = ImageIO
-                        .read(getClass().getResourceAsStream("/res/icons/upgrades/" + spritePath + ".png"));
-            } catch (IOException e) {
-                System.out.println("Couldn't load sprite");
-            }
-        }
-    }
-
     public Upgrade(String title, String description, String spritePath, int cost, float costIncrease,
             UpgradeAction action) {
 

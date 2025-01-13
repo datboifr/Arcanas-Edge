@@ -111,7 +111,7 @@ public enum ProjectileType implements ProjectileBehaviour, Animation {
             // projectile.die();
         }
     },
-    FIRE(1, 5f, 10, false, 5, Map.of(
+    FIRE(1, 5f, 25, true, 5, Map.of(
             "default", new AnimationData("fireArrow/FireArrowhead", 4))) {
         @Override
         public void created(Projectile projectile) {

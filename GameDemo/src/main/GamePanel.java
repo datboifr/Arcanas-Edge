@@ -24,8 +24,11 @@ public class GamePanel extends JPanel implements Runnable {
     private MusicPlayer musicPlayer;
 
     // Screen settings
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static final int WIDTH = 1600;
+    private static final int HEIGHT = 900;
+
+    private static final float WAVE_COOLDOWN = 5;
+    private static int waveCooldown;
 
     private Thread gameThread;
     private boolean isRunning = false;
@@ -171,8 +174,11 @@ public class GamePanel extends JPanel implements Runnable {
                 int maxSpawnTime = Math.max(60, 180 - (wave * 10)); // Max of 3 seconds
                 spawnTimer = random.nextInt(maxSpawnTime - minSpawnTime + 1) + minSpawnTime;
             }
-        } else if (player.touching(platform)) {
+        } else if (waveCooldown <= 0) {
             startWave();
+            waveCooldown = (int) (WAVE_COOLDOWN * 60);
+        } else {
+            waveCooldown--;
         }
     }
 
@@ -308,7 +314,9 @@ public class GamePanel extends JPanel implements Runnable {
      * @param g Graphics2D object.
      */
     private void drawDebugInfo(Graphics2D g) {
-        g.setColor(Color.WHITE);
+
+        final Color COLOR_UI = new Color(1f, 1f, 1f, 0.5f);
+        g.setColor(COLOR_UI);
         g.setFont(new Font("Arial", Font.PLAIN, 10));
 
         g.drawString("FPS: " + fps, 10, 20);
@@ -318,6 +326,29 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString("Spawn Timer: " + spawnTimer, 10, 100);
         g.drawString("Aura: " + player.getAura(), 10, 120);
         g.drawString("Projectiles: " + projectiles.size(), 10, 140);
+
+        if (!waveActive && !upgradeMenuActive) {
+
+            String timer = String.format("%.1f", waveCooldown / 60.0);
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            FontMetrics titleMetrics = g.getFontMetrics(g.getFont());
+
+            int timerWidth = titleMetrics.stringWidth(timer);
+            int timerHeight = titleMetrics.getHeight();
+
+            int timerX = (WIDTH / 2) - (timerWidth / 2);
+            int timerY = 100;
+
+            g.drawString(String.format(timer), timerX, timerY);
+
+            String subtext = "WAVE STARTS IN";
+            g.setFont(new Font("Arial", Font.BOLD, 15));
+            FontMetrics subtextMetrics = g.getFontMetrics(g.getFont());
+
+            int subtextWidth = subtextMetrics.stringWidth(subtext);
+
+            g.drawString(subtext, (WIDTH / 2) - (subtextWidth / 2), timerHeight - 30);
+        }
 
         /**
          * float auraCompletion = (float) player.getAura() / player.getRequiredAura();

@@ -120,22 +120,30 @@ public class Player extends GameObject {
 		if (keyHandler.upActive) {
 			literalDirection = "up";
 			super.direction = 270;
-			deltaY -= speed;
+			if (y > (0 + (height / 2))) {
+				deltaY -= speed;
+			}
 		}
 		if (keyHandler.downActive) {
 			literalDirection = "down";
 			super.direction = 90;
-			deltaY += speed;
+			if (y < (panel.getHeight() - (height / 2))) {
+				deltaY += speed;
+			}
 		}
 		if (keyHandler.leftActive) {
 			literalDirection = "left";
 			super.direction = 180;
-			deltaX -= speed;
+			if (x > (0 + (width / 2))) {
+				deltaX -= speed;
+			}
 		}
 		if (keyHandler.rightActive) {
 			literalDirection = "right";
 			super.direction = 0;
-			deltaX += speed;
+			if (x < (panel.getWidth() - (width / 2))) {
+				deltaX += speed;
+			}
 		}
 
 		// Normalize diagonal movement speed
