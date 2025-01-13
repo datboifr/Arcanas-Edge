@@ -12,7 +12,7 @@ public class Projectile extends GameObject {
     public float angularSpeed;
     public int centerX, centerY;
 
-    private boolean allowedOffScreen = false;
+    private boolean allowedOffScreen = true;
     private boolean active = true;
 
     private final GameObject creator;
@@ -72,7 +72,9 @@ public class Projectile extends GameObject {
 
     public void checkPositionOnScreen(int screenWidth, int screenHeight) {
         if (this.x < 0 || this.x > screenWidth || this.y < 0 || this.y > screenHeight) {
-            die();
+            if (!allowedOffScreen) {
+                die();
+            }
         }
     }
 

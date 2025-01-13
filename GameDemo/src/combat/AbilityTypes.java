@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import objects.GameObject;
+import objects.enemies.Enemy;
 import objects.projectiles.Projectile;
 import objects.projectiles.ProjectileType;
 
@@ -31,7 +32,7 @@ public class AbilityTypes {
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 if (i < 6)
-                projectiles.add(new Projectile(creator, 90, this.projectileType));
+                    projectiles.add(new Projectile(creator, 90, this.projectileType));
             }
         }
     };
@@ -41,7 +42,7 @@ public class AbilityTypes {
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 if (i < 3)
-                projectiles.add(new Projectile(creator, 90, this.projectileType));
+                    projectiles.add(new Projectile(creator, 90, this.projectileType));
             }
         }
     };
@@ -52,9 +53,36 @@ public class AbilityTypes {
             int direction = random.nextInt(360);
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
                 if (i < 6)
-                projectiles.add(new Projectile(creator, direction + (15 * i), this.projectileType));
+                    projectiles.add(new Projectile(creator, direction + (15 * i), this.projectileType));
             }
         }
     };
+
+    public static Ability blast = new Ability("Blast", ProjectileType.BASIC, 1, 2f) {
+        @Override
+        public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
+            for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
+                if (i < 6)
+                    projectiles.add(new Projectile(creator, creator.getDirection(), this.projectileType));
+            }
+        }
+    };
+
+    /**
+     * SCRAPPED
+     * public static Ability shark = new Ability("Shark Attack",
+     * ProjectileType.SHARK, 1, 3f) {
+     * 
+     * @Override
+     *           public void doAbility(GameObject creator, ArrayList<Projectile>
+     *           projectiles) {
+     *           for (int i = 0; i < (this.numberOfProjectiles +
+     *           creator.getProjectileBonus()); i++) {
+     *           if (i < 6)
+     *           projectiles.add(new Projectile(creator, 0, this.projectileType));
+     *           }
+     *           }
+     *           };
+     **/
 
 }

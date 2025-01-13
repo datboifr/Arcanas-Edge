@@ -1,24 +1,18 @@
-
 package objects;
 
 import combat.Ability;
 import combat.AbilityTypes;
-
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
-
 import main.GamePanel;
 import main.KeyHandler;
-import objects.particles.Particle;
+import objects.enemies.Enemy;
 
 public class Player extends GameObject {
 
 	private String literalDirection;
-
 	private final int RUNNING_FRAMES = 10;
 	private final int ATTACK_FRAMES = 9;
 	private BufferedImage[] runBack = new BufferedImage[RUNNING_FRAMES];
@@ -29,15 +23,13 @@ public class Player extends GameObject {
 	private BufferedImage[] LmeleeRD = new BufferedImage[ATTACK_FRAMES];
 	private BufferedImage idleB, idleF, idleR, idleL;
 
-	GamePanel gp;
+	GamePanel panel;
 	KeyHandler keyHandler;
 
 	private ArrayList<Ability> abilities;
+	private ArrayList<Enemy> sortedEnemies;
 
-	private int currentAura;
-	private int requiredAura;
-	private int levels;
-
+	private int aura;
 	private int pickupRange;
 	private final int DEFAULT_PICKUP_RANGE = 50;
 
@@ -55,15 +47,11 @@ public class Player extends GameObject {
 	// Constructor
 	public Player(GamePanel gp, int x, int y, int width, int height) {
 		super(x, y, width, height);
-		this.gp = gp;
-
+		this.panel = gp;
 		literalDirection = "down";
 		this.keyHandler = gp.getKeyHandler();
-
-		this.levels = 0;
-		this.currentAura = 0;
-		this.requiredAura = 5;
-
+		this.sortedEnemies = new ArrayList<>();
+		this.aura = 0;
 		this.pickupRange = DEFAULT_PICKUP_RANGE;
 
 		this.abilities = new ArrayList<>();
@@ -71,6 +59,7 @@ public class Player extends GameObject {
 		abilities.add(AbilityTypes.electric);
 		abilities.add(AbilityTypes.earth);
 		abilities.add(AbilityTypes.falcon);
+		abilities.add(AbilityTypes.blast);
 
 		this.maxHealth = DEFAULT_MAX_HEALTH;
 		this.health = maxHealth;
@@ -90,6 +79,7 @@ public class Player extends GameObject {
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
 		} catch (IOException e) {
+			System.out.println("Couldn't Fetch Sprite");
 		}
 
 		this.currentFrame = 1;
@@ -97,7 +87,6 @@ public class Player extends GameObject {
 	}
 
 	public void update() {
-
 		if (health <= 0) {
 			die();
 		} else {
@@ -105,51 +94,23 @@ public class Player extends GameObject {
 			if (health < maxHealth) {
 				health += recovery;
 			}
-			if (currentAura >= requiredAura) {
-				levelUp();
-			}
 
 			handleMovement();
-
-			for (Aura aura : gp.getAura()) {
-				if (distanceTo(aura) < pickupRange) {
-					aura.collect(this);
-				}
-			}
+			collectNearbyAuras();
 
 			if (iFrames <= 0) {
-				for (GameObject enemy : gp.getEnemies()) {
-					if (touching(enemy)) {
-						this.iFrames = I_FRAMES;
-						enemy.hit(this);
-						this.health -= enemy.getContactDamage();
-						gp.spawnParticles(this, PARTICLE_DAMAGE, 5, 1.5f);
-					}
-				}
+				checkCollisionWithEnemies();
 			}
 
 			updateThisAnimation();
 			updateSprite();
+
 			for (Ability ability : abilities) {
 				if (ability != null) {
-					ability.update(this, gp.getProjectiles());
+					ability.update(this, panel.getProjectiles());
 				}
 			}
 		}
-
-	}
-
-	public void levelUp() {
-		levels++;
-		this.currentAura = 0;
-		requiredAura = 5 * levels;
-		gp.openUpgradeMenu(gp.menuLevelUp);
-	}
-
-	@SuppressWarnings("unused")
-	private boolean isMoving() {
-		return keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive || keyHandler.rightActive
-				|| keyHandler.upRightPressed || keyHandler.upLeftPressed;
 	}
 
 	private void handleMovement() {
@@ -189,6 +150,25 @@ public class Player extends GameObject {
 		y += deltaY;
 	}
 
+	private void collectNearbyAuras() {
+		for (Aura aura : panel.getAura()) {
+			if (distanceTo(aura) < pickupRange) {
+				aura.collect(this);
+			}
+		}
+	}
+
+	private void checkCollisionWithEnemies() {
+		for (GameObject enemy : panel.getEnemies()) {
+			if (touching(enemy)) {
+				this.iFrames = I_FRAMES;
+				enemy.hit(this);
+				this.health -= enemy.getContactDamage();
+				panel.spawnParticles(this, PARTICLE_DAMAGE, 5, 1.5f);
+			}
+		}
+	}
+
 	private void updateThisAnimation() {
 		animationCounter++;
 
@@ -205,9 +185,9 @@ public class Player extends GameObject {
 	}
 
 	private void updateSprite() {
-		if (isAttacking) // add switch statement for directions later
+		if (isAttacking) {
 			sprite = LmeleeR[currentFrame - 1];
-		else
+		} else {
 			switch (literalDirection) {
 				case "up":
 					sprite = keyHandler.upActive ? runBack[currentFrame - 1] : idleB;
@@ -222,6 +202,7 @@ public class Player extends GameObject {
 					sprite = keyHandler.rightActive ? runRight[currentFrame - 1] : idleR;
 					break;
 			}
+		}
 	}
 
 	public void loadPlayerImages() {
@@ -257,76 +238,56 @@ public class Player extends GameObject {
 		}
 	}
 
-	// all stats stuff
+	// Upgrade methods
 
 	public void upgradeMaxHealth() {
-		this.maxHealth += DEFAULT_MAX_HEALTH / 10; // increases by 10%
-		System.out.println("Max Health Upgraded");
+		this.maxHealth += DEFAULT_MAX_HEALTH / 10; // 10%
+	}
+
+	public void upgradeRecovery() {
+		this.recovery += DEFAULT_RECOVERY;
 	}
 
 	public void upgradeAgility() {
-		this.speed += DEFAULT_SPEED / 20; // increases by 5%
-		System.out.println("Speed Upgraded");
+		this.speed += DEFAULT_SPEED / 20; // 5%
 	}
 
 	public void upgradeContactDamage() {
-		this.contactDamage += 5; // increases by 5
-		System.out.println("Contact Damage Upgraded");
+		this.contactDamage += 5;
 	}
 
 	public void upgradeProjectileDamage() {
-		this.projectileDamage += DEFAULT_PROJECTILE_DAMAGE / 10; // increases by 10%
-		System.out.println("Strength Upgraded");
+		this.projectileDamage += DEFAULT_PROJECTILE_DAMAGE / 5; // 20%
 	}
 
 	public void upgradeProjectileSpeed() {
-		this.projectileSpeed += DEFAULT_PROJECTILE_SPEED / 10; // increases by 10%
-		System.out.println("Projectile Speed Upgraded");
+		this.projectileSpeed += DEFAULT_PROJECTILE_SPEED / 10; // 10%
 	}
 
 	public void upgradeProjectileSize() {
-		this.projectileSize += DEFAULT_PROJECTILE_SIZE / 10; // increases by 10%
-		System.out.println("Projectile Size Upgraded");
+		this.projectileSize += DEFAULT_PROJECTILE_SIZE / 10; // 10%
 	}
 
 	public void upgradeAbilityCooldown() {
-		this.abilityCooldown -= DEFAULT_ABILITY_COOLDOWN / 20; // decreases by 5%
-		System.out.println("Cooldown Upgraded");
+		this.abilityCooldown -= DEFAULT_ABILITY_COOLDOWN / 10; // 10%
 	}
 
 	public void upgradeProjectileBonus() {
-		this.projectileBonus += 1; // 1 more projectile
-		System.out.println("Additional Projectile");
+		this.projectileBonus += 1;
 	}
 
-	
 	public void upgradePickupRange() {
-		this.pickupRange += DEFAULT_PICKUP_RANGE / 5;
+		this.pickupRange += DEFAULT_PICKUP_RANGE / 4; // 25%
 	}
 
-
-	// setters
+	// Setters and Getters
 
 	public void collectAura(Aura aura) {
-		this.currentAura += aura.getValue();
+		this.aura += aura.getValue();
 	}
 
-	public void addLevels(int levels) {
-		this.levels += levels;
-	}
-
-	// getters
-
-	public int getLevels() {
-		return this.levels;
-	}
-
-	public int getCurrentAura() {
-		return this.currentAura;
-	}
-
-	public int getRequiredAura() {
-		return this.requiredAura;
+	public int getAura() {
+		return this.aura;
 	}
 
 	public ArrayList<Ability> getAbilities() {
@@ -335,6 +296,10 @@ public class Player extends GameObject {
 
 	public void newAbility(Ability ability) {
 		abilities.add(ability);
+	}
+
+	public void addAura(int i) {
+		this.aura += i;
 	}
 
 }

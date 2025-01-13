@@ -1,4 +1,4 @@
-package objects;
+package objects.structures;
 
 import java.sql.Struct;
 
@@ -15,7 +15,7 @@ public enum StructureType implements StructureBehaviour {
         }
 
         @Override
-        public void hit(Struct structure) {
+        public void hit(Structure structure) {
         }
     };
 

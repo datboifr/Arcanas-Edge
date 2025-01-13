@@ -2,7 +2,6 @@ package upgrademenu;
 
 import java.util.ArrayList;
 
-import combat.AbilityTypes;
 import main.GamePanel;
 import objects.Player;
 
@@ -19,70 +18,94 @@ public class UpgradePool {
                 // health upgrade
                 upgradePool.add(new Upgrade(
                                 "Max Health",
-                                "",
-                                25,
+                                "Increase your maximum health",
+                                "", // spritePath
+                                25, // cost
+                                1.1f, // costIncrease
                                 () -> player.upgradeMaxHealth()));
 
-                // speed upgrade
+                // recovery upgrade
+                upgradePool.add(new Upgrade(
+                                "Recovery",
+                                "Heal faster",
+                                "Recovery", // spritePath
+                                25, // cost
+                                1.5f, // costIncrease
+                                () -> player.upgradeRecovery()));
+
+                // speed upgradeuku
                 upgradePool.add(new Upgrade(
                                 "Agility",
-                                "",
-                                20,
+                                "Move faster to evade enemies",
+                                "Agility", // spritePath
+                                20, // cost
+                                1.5f, // costIncrease
                                 () -> player.upgradeAgility()));
 
                 // contact damage upgrade
                 upgradePool.add(new Upgrade(
                                 "Contact Damage",
-                                "ContactDamage",
-                                35,
+                                "Boost the damage dealt on contact",
+                                "ContactDamage", // spritePath
+                                35, // cost
+                                1f, // costIncrease
                                 () -> player.upgradeContactDamage()));
 
                 // shot damage upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Damage",
-                                "",
-                                35,
+                                "Increase the damage of your magic",
+                                "ProjectileDamage", // spritePath
+                                35, // cost
+                                1.2f, // costIncrease
                                 () -> player.upgradeProjectileDamage()));
 
                 // projectile speed upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Speed",
-                                "ProjectileSpeed",
-                                40,
+                                "Increase the speed of your magic",
+                                "ProjectileSpeed", // spritePath
+                                40, // cost
+                                1.2f, // costIncrease
                                 () -> player.upgradeProjectileSpeed()));
 
                 // projectile size upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Size",
-                                "",
-                                30,
+                                "Increase the size of your magic",
+                                "", // spritePath
+                                30, // cost
+                                1.3f, // costIncrease
                                 () -> player.upgradeProjectileSize()));
 
+                // ability cooldown upgrade
                 upgradePool.add(new Upgrade(
                                 "Magic Cooldown",
-                                "",
-                                45,
+                                "Reduce the cooldown of abilities",
+                                "Cooldown", // spritePath
+                                45, // cost
+                                1.7f, // costIncrease
                                 () -> player.upgradeAbilityCooldown()));
 
+                // more projectiles upgrade
                 upgradePool.add(new Upgrade(
                                 "More Projectiles",
-                                "ProjectileBonus",
-                                45,
+                                "Fire additional projectiles",
+                                "ProjectileBonus", // spritePath
+                                45, // cost
+                                2, // costIncrease
                                 () -> player.upgradeProjectileBonus()));
 
+                // pickup range upgrade
                 upgradePool.add(new Upgrade(
-                                "Electric Blast",
-                                "",
-                                5,
-                                () -> player.newAbility(AbilityTypes.electric)));
-
-                upgradePool.add(new Upgrade(
-                              "Lenses",
-                               "",
-                                25,
-                               () -> player.upgradePickupRange()));
+                                "Lenses",
+                                "Increase pickup range",
+                                "", // spritePath
+                                25, // cost
+                                1.4f, // costIncrease
+                                () -> player.upgradePickupRange()));
 
                 return upgradePool;
-
         }
+
 }

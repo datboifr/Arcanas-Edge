@@ -1,12 +1,14 @@
 package objects;
 
-public class Aura extends GameObject {
+import java.util.Random;
 
+public class Aura extends GameObject {
+    Random random = new Random();
     private int value;
 
     public Aura(int x, int y) {
         super(x, y, 7, 7);
-        this.value = 1;
+        this.value = random.nextInt(1, 3);
         this.speed = 5;
     }
 

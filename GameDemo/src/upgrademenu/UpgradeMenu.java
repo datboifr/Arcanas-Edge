@@ -3,7 +3,6 @@ package upgrademenu;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 import main.GamePanel;
 import main.KeyHandler;
@@ -21,6 +20,8 @@ public class UpgradeMenu {
     private int selection;
     private int rows, cols;
 
+    private boolean selectActive = false;
+
     private final int MARGIN = 1; // Margin as a percentage of frame width/height
 
     public final int BORDER = 3; // pixels
@@ -28,6 +29,8 @@ public class UpgradeMenu {
 
     public final Color TITLE_COLOR = new Color(255, 255, 255);
     public final Font TITLE_TEXT = new Font("Inria Serif", Font.BOLD, 20);
+    public final Color DESCRIPTION_COLOR = new Color(200, 200, 200);
+    public final Font DESCRIPTION_TEXT = new Font("Inria Serif", Font.BOLD, 10);
 
     public UpgradeMenu(Rectangle frame, ArrayList<Upgrade> upgradePool, GamePanel gp, int cols, int rows) {
         this.gp = gp;
@@ -108,7 +111,12 @@ public class UpgradeMenu {
 
         // Handle purchase logic
         if (keyHandler.zActive) {
-            attemptPurchase();
+            if (!selectActive) {
+                attemptPurchase();
+                selectActive = true;
+            }
+        } else {
+            selectActive = false;
         }
 
         if (keyHandler.xActive) {
@@ -131,10 +139,9 @@ public class UpgradeMenu {
      * Attempts to purchase the selected upgrade.
      */
     private void attemptPurchase() {
-        if (selectedSlot != null && gp.getPlayer().getLevels() >= selectedSlot.getUpgrade().getCost()) {
+        if (selectedSlot != null && gp.getPlayer().getAura() >= selectedSlot.getUpgrade().getCost()) {
+            gp.getPlayer().addAura(-selectedSlot.getUpgrade().getCost());
             selectedSlot.purchase();
-            gp.getPlayer().addLevels(-selectedSlot.getUpgrade().getCost());
-            gp.closeUpgradeMenu();
         }
     }
 

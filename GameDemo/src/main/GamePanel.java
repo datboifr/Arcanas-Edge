@@ -21,6 +21,8 @@ import upgrademenu.UpgradePool;
  */
 public class GamePanel extends JPanel implements Runnable {
 
+    private MusicPlayer musicPlayer;
+
     // Screen settings
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -48,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final GameObject background;
 
     public final UpgradeMenu menuWaveComplete;
-    public final UpgradeMenu menuLevelUp;
+    public final UpgradeMenu UPGRADE_MENU;
 
     private UpgradeMenu currentMenu;
     private boolean upgradeMenuActive;
@@ -79,7 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
         platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
         background = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Map");
 
-        menuLevelUp = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
+        UPGRADE_MENU = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
                 UpgradePool.getUpgrades(this, player), this, 3, 2);
         menuWaveComplete = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
                 UpgradePool.getUpgrades(this, player), this, 1, 2);
@@ -135,6 +137,10 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        if (keyHandler.bActive) {
+            player.addAura(1);
+        }
+
         player.update();
         enemies.forEach(enemy -> enemy.update());
         aura.forEach(Aura::update);
@@ -161,7 +167,9 @@ public class GamePanel extends JPanel implements Runnable {
                 endWave();
             } else if (enemyCounter < enemyLimit && spawnTimer <= 0) {
                 spawnEnemy();
-                spawnTimer = random.nextInt(2) * 60 + 60; // Random spawn interval
+                int minSpawnTime = Math.max(30, 120 - (wave * 5)); // Min of 0.5 seconds
+                int maxSpawnTime = Math.max(60, 180 - (wave * 10)); // Max of 3 seconds
+                spawnTimer = random.nextInt(maxSpawnTime - minSpawnTime + 1) + minSpawnTime;
             }
         } else if (player.touching(platform)) {
             startWave();
@@ -173,7 +181,7 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void startWave() {
         wave++;
-        enemyLimit = wave + 4;
+        enemyLimit = 8 + wave;
         waveActive = true;
         spawnTimer = 0;
     }
@@ -184,6 +192,7 @@ public class GamePanel extends JPanel implements Runnable {
     private void endWave() {
         waveActive = false;
         enemyCounter = 0;
+        openUpgradeMenu(UPGRADE_MENU);
     }
 
     /**
@@ -191,10 +200,14 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void spawnEnemy() {
         int spawnSide = random.nextInt(4);
-        int enemyCount = random.nextInt(3, 3 + wave);
+        int enemyCount = random.nextInt(3, 4 + wave);
 
         for (int i = 0; i < enemyCount; i++) {
             int x = 0, y = 0;
+
+            if (random.nextBoolean()) {
+                spawnSide = random.nextInt(4);
+            }
 
             switch (spawnSide) {
                 case 0 -> {
@@ -217,7 +230,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             enemies.add(
                     new Enemy(this, x, y, enemyPool.getEnemyPool().get(random.nextInt(enemyPool.getEnemyPool().size())),
-                            player));
+                            player, 1 + (wave / 5)));
         }
         enemyCounter++;
     }
@@ -283,7 +296,7 @@ public class GamePanel extends JPanel implements Runnable {
                 (int) (player.getWidth() * (player.getHealth() / player.getMaxHealth())), 5);
 
         if (upgradeMenuActive) {
-            menuLevelUp.draw(g2d);
+            UPGRADE_MENU.draw(g2d);
         }
 
         drawDebugInfo(g2d);
@@ -303,22 +316,24 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString("Enemies: " + enemies.size(), 10, 60);
         g.drawString("Player Health: " + player.getHealth(), 10, 80);
         g.drawString("Spawn Timer: " + spawnTimer, 10, 100);
-        g.drawString("Levels: " + player.getLevels(), 10, 120);
+        g.drawString("Aura: " + player.getAura(), 10, 120);
         g.drawString("Projectiles: " + projectiles.size(), 10, 140);
 
-        float auraCompletion = (float) player.getCurrentAura() / player.getRequiredAura();
-        Color targetColor = new Color(207, 93, 54);
-
-        Color interpolatedColor = new Color(
-                1 - auraCompletion + targetColor.getRed() / 255f * auraCompletion,
-                1 - auraCompletion + targetColor.getGreen() / 255f * auraCompletion,
-                1 - auraCompletion + targetColor.getBlue() / 255f * auraCompletion);
-        g.setColor(interpolatedColor);
-
-        if (player.getCurrentAura() != 0) {
-            g.fillRect(0, HEIGHT - 10, (int) (WIDTH * auraCompletion),
-                    10);
-        }
+        /**
+         * float auraCompletion = (float) player.getAura() / player.getRequiredAura();
+         * Color targetColor = new Color(207, 93, 54);
+         * 
+         * Color interpolatedColor = new Color(
+         * 1 - auraCompletion + targetColor.getRed() / 255f * auraCompletion,
+         * 1 - auraCompletion + targetColor.getGreen() / 255f * auraCompletion,
+         * 1 - auraCompletion + targetColor.getBlue() / 255f * auraCompletion);
+         * g.setColor(interpolatedColor);
+         * 
+         * if (player.getAura() != 0) {
+         * g.fillRect(0, HEIGHT - 10, (int) (WIDTH * auraCompletion),
+         * 10);
+         * }
+         **/
     }
 
     public void openUpgradeMenu(UpgradeMenu upgradeMenu) {
@@ -334,6 +349,11 @@ public class GamePanel extends JPanel implements Runnable {
     public void spawnParticles(GameObject creator, Particle type, int amount, float speed) {
         particleManager.spawn(creator.getX(), creator.getY(), amount, type.getColor(), type.getSize(), speed,
                 type.getLife(), type.getGravity());
+    }
+
+    public void spawnDamageIndicator(GameObject creator, float damage) {
+        particleManager.spawn(creator.getX(), creator.getY(), 1, Color.BLACK, 10, 1.5f,
+                50, 0f, (int) damage);
     }
 
     // Getters
@@ -365,4 +385,5 @@ public class GamePanel extends JPanel implements Runnable {
     public int getWave() {
         return wave;
     }
+
 }

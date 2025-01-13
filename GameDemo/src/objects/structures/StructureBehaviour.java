@@ -1,11 +1,9 @@
-package objects;
-
-import java.sql.Struct;
+package objects.structures;
 
 public interface StructureBehaviour {
     void created(Structure structure);
 
     void update(Structure structure);
 
-    void hit(Struct structure);
+    void hit(Structure structure);
 }

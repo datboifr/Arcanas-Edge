@@ -21,6 +21,13 @@ public class Particle {
         this.gravity = gravity;
     }
 
+    public Particle(float life, Color color, float size, float gravity, String text) {
+        this.life = life;
+        this.color = color;
+        this.size = size;
+        this.gravity = gravity;
+    }
+
     public Particle(float x, float y, float vx, float vy, float life, Color color, float size, float gravity) {
         this.x = x;
         this.y = y;

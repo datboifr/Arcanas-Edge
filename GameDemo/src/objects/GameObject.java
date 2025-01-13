@@ -169,7 +169,8 @@ public class GameObject {
                     if (this.animationLooping) {
                         this.currentFrame = 0;
                     } else {
-                        this.currentFrame = this.animations.get(this.currentAnimation).length;
+                        this.currentFrame = 0;
+                        die();
                     }
                 }
                 this.sprite = this.animations.get(this.currentAnimation)[this.currentFrame];
@@ -196,6 +197,25 @@ public class GameObject {
      */
     public double distanceTo(GameObject other) {
         return Math.sqrt(Math.pow(other.getX() - x, 2) + Math.pow(other.getY() - y, 2));
+    }
+
+    /**
+     * Returns the direction of another object from this position
+     * 
+     * @param other The object to be measured
+     */
+    public float directionTo(GameObject other) {
+        float deltaX = other.getX() - this.x;
+        float deltaY = other.getY() - this.y;
+
+        // Calculate the angle using atan2 (returns angle in radians)
+        float angle = (float) Math.toDegrees(Math.atan2(deltaY, deltaX));
+
+        // Normalize the angle to be between 0 and 360 degrees
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle;
     }
 
     // setters
@@ -323,5 +343,4 @@ public class GameObject {
     public void collectAura(Aura aura) {
         // does nothing by default
     }
-
 }
