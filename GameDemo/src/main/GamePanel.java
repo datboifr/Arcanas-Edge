@@ -2,7 +2,11 @@
 package main;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
@@ -52,16 +56,19 @@ public class GamePanel extends JPanel implements Runnable {
     private final GameObject platform;
     private final GameObject background;
 
-    public final UpgradeMenu menuWaveComplete;
     public final UpgradeMenu UPGRADE_MENU;
 
     private UpgradeMenu currentMenu;
+
     private boolean upgradeMenuActive;
     private boolean waveActive;
     private int wave;
     private int enemyLimit;
     private int enemyCounter;
     private int spawnTimer;
+
+    private final UIElement WaveIndicator;
+    private final Font WaveIndicatorFont = new Font("Arial", Font.BOLD, 50);
 
     /**
      * Constructor to initialize the GraphicsPanel.
@@ -71,6 +78,8 @@ public class GamePanel extends JPanel implements Runnable {
         setBackground(new Color(0.2f, 0.2f, 0.2f));
         setFocusable(true);
         addKeyListener(keyHandler);
+
+        WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
 
         this.objects = new ArrayList<>();
         this.enemies = new ArrayList<>();
@@ -86,8 +95,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         UPGRADE_MENU = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
                 UpgradePool.getUpgrades(this, player), this, 3, 2);
-        menuWaveComplete = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
-                UpgradePool.getUpgrades(this, player), this, 1, 2);
 
         startGameLoop();
     }
@@ -301,11 +308,12 @@ public class GamePanel extends JPanel implements Runnable {
         g.fillRect(player.getX() - (player.getWidth() / 2), player.getY() + (player.getHeight() / 2),
                 (int) (player.getWidth() * (player.getHealth() / player.getMaxHealth())), 5);
 
+        drawUI(g2d);
+
         if (upgradeMenuActive) {
             UPGRADE_MENU.draw(g2d);
         }
 
-        drawDebugInfo(g2d);
     }
 
     /**
@@ -313,7 +321,7 @@ public class GamePanel extends JPanel implements Runnable {
      *
      * @param g Graphics2D object.
      */
-    private void drawDebugInfo(Graphics2D g) {
+    private void drawUI(Graphics2D g) {
 
         final Color COLOR_UI = new Color(1f, 1f, 1f, 0.5f);
         g.setColor(COLOR_UI);
@@ -349,6 +357,12 @@ public class GamePanel extends JPanel implements Runnable {
 
             g.drawString(subtext, (WIDTH / 2) - (subtextWidth / 2), timerHeight - 30);
         }
+
+        WaveIndicator.draw(g);
+        g.setFont(WaveIndicatorFont);
+        g.setColor(Color.WHITE);
+        g.drawString(String.format("%d", wave), WaveIndicator.getX() + (WaveIndicator.getSize() / 2),
+                WaveIndicator.getY() + 15);
 
         /**
          * float auraCompletion = (float) player.getAura() / player.getRequiredAura();

@@ -58,7 +58,7 @@ public class AbilityTypes {
         }
     };
 
-    public static Ability blast = new Ability("Blast", ProjectileType.BASIC, 1, 2f) {
+    public static Ability blast = new Ability("Blast", ProjectileType.BASIC, 1, 1f) {
         @Override
         public void doAbility(GameObject creator, ArrayList<Projectile> projectiles) {
             for (int i = 0; i < (this.numberOfProjectiles + creator.getProjectileBonus()); i++) {
