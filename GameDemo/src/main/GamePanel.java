@@ -326,6 +326,20 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString("Spawn Timer: " + spawnTimer, 10, 100);
         g.drawString("Aura: " + player.getAura(), 10, 120);
         g.drawString("Projectiles: " + projectiles.size(), 10, 140);
+        
+        final Color Stats = new Color(0,0,255);
+        g.setColor(Stats);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        // Displays each stat and its value
+        g.drawString(String.format("Magic Damage: %.1f",player.getProjectileDamage()), 10, 300);
+        g.drawString(String.format("Magic Damage: %.1f", player.getProjectileDamage()), 10, 325);
+        g.drawString(String.format("Max Health: %.1f", player.getMaxHealth()), 10, 350);
+        g.drawString(String.format("Health: %.1f", player.getHealth()), 10, 375);
+        g.drawString(String.format("Speed: %.1f", player.getSpeed()), 10, 400);
+        g.drawString(String.format("Contact Damage: %.1f", player.getContactDamage()), 10, 425);
+        g.drawString(String.format("Skill ooldown: %.1f", player.getAbilityCooldown()), 10, 450);
+        g.drawString(String.format("Magic Speed: %.1f", player.getProjectileSpeed()), 10, 475);
+        g.drawString(String.format("Magic Size: %.1f", player.getProjectileSize()), 10, 500);
 
         if (!waveActive && !upgradeMenuActive) {
 

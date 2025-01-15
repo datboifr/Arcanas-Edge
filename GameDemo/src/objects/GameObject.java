@@ -261,6 +261,10 @@ public class GameObject {
         return this.health;
     }
 
+    public float getRecovery() {
+        return recovery;
+    }
+
     public float getSpeed() {
         return this.speed;
     }
