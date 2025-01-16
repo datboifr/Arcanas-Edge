@@ -213,6 +213,7 @@ public class GamePanel extends JPanel implements Runnable {
                 for (int i = 0; i < spawncount; i++) {
                     spawnEnemy();
                 }
+                enemyCounter++;
                 spawnTimer = Math.max(30, 180 - (wave * 10));
             }
         } else if (waveCooldown-- <= 0) {
@@ -268,7 +269,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         enemies.add(new Enemy(this, x, y, Enemy.getRandomEnemyType(), player, wave));
-        enemyCounter++;
     }
 
     /**

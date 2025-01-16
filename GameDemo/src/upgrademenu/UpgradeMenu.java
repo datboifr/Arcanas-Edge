@@ -199,5 +199,9 @@ public class UpgradeMenu {
                 slot.draw(g);
             }
         }
+
+        // instructions
+        g.setFont(new Font("Arial", Font.BOLD, 10));
+        g.drawString("'X' to close Menu, 'Z' to make purchase", frame.x, frame.y + frame.height + 12);
     }
 }
