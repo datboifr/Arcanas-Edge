@@ -1,22 +1,18 @@
 package objects.enemies;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import main.GamePanel;
 
 public class EnemyPool {
 
-    GamePanel graphicsPanel;
-    ArrayList<EnemyType> enemyPool;
+    static GamePanel graphicsPanel;
+    static ArrayList<EnemyType> enemyPool;
 
-    public EnemyPool(GamePanel graphicsPanel) {
-        this.graphicsPanel = graphicsPanel;
+    public static EnemyType getRandomEnemy(GamePanel panel) {
         enemyPool = new ArrayList<>();
-        updatePool();
-    }
-
-    public void updatePool() {
-        if (graphicsPanel.getWave() >= 0) {
+        if (panel.getWave() >= 0) {
             // weak
             enemyPool.add(new EnemyType(20, 15, 1.5f, 5, "monster.png"));
             // basic
@@ -24,14 +20,8 @@ public class EnemyPool {
             // strong
             enemyPool.add(new EnemyType(35, 30, 1.5f, 10, "monster.png"));
         }
-    }
 
-    public GamePanel getGraphicsPanel() {
-        return this.graphicsPanel;
+        Random random = new Random();
+        return enemyPool.get(random.nextInt(enemyPool.size()));
     }
-
-    public ArrayList<EnemyType> getEnemyPool() {
-        return this.enemyPool;
-    }
-
 }

@@ -31,7 +31,7 @@ public class Enemy extends GameObject {
         if (health <= 0) {
             die();
             panel.spawnParticles(this, PARTICLE_DAMAGE, PARTICLE_COUNT_ON_DEATH, 1);
-            panel.getAura().add(new Aura(x, y));
+            panel.getAuras().add(new Aura(x, y));
         }
 
         if (iFrames > 0) {

@@ -2,11 +2,7 @@
 package main;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.*;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
@@ -18,83 +14,92 @@ import upgrademenu.UpgradeMenu;
 import upgrademenu.UpgradePool;
 
 /**
- * GraphicsPanel is a custom JPanel responsible for rendering and updating the
- * game logic.
+ * GamePanel is a custom JPanel responsible for rendering and updating the game
+ * logic.
  * It handles the main game loop, object updates, rendering, and wave
  * management.
  */
 public class GamePanel extends JPanel implements Runnable {
 
-    private MusicPlayer musicPlayer;
-
     // Screen settings
-    private static final int WIDTH = 1600;
-    private static final int HEIGHT = 900;
+    private static final float SCREEN_SCALE = 1.5f;
+    private static final int WIDTH = (int) (800 * SCREEN_SCALE);
+    private static final int HEIGHT = (int) (450 * SCREEN_SCALE);
 
-    private static final float WAVE_COOLDOWN = 5;
-    private static int waveCooldown;
+    // Timing settings
+    private static final double FRAME_INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
+    private static final int WAVE_COOLDOWN_FRAMES = 300; // 5 seconds in frames
 
-    private Thread gameThread;
-    private boolean isRunning = false;
-    private final KeyHandler keyHandler = new KeyHandler();
-    private final ParticleManager particleManager;
-    private final EnemyPool enemyPool;
+    // Fonts and colors
+    private static final Font FONT_SMALL = new Font("Arial", Font.PLAIN, 12);
+    private static final Font FONT_LARGE = new Font("Arial", Font.BOLD, 50);
+    private static final Font FONT_MEDIUM = new Font("Arial", Font.BOLD, 15);
+    private static final Color COLOR_UI = new Color(1f, 1f, 1f);
+    private static final Color COLOR_UI2 = new Color(1f, 1f, 1f, 0.5f);
+    private static final Color COLOR_STATS = new Color(0, 0, 255);
 
-    // Time and FPS settings
-    private static final double INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
-    private int fps = 0;
-    private int fpsCounter = 0;
+    // ui objects and components
+    private final UIElement WaveIndicator;
 
-    // Game objects
-    private final ArrayList<GameObject> objects;
+    // Game objects and components
+    private final ArrayList<GameObject> gameObjects;
     private final ArrayList<Enemy> enemies;
     private final ArrayList<Projectile> projectiles;
-    private final ArrayList<Aura> aura;
+    private final ArrayList<Aura> auras;
 
     private final Player player;
-    private final Random random = new Random();
     private final GameObject platform;
     private final GameObject background;
 
-    public final UpgradeMenu UPGRADE_MENU;
+    private final UpgradeMenu upgradeMenu;
+    private final float UPGRADEMENU_MARGIN = 15f; // percentage
+    private final ParticleManager particleManager;
 
-    private UpgradeMenu currentMenu;
+    private final KeyHandler keyHandler = new KeyHandler();
 
+    // Game state variables
+    private boolean isRunning;
     private boolean upgradeMenuActive;
     private boolean waveActive;
+
     private int wave;
+    private int waveCooldown;
     private int enemyLimit;
     private int enemyCounter;
     private int spawnTimer;
 
-    private final UIElement WaveIndicator;
-    private final Font WaveIndicatorFont = new Font("Arial", Font.BOLD, 50);
+    private Thread gameThread;
+    private int fps;
 
     /**
-     * Constructor to initialize the GraphicsPanel.
+     * Constructor to initialize the GamePanel.
      */
     public GamePanel() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setBackground(new Color(0.2f, 0.2f, 0.2f));
+        setBackground(Color.DARK_GRAY);
         setFocusable(true);
         addKeyListener(keyHandler);
 
         WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
 
-        this.objects = new ArrayList<>();
+        this.gameObjects = new ArrayList<>();
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
-        this.aura = new ArrayList<>();
+        this.auras = new ArrayList<>();
+        this.particleManager = new ParticleManager();
 
-        enemyPool = new EnemyPool(this);
-        particleManager = new ParticleManager();
+        this.player = new Player(this, WIDTH / 2, HEIGHT / 2, 35, 35);
+        this.platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
+        this.background = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Map");
 
-        player = new Player(this, WIDTH / 2, HEIGHT / 2, 35, 35);
-        platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
-        background = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Map");
-
-        UPGRADE_MENU = new UpgradeMenu(new Rectangle(50, 50, WIDTH - 100, HEIGHT - 100),
-                UpgradePool.getUpgrades(this, player), this, 3, 2);
+        this.upgradeMenu = new UpgradeMenu(
+                new Rectangle(0 + (int) (WIDTH * UPGRADEMENU_MARGIN), 0 + (int) (HEIGHT * UPGRADEMENU_MARGIN),
+                        WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN / 2), HEIGHT - -(int) (WIDTH
+                                * UPGRADEMENU_MARGIN / 2)),
+                UpgradePool.getUpgrades(this, player),
+                this,
+                3,
+                2);
 
         startGameLoop();
     }
@@ -113,79 +118,67 @@ public class GamePanel extends JPanel implements Runnable {
         long lastTime = System.nanoTime();
         long timer = System.currentTimeMillis();
         double delta = 0;
+        int frameCount = 0;
 
         while (isRunning) {
             long currentTime = System.nanoTime();
-            delta += (currentTime - lastTime) / INTERVAL;
+            delta += (currentTime - lastTime) / FRAME_INTERVAL;
             lastTime = currentTime;
 
-            if (System.currentTimeMillis() - timer >= 1000) {
-                fps = fpsCounter;
-                fpsCounter = 0;
-                timer += 1000;
-            }
-
             if (delta >= 1) {
-                update(delta);
+                updateGameState();
                 repaint();
                 delta--;
-                fpsCounter++;
+                frameCount++;
+            }
+
+            if (System.currentTimeMillis() - timer >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                timer += 1000;
             }
         }
     }
 
     /**
-     * Updates game logic, including handling the upgrade menu, waves, and game
-     * objects.
-     *
-     * @param delta Time delta for frame-independent updates.
+     * Updates the game state, including handling waves, upgrades, and objects.
      */
-    public void update(double delta) {
+    private void updateGameState() {
 
         if (upgradeMenuActive) {
-            currentMenu.update();
+            upgradeMenu.update();
             return;
         }
 
-        if (keyHandler.bActive) {
-            player.addAura(1);
-        }
+        if (keyHandler.aActive)
+            endWave();
 
         player.update();
-        enemies.forEach(enemy -> enemy.update());
-        aura.forEach(Aura::update);
-        projectiles.forEach(projectile -> {
-            projectile.update();
-            projectile.checkPositionOnScreen(WIDTH, HEIGHT);
-        });
+        enemies.forEach(Enemy::update);
+        projectiles.forEach(Projectile::update);
+        auras.forEach(Aura::update);
+        particleManager.update();
 
         handleWaveLogic();
-        particleManager.update();
-        updateObjectsList();
+        removeDeadObjects();
+        syncObjectList();
     }
 
     /**
-     * Handles wave spawning logic, including starting and ending waves.
+     * Handles the wave system logic, including starting, ending, and spawning
+     * enemies.
      */
     private void handleWaveLogic() {
         if (waveActive) {
             spawnTimer--;
-            if (keyHandler.aActive) {
-                enemies.clear();
-                endWave();
-            } else if (enemies.isEmpty() && enemyCounter == enemyLimit) {
+            if (enemies.isEmpty() && enemyCounter == enemyLimit) {
                 endWave();
             } else if (enemyCounter < enemyLimit && spawnTimer <= 0) {
                 spawnEnemy();
-                int minSpawnTime = Math.max(30, 120 - (wave * 5)); // Min of 0.5 seconds
-                int maxSpawnTime = Math.max(60, 180 - (wave * 10)); // Max of 3 seconds
-                spawnTimer = random.nextInt(maxSpawnTime - minSpawnTime + 1) + minSpawnTime;
+                spawnTimer = Math.max(30, 180 - (wave * 10));
             }
-        } else if (waveCooldown <= 0) {
+        } else if (waveCooldown-- <= 0) {
             startWave();
-            waveCooldown = (int) (WAVE_COOLDOWN * 60);
-        } else {
-            waveCooldown--;
         }
     }
 
@@ -194,100 +187,78 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void startWave() {
         wave++;
-        enemyLimit = 8 + wave;
+        waveCooldown = WAVE_COOLDOWN_FRAMES;
         waveActive = true;
+        enemyLimit = 8 + wave;
+        enemyCounter = 0;
         spawnTimer = 0;
     }
 
     /**
-     * Ends the current wave.
+     * Ends the current wave and opens the upgrade menu.
      */
     private void endWave() {
         waveActive = false;
-        enemyCounter = 0;
-        openUpgradeMenu(UPGRADE_MENU);
+        upgradeMenuActive = true;
     }
 
     /**
-     * Spawns enemies at random positions outside the screen boundaries.
+     * Spawns a new enemy at a random position off-screen.
      */
     private void spawnEnemy() {
-        int spawnSide = random.nextInt(4);
-        int enemyCount = random.nextInt(3, 4 + wave);
+        int spawnSide = new Random().nextInt(4);
+        int x = 0, y = 0;
 
-        for (int i = 0; i < enemyCount; i++) {
-            int x = 0, y = 0;
-
-            if (random.nextBoolean()) {
-                spawnSide = random.nextInt(4);
+        switch (spawnSide) {
+            case 0 -> {
+                x = new Random().nextInt(WIDTH);
+                y = -50;
             }
-
-            switch (spawnSide) {
-                case 0 -> {
-                    x = random.nextInt(WIDTH);
-                    y = -random.nextInt(30, 100);
-                } // Top
-                case 1 -> {
-                    x = random.nextInt(WIDTH);
-                    y = HEIGHT + random.nextInt(30, 100);
-                } // Bottom
-                case 2 -> {
-                    x = -random.nextInt(30, 100);
-                    y = random.nextInt(HEIGHT);
-                } // Left
-                case 3 -> {
-                    x = WIDTH + random.nextInt(30, 100);
-                    y = random.nextInt(HEIGHT);
-                } // Right
+            case 1 -> {
+                x = new Random().nextInt(WIDTH);
+                y = HEIGHT + 50;
             }
-
-            enemies.add(
-                    new Enemy(this, x, y, enemyPool.getEnemyPool().get(random.nextInt(enemyPool.getEnemyPool().size())),
-                            player, 1 + (wave / 5)));
+            case 2 -> {
+                x = -50;
+                y = new Random().nextInt(HEIGHT);
+            }
+            case 3 -> {
+                x = WIDTH + 50;
+                y = new Random().nextInt(HEIGHT);
+            }
         }
+
+        enemies.add(new Enemy(this, x, y, EnemyPool.getRandomEnemy(this), player, wave));
         enemyCounter++;
     }
 
     /**
-     * Updates the list of objects for rendering and removes dead objects.
+     * Removes objects that are no longer alive.
      */
-    private void updateObjectsList() {
-        objects.clear();
-        objects.addAll(enemies);
-        objects.addAll(projectiles);
-        objects.addAll(aura);
-        objects.add(player);
-
-        objects.removeIf(object -> {
+    private void removeDeadObjects() {
+        gameObjects.removeIf(object -> {
             if (!object.isAlive()) {
                 if (object instanceof Enemy)
                     enemies.remove(object);
                 if (object instanceof Projectile)
                     projectiles.remove(object);
                 if (object instanceof Aura)
-                    aura.remove(object);
-                if (object instanceof Player)
-                    endGame();
+                    auras.remove(object);
                 return true;
             }
             return false;
         });
-
-        // sortObjectsByY(); <-- this needs to be fixed lol
     }
 
     /**
-     * Sorts objects by their x-coordinate in descending order.
+     * Synchronizes the game object list for rendering.
      */
-    private void sortObjectsByY() {
-        objects.sort(Comparator.comparingInt(GameObject::getY).reversed());
-    }
-
-    /**
-     * Ends the game by stopping the game loop.
-     */
-    private void endGame() {
-        isRunning = false;
+    private void syncObjectList() {
+        gameObjects.clear();
+        gameObjects.addAll(enemies);
+        gameObjects.addAll(projectiles);
+        gameObjects.addAll(auras);
+        gameObjects.add(player);
     }
 
     @Override
@@ -297,25 +268,19 @@ public class GamePanel extends JPanel implements Runnable {
 
         background.draw(g2d);
         platform.draw(g2d);
-        objects.forEach(obj -> obj.draw(g2d));
+        gameObjects.forEach(object -> object.draw(g2d));
         particleManager.draw(g2d);
-
-        // player health bar
-        g.setColor(Color.BLACK);
-        g.fillRect(player.getX() - (player.getWidth() / 2), player.getY() + (player.getHeight() / 2), player.getWidth(),
-                5);
-        g.setColor(Color.RED);
-        g.fillRect(player.getX() - (player.getWidth() / 2), player.getY() + (player.getHeight() / 2),
-                (int) (player.getWidth() * (player.getHealth() / player.getMaxHealth())), 5);
 
         drawUI(g2d);
 
         if (upgradeMenuActive) {
-            UPGRADE_MENU.draw(g2d);
+            upgradeMenu.draw(g2d);
         }
-
     }
 
+    /**
+     * Draws the player's UI elements, such as health and stats.
+     */
     /**
      * Draws debug information on the screen.
      *
@@ -334,12 +299,12 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawString("Spawn Timer: " + spawnTimer, 10, 100);
         g.drawString("Aura: " + player.getAura(), 10, 120);
         g.drawString("Projectiles: " + projectiles.size(), 10, 140);
-        
-        final Color Stats = new Color(0,0,255);
+
+        final Color Stats = COLOR_UI;
         g.setColor(Stats);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.setFont(FONT_SMALL);
         // Displays each stat and its value
-        g.drawString(String.format("Magic Damage: %.1f",player.getProjectileDamage()), 10, 300);
+        g.drawString(String.format("Magic Damage: %.1f", player.getProjectileDamage()), 10, 300);
         g.drawString(String.format("Magic Damage: %.1f", player.getProjectileDamage()), 10, 325);
         g.drawString(String.format("Max Health: %.1f", player.getMaxHealth()), 10, 350);
         g.drawString(String.format("Health: %.1f", player.getHealth()), 10, 375);
@@ -373,10 +338,10 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         WaveIndicator.draw(g);
-        g.setFont(WaveIndicatorFont);
+        g.setFont(FONT_MEDIUM);
         g.setColor(Color.WHITE);
-        g.drawString(String.format("%d", wave), WaveIndicator.getX() + (WaveIndicator.getSize() / 2),
-                WaveIndicator.getY() + 15);
+        g.drawString(String.format("%d", wave), WaveIndicator.getFrame().x + (WaveIndicator.getFrame().width / 2),
+                WaveIndicator.getFrame().y + 15);
 
         /**
          * float auraCompletion = (float) player.getAura() / player.getRequiredAura();
@@ -395,24 +360,36 @@ public class GamePanel extends JPanel implements Runnable {
          **/
     }
 
-    public void openUpgradeMenu(UpgradeMenu upgradeMenu) {
-        currentMenu = upgradeMenu;
-        currentMenu.fillSlots();
-        upgradeMenuActive = true;
-    }
+    // spawn particles
 
-    public void closeUpgradeMenu() {
-        upgradeMenuActive = false;
-    }
-
+    /**
+     * Creates a particle effect
+     * 
+     * @param creator the creator of the effect
+     * @param type    the visual style of each particle
+     * @param amount  the number of particles created
+     * @param speed   the speed of each particle
+     */
     public void spawnParticles(GameObject creator, Particle type, int amount, float speed) {
         particleManager.spawn(creator.getX(), creator.getY(), amount, type.getColor(), type.getSize(), speed,
                 type.getLife(), type.getGravity());
     }
 
+    /**
+     * Creates a damage indicator
+     * 
+     * @param creator the creator of the effect
+     * @param damage  the number displayed
+     */
     public void spawnDamageIndicator(GameObject creator, float damage) {
         particleManager.spawn(creator.getX(), creator.getY(), 1, Color.BLACK, 10, 1.5f,
                 50, 0f, (int) damage);
+    }
+
+    // Setters
+
+    public void closeUpgradeMenu() {
+        upgradeMenuActive = false;
     }
 
     // Getters
@@ -429,8 +406,8 @@ public class GamePanel extends JPanel implements Runnable {
         return projectiles;
     }
 
-    public ArrayList<Aura> getAura() {
-        return aura;
+    public ArrayList<Aura> getAuras() {
+        return auras;
     }
 
     public ParticleManager getParticleManager() {
@@ -444,5 +421,4 @@ public class GamePanel extends JPanel implements Runnable {
     public int getWave() {
         return wave;
     }
-
 }

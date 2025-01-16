@@ -27,7 +27,6 @@ public class Player extends GameObject {
 	KeyHandler keyHandler;
 
 	private ArrayList<Ability> abilities;
-	private ArrayList<Enemy> sortedEnemies;
 
 	private int aura;
 	private int pickupRange;
@@ -50,7 +49,6 @@ public class Player extends GameObject {
 		this.panel = gp;
 		literalDirection = "down";
 		this.keyHandler = gp.getKeyHandler();
-		this.sortedEnemies = new ArrayList<>();
 		this.aura = 0;
 		this.pickupRange = DEFAULT_PICKUP_RANGE;
 
@@ -159,7 +157,7 @@ public class Player extends GameObject {
 	}
 
 	private void collectNearbyAuras() {
-		for (Aura aura : panel.getAura()) {
+		for (Aura aura : panel.getAuras()) {
 			if (distanceTo(aura) < pickupRange) {
 				aura.collect(this);
 			}

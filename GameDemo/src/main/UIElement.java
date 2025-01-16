@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -10,13 +11,16 @@ import javax.imageio.ImageIO;
 public class UIElement {
 
     private final BufferedImage sprite;
-    private final int x, y, size;
+    private final Rectangle frame;
 
     public UIElement(String spritePath, int size, int x, int y) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
+        this.frame = new Rectangle(x, y, size, size);
         this.sprite = loadImage(spritePath);
+    }
+
+    public UIElement(int x, int y, int width, int height) {
+        this.frame = new Rectangle(x, y, width, height);
+        this.sprite = null;
     }
 
     private BufferedImage loadImage(String spritePath) {
@@ -32,24 +36,12 @@ public class UIElement {
 
     public void draw(Graphics2D g) {
         if (this.sprite != null) {
-            g.drawImage(sprite, x - size / 2, y - size / 2, size, size, null);
-        } else {
-            // Draw a placeholder if no sprite is set
-            g.setColor(Color.WHITE);
-            g.fillRect(x - size / 2, y - size / 2, size, size);
+            g.drawImage(sprite, frame.x - frame.width / 2, frame.y - frame.height / 2, frame.width, frame.height, null);
         }
     }
 
-    public int getX() {
-        return this.x;
-    }
-
-    public int getY() {
-        return this.y;
-    }
-
-    public int getSize() {
-        return this.size;
+    public Rectangle getFrame() {
+        return this.frame;
     }
 
 }
