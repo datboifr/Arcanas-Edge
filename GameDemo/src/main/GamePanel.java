@@ -45,14 +45,14 @@ public class GamePanel extends JPanel implements Runnable {
     private final ArrayList<GameObject> gameObjects;
     private final ArrayList<Enemy> enemies;
     private final ArrayList<Projectile> projectiles;
-    private final ArrayList<Aura> auras;
+    private final ArrayList<Pickup> money;
 
     private final Player player;
     private final GameObject platform;
     private final GameObject background;
 
     private final UpgradeMenu upgradeMenu;
-    private final float UPGRADEMENU_MARGIN = 15f; // percentage
+    private final float UPGRADEMENU_MARGIN = 0.05f; // percentage
     private final ParticleManager particleManager;
 
     private final KeyHandler keyHandler = new KeyHandler();
@@ -85,7 +85,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.gameObjects = new ArrayList<>();
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
-        this.auras = new ArrayList<>();
+        this.money = new ArrayList<>();
         this.particleManager = new ParticleManager();
 
         this.player = new Player(this, WIDTH / 2, HEIGHT / 2, 35, 35);
@@ -94,8 +94,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         this.upgradeMenu = new UpgradeMenu(
                 new Rectangle(0 + (int) (WIDTH * UPGRADEMENU_MARGIN), 0 + (int) (HEIGHT * UPGRADEMENU_MARGIN),
-                        WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN / 2), HEIGHT - -(int) (WIDTH
-                                * UPGRADEMENU_MARGIN / 2)),
+                        WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN * 2), HEIGHT - (int) (WIDTH
+                                * UPGRADEMENU_MARGIN)),
                 UpgradePool.getUpgrades(this, player),
                 this,
                 3,
@@ -156,7 +156,7 @@ public class GamePanel extends JPanel implements Runnable {
         player.update();
         enemies.forEach(Enemy::update);
         projectiles.forEach(Projectile::update);
-        auras.forEach(Aura::update);
+        money.forEach(Pickup::update);
         particleManager.update();
 
         handleWaveLogic();
@@ -199,6 +199,7 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void endWave() {
         waveActive = false;
+        upgradeMenu.fillSlots();
         upgradeMenuActive = true;
     }
 
@@ -242,8 +243,8 @@ public class GamePanel extends JPanel implements Runnable {
                     enemies.remove(object);
                 if (object instanceof Projectile)
                     projectiles.remove(object);
-                if (object instanceof Aura)
-                    auras.remove(object);
+                if (object instanceof Pickup)
+                    money.remove(object);
                 return true;
             }
             return false;
@@ -257,7 +258,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameObjects.clear();
         gameObjects.addAll(enemies);
         gameObjects.addAll(projectiles);
-        gameObjects.addAll(auras);
+        gameObjects.addAll(money);
         gameObjects.add(player);
     }
 
@@ -406,8 +407,8 @@ public class GamePanel extends JPanel implements Runnable {
         return projectiles;
     }
 
-    public ArrayList<Aura> getAuras() {
-        return auras;
+    public ArrayList<Pickup> getMoney() {
+        return money;
     }
 
     public ParticleManager getParticleManager() {

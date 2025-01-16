@@ -3,7 +3,7 @@ package objects.enemies;
 import java.awt.Color;
 
 import main.GamePanel;
-import objects.Aura;
+import objects.Pickup;
 import objects.GameObject;
 import objects.projectiles.Projectile;
 
@@ -31,7 +31,7 @@ public class Enemy extends GameObject {
         if (health <= 0) {
             die();
             panel.spawnParticles(this, PARTICLE_DAMAGE, PARTICLE_COUNT_ON_DEATH, 1);
-            panel.getAuras().add(new Aura(x, y));
+            panel.getMoney().add(new Pickup(x, y));
         }
 
         if (iFrames > 0) {

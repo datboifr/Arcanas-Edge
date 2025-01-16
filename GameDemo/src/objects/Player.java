@@ -23,7 +23,6 @@ public class Player extends GameObject {
 	private BufferedImage[] LmeleeRD = new BufferedImage[ATTACK_FRAMES];
 	private BufferedImage idleB, idleF, idleR, idleL;
 
-	GamePanel panel;
 	KeyHandler keyHandler;
 
 	private ArrayList<Ability> abilities;
@@ -70,7 +69,7 @@ public class Player extends GameObject {
 		this.projectileDamage = DEFAULT_PROJECTILE_DAMAGE;
 		this.projectileSpeed = DEFAULT_PROJECTILE_SPEED;
 		this.projectileSize = DEFAULT_PROJECTILE_SIZE;
-		this.projectileBonus = 0;
+		this.projectileBonus = 2;
 
 		this.hasShadow = true;
 
@@ -105,7 +104,7 @@ public class Player extends GameObject {
 
 			for (Ability ability : abilities) {
 				if (ability != null) {
-					ability.update(this, panel.getProjectiles());
+					ability.updateCooldown(this);
 				}
 			}
 		}
@@ -157,7 +156,7 @@ public class Player extends GameObject {
 	}
 
 	private void collectNearbyAuras() {
-		for (Aura aura : panel.getAuras()) {
+		for (Pickup aura : panel.getMoney()) {
 			if (distanceTo(aura) < pickupRange) {
 				aura.collect(this);
 			}
@@ -288,7 +287,7 @@ public class Player extends GameObject {
 
 	// Setters and Getters
 
-	public void collectAura(Aura aura) {
+	public void collectAura(Pickup aura) {
 		this.aura += aura.getValue();
 	}
 
