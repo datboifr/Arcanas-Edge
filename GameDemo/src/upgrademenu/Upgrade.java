@@ -15,11 +15,11 @@ public class Upgrade {
     private int cost;
     private float costIncrease;
 
-    private boolean rebuyable;
+    private int buyableCount;
     private boolean available = true;
 
     public Upgrade(String title, String description, String spritePath, int cost, float costIncrease,
-            UpgradeAction action, boolean rebuyable) {
+            UpgradeAction action, int buyableCount) {
 
         this.title = title;
         this.description = description;
@@ -29,7 +29,7 @@ public class Upgrade {
 
         this.action = action;
 
-        this.rebuyable = rebuyable;
+        this.buyableCount = buyableCount;
 
         if (!spritePath.equals("")) {
             try {
@@ -45,10 +45,11 @@ public class Upgrade {
     }
 
     public void buy() {
+        buyableCount--;
         if (action != null) {
             action.execute();
         }
-        if (!rebuyable) {
+        if (buyableCount <= 0) {
             this.available = false;
             return;
         }

@@ -7,6 +7,8 @@ public class KeyHandler implements KeyListener {
     public boolean keyDown, upActive, downActive, leftActive, rightActive, upLeftPressed, upRightPressed;
     public boolean aActive, bActive, cActive, xActive, yActive, zActive; // input
 
+    public boolean cheatActive;
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
@@ -40,6 +42,12 @@ public class KeyHandler implements KeyListener {
             yActive = true;
         if (code == KeyEvent.VK_L)
             zActive = true;
+
+        if (code == KeyEvent.VK_C)
+            if (cheatActive)
+                cheatActive = false;
+            else
+                cheatActive = true;
     }
 
     @Override

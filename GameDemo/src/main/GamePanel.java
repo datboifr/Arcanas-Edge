@@ -158,6 +158,8 @@ public class GamePanel extends JPanel implements Runnable {
      * Updates the game state, including handling waves, upgrades, and objects.
      */
     private void updateGameState() {
+
+        // game loading & fade
         if (!gameActive) {
             if (keyHandler.aActive) {
                 if (player.isAlive())
@@ -171,21 +173,22 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
+        // debug options
+        if (keyHandler.cheatActive) {
+            if (keyHandler.cActive) {
+                if (waveActive) {
+                    enemies.forEach(Enemy::die);
+                    endWave();
+                }
+            }
+            if (keyHandler.bActive) {
+                player.addMoney(10);
+            }
+        }
+
         if (upgradeMenuActive) {
             upgradeMenu.update();
             return;
-        }
-
-        if (keyHandler.cActive) {
-            if (waveActive) {
-                enemies.forEach(Enemy::die);
-                endWave();
-            }
-
-        }
-
-        if (keyHandler.bActive) {
-            player.addMoney(10);
         }
 
         player.update();
@@ -375,6 +378,10 @@ public class GamePanel extends JPanel implements Runnable {
     // ui stuff
 
     public void drawui(Graphics2D g) {
+
+        if (keyHandler.cheatActive) {
+            g.drawString("Cheats Active", 10, 40);
+        }
 
         // player health bar
         if (player.isAlive()) {
