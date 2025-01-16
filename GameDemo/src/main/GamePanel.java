@@ -3,7 +3,11 @@ package main;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
@@ -162,10 +166,9 @@ public class GamePanel extends JPanel implements Runnable {
         // game loading & fade
         if (!gameActive) {
             if (keyHandler.aActive) {
-                if (player.isAlive())
-                    gameActive = true;
-                else
-                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                gameActive = true;
+            } else if (keyHandler.bActive) {
+                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
             return;
         } else if (fadeLevel > 0) {
@@ -337,16 +340,30 @@ public class GamePanel extends JPanel implements Runnable {
 
         // Draw fade effect
         if (fadeLevel > 0) {
-
-            g2d.setColor(new Color(0, 0, 0, Math.min(1f, fadeLevel)));
-            g2d.fillRect(fade.x, fade.y, fade.width, fade.height);
-
-            String message = "Press 'A' to start!";
-            g.setColor(COLOR_UI);
-            FontMetrics metrics = g.getFontMetrics(g.getFont());
-            int fontWidth = metrics.stringWidth(message);
-            g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT / 2);
+            drawMainMenu(g2d);
         }
+    }
+
+    public void drawMainMenu(Graphics2D g) {
+        g.setColor(new Color(0, 0, 0, Math.min(1f, fadeLevel)));
+        g.fillRect(fade.x, fade.y, fade.width, fade.height);
+
+        int logoSize = 1000;
+        g.drawImage(loadSprite("Logo"), WIDTH / 2 - (logoSize / 2), 0, logoSize, logoSize, null);
+
+        g.setFont(FONT_MEDIUM);
+
+        String message = "Press 'A' to start!";
+        g.setColor(COLOR_UI);
+        FontMetrics metrics = g.getFontMetrics(g.getFont());
+        int fontWidth = metrics.stringWidth(message);
+        g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT - 100);
+
+        String message2 = "Press 'B' to close";
+        g.setColor(COLOR_UI);
+        FontMetrics metrics2 = g.getFontMetrics(g.getFont());
+        int fontWidth2 = metrics.stringWidth(message2);
+        g.drawString(message2, WIDTH / 2 - (fontWidth / 2), HEIGHT - 70);
     }
 
     // spawn particles
@@ -430,6 +447,17 @@ public class GamePanel extends JPanel implements Runnable {
         drawStatDisplay(g);
         drawMoneyIndicator(g);
 
+    }
+
+    // used for the main menu
+    public BufferedImage loadSprite(String spritePath) {
+        try {
+            return ImageIO
+                    .read(getClass()
+                            .getResourceAsStream("/res/" + spritePath + ".png"));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public void drawMoneyIndicator(Graphics2D g) {
