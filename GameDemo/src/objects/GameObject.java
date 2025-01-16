@@ -44,7 +44,7 @@ public class GameObject {
     protected final int FRAMES_PER_SPRITE = 5;
 
     protected String spritePath;
-    BufferedImage sprite = null;
+    protected BufferedImage sprite = null;
 
     protected HashMap<String, BufferedImage[]> animations = new HashMap<>();
     protected String currentAnimation;
@@ -344,7 +344,7 @@ public class GameObject {
         this.prompt = prompt;
     }
 
-    public void collectAura(Aura aura) {
+    public void collectPickup(Pickup aura) {
         // does nothing by default
     }
 }

@@ -2,11 +2,11 @@
 package main;
 
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.util.*;
 import javax.swing.*;
 import objects.*;
 import objects.enemies.Enemy;
-import objects.enemies.EnemyPool;
 import objects.projectiles.Projectile;
 import objects.particles.Particle;
 import objects.particles.ParticleManager;
@@ -19,51 +19,48 @@ import upgrademenu.UpgradePool;
  * It handles the main game loop, object updates, rendering, and wave
  * management.
  */
+@SuppressWarnings("unused")
 public class GamePanel extends JPanel implements Runnable {
 
+    private final Frame frame;
+    Random random = new Random();
+
     // Screen settings
-    private static final float SCREEN_SCALE = 1.5f;
+    private static final float SCREEN_SCALE = 2f;
     private static final int WIDTH = (int) (800 * SCREEN_SCALE);
     private static final int HEIGHT = (int) (450 * SCREEN_SCALE);
+
+    private static Rectangle fade = new Rectangle(0, 0, WIDTH, HEIGHT);
+    private float fadeLevel = 1f;
+    private boolean gameActive = false;
 
     // Timing settings
     private static final double FRAME_INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
     private static final int WAVE_COOLDOWN_FRAMES = 300; // 5 seconds in frames
 
-    // Fonts and colors
-    private static final Font FONT_SMALL = new Font("Arial", Font.PLAIN, 12);
-    private static final Font FONT_LARGE = new Font("Arial", Font.BOLD, 50);
-    private static final Font FONT_MEDIUM = new Font("Arial", Font.BOLD, 15);
-    private static final Color COLOR_UI = new Color(1f, 1f, 1f);
-    private static final Color COLOR_UI2 = new Color(1f, 1f, 1f, 0.5f);
-    private static final Color COLOR_STATS = new Color(0, 0, 255);
-
-    // ui objects and components
-    private final UIElement WaveIndicator;
-
     // Game objects and components
     private final ArrayList<GameObject> gameObjects;
     private final ArrayList<Enemy> enemies;
     private final ArrayList<Projectile> projectiles;
-    private final ArrayList<Pickup> money;
+    private final ArrayList<Pickup> pickups;
 
     private final Player player;
     private final GameObject platform;
     private final GameObject background;
 
-    private final UpgradeMenu upgradeMenu;
-    private final float UPGRADEMENU_MARGIN = 0.05f; // percentage
-    private final ParticleManager particleManager;
-
     private final KeyHandler keyHandler = new KeyHandler();
+
+    private final UpgradeMenu upgradeMenu;
+    public final float UPGRADEMENU_MARGIN = 0.15f; // percentage
+    private final ParticleManager particleManager;
 
     // Game state variables
     private boolean isRunning;
-    private boolean upgradeMenuActive;
-    private boolean waveActive;
+    public boolean upgradeMenuActive;
+    public boolean waveActive;
 
     private int wave;
-    private int waveCooldown;
+    public int waveCooldown;
     private int enemyLimit;
     private int enemyCounter;
     private int spawnTimer;
@@ -71,21 +68,29 @@ public class GamePanel extends JPanel implements Runnable {
     private Thread gameThread;
     private int fps;
 
+    // ui objects and components
+    private final UIElement MoneyIndicator;
+    private final UIElement WaveIndicator;
+    private final UIElement StatDisplay;
+
+    private static final Font FONT_SMALL = new Font("Arial", Font.PLAIN, 12);
+    private static final Font FONT_MEDIUM = new Font("Arial", Font.BOLD, 15);
+    private static final Color COLOR_UI = new Color(1f, 1f, 1f, 0.7f);
+
     /**
      * Constructor to initialize the GamePanel.
      */
-    public GamePanel() {
+    public GamePanel(Frame frame) {
+        this.frame = frame;
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.DARK_GRAY);
         setFocusable(true);
         addKeyListener(keyHandler);
 
-        WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
-
         this.gameObjects = new ArrayList<>();
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
-        this.money = new ArrayList<>();
+        this.pickups = new ArrayList<>();
         this.particleManager = new ParticleManager();
 
         this.player = new Player(this, WIDTH / 2, HEIGHT / 2, 35, 35);
@@ -101,6 +106,14 @@ public class GamePanel extends JPanel implements Runnable {
                 3,
                 2);
 
+        MoneyIndicator = new UIElement((int) ((WIDTH / 2) - (40)), HEIGHT - 40, 80, 30);
+
+        WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
+
+        StatDisplay = new UIElement(0 + (int) (WIDTH * UPGRADEMENU_MARGIN),
+                10, WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN * 2), 50);
+
+        waveCooldown = WAVE_COOLDOWN_FRAMES;
         startGameLoop();
     }
 
@@ -108,6 +121,7 @@ public class GamePanel extends JPanel implements Runnable {
      * Starts the main game loop in a separate thread.
      */
     private void startGameLoop() {
+        repaint();
         isRunning = true;
         gameThread = new Thread(this);
         gameThread.start();
@@ -144,19 +158,40 @@ public class GamePanel extends JPanel implements Runnable {
      * Updates the game state, including handling waves, upgrades, and objects.
      */
     private void updateGameState() {
+        if (!gameActive) {
+            if (keyHandler.aActive) {
+                if (player.isAlive())
+                    gameActive = true;
+                else
+                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            }
+            return;
+        } else if (fadeLevel > 0) {
+            fadeLevel -= 0.1;
+            return;
+        }
 
         if (upgradeMenuActive) {
             upgradeMenu.update();
             return;
         }
 
-        if (keyHandler.aActive)
-            endWave();
+        if (keyHandler.cActive) {
+            if (waveActive) {
+                enemies.forEach(Enemy::die);
+                endWave();
+            }
+
+        }
+
+        if (keyHandler.bActive) {
+            player.addMoney(10);
+        }
 
         player.update();
         enemies.forEach(Enemy::update);
         projectiles.forEach(Projectile::update);
-        money.forEach(Pickup::update);
+        pickups.forEach(Pickup::update);
         particleManager.update();
 
         handleWaveLogic();
@@ -171,10 +206,13 @@ public class GamePanel extends JPanel implements Runnable {
     private void handleWaveLogic() {
         if (waveActive) {
             spawnTimer--;
-            if (enemies.isEmpty() && enemyCounter == enemyLimit) {
+            if (enemies.isEmpty() && enemyCounter >= enemyLimit) {
                 endWave();
             } else if (enemyCounter < enemyLimit && spawnTimer <= 0) {
-                spawnEnemy();
+                int spawncount = random.nextInt(3, 3 + wave);
+                for (int i = 0; i < spawncount; i++) {
+                    spawnEnemy();
+                }
                 spawnTimer = Math.max(30, 180 - (wave * 10));
             }
         } else if (waveCooldown-- <= 0) {
@@ -229,7 +267,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
-        enemies.add(new Enemy(this, x, y, EnemyPool.getRandomEnemy(this), player, wave));
+        enemies.add(new Enemy(this, x, y, Enemy.getRandomEnemyType(), player, wave));
         enemyCounter++;
     }
 
@@ -244,7 +282,10 @@ public class GamePanel extends JPanel implements Runnable {
                 if (object instanceof Projectile)
                     projectiles.remove(object);
                 if (object instanceof Pickup)
-                    money.remove(object);
+                    pickups.remove(object);
+                if (object instanceof Player) {
+                    endGame();
+                }
                 return true;
             }
             return false;
@@ -252,14 +293,27 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     /**
-     * Synchronizes the game object list for rendering.
+     * Organizes the game object list for rendering.
      */
     private void syncObjectList() {
+
+        // pickups always remain on the floor
         gameObjects.clear();
-        gameObjects.addAll(enemies);
-        gameObjects.addAll(projectiles);
-        gameObjects.addAll(money);
-        gameObjects.add(player);
+        gameObjects.addAll(pickups);
+
+        ArrayList<GameObject> sortedlist = new ArrayList<>();
+        sortedlist.addAll(enemies);
+        sortedlist.addAll(projectiles);
+        sortedlist.add(player);
+
+        // Sort gameObjects based on their y-coordinate and height
+        sortedlist.sort((o1, o2) -> {
+            int o1BaseY = o1.getY() + o1.getHeight() / 2;
+            int o2BaseY = o2.getY() + o2.getHeight() / 2;
+            return Integer.compare(o2BaseY, o1BaseY); // Higher baseY is drawn first
+        });
+
+        gameObjects.addAll(sortedlist);
     }
 
     @Override
@@ -272,93 +326,24 @@ public class GamePanel extends JPanel implements Runnable {
         gameObjects.forEach(object -> object.draw(g2d));
         particleManager.draw(g2d);
 
-        drawUI(g2d);
+        drawui(g2d);
 
         if (upgradeMenuActive) {
             upgradeMenu.draw(g2d);
         }
-    }
 
-    /**
-     * Draws the player's UI elements, such as health and stats.
-     */
-    /**
-     * Draws debug information on the screen.
-     *
-     * @param g Graphics2D object.
-     */
-    private void drawUI(Graphics2D g) {
+        // Draw fade effect
+        if (fadeLevel > 0) {
 
-        final Color COLOR_UI = new Color(1f, 1f, 1f, 0.5f);
-        g.setColor(COLOR_UI);
-        g.setFont(new Font("Arial", Font.PLAIN, 10));
+            g2d.setColor(new Color(0, 0, 0, Math.min(1f, fadeLevel)));
+            g2d.fillRect(fade.x, fade.y, fade.width, fade.height);
 
-        g.drawString("FPS: " + fps, 10, 20);
-        g.drawString("Wave: " + wave, 10, 40);
-        g.drawString("Enemies: " + enemies.size(), 10, 60);
-        g.drawString("Player Health: " + player.getHealth(), 10, 80);
-        g.drawString("Spawn Timer: " + spawnTimer, 10, 100);
-        g.drawString("Aura: " + player.getAura(), 10, 120);
-        g.drawString("Projectiles: " + projectiles.size(), 10, 140);
-
-        final Color Stats = COLOR_UI;
-        g.setColor(Stats);
-        g.setFont(FONT_SMALL);
-        // Displays each stat and its value
-        g.drawString(String.format("Magic Damage: %.1f", player.getProjectileDamage()), 10, 300);
-        g.drawString(String.format("Magic Damage: %.1f", player.getProjectileDamage()), 10, 325);
-        g.drawString(String.format("Max Health: %.1f", player.getMaxHealth()), 10, 350);
-        g.drawString(String.format("Health: %.1f", player.getHealth()), 10, 375);
-        g.drawString(String.format("Speed: %.1f", player.getSpeed()), 10, 400);
-        g.drawString(String.format("Contact Damage: %.1f", player.getContactDamage()), 10, 425);
-        g.drawString(String.format("Skill ooldown: %.1f", player.getAbilityCooldown()), 10, 450);
-        g.drawString(String.format("Magic Speed: %.1f", player.getProjectileSpeed()), 10, 475);
-        g.drawString(String.format("Magic Size: %.1f", player.getProjectileSize()), 10, 500);
-
-        if (!waveActive && !upgradeMenuActive) {
-
-            String timer = String.format("%.1f", waveCooldown / 60.0);
-            g.setFont(new Font("Arial", Font.BOLD, 60));
-            FontMetrics titleMetrics = g.getFontMetrics(g.getFont());
-
-            int timerWidth = titleMetrics.stringWidth(timer);
-            int timerHeight = titleMetrics.getHeight();
-
-            int timerX = (WIDTH / 2) - (timerWidth / 2);
-            int timerY = 100;
-
-            g.drawString(String.format(timer), timerX, timerY);
-
-            String subtext = "WAVE STARTS IN";
-            g.setFont(new Font("Arial", Font.BOLD, 15));
-            FontMetrics subtextMetrics = g.getFontMetrics(g.getFont());
-
-            int subtextWidth = subtextMetrics.stringWidth(subtext);
-
-            g.drawString(subtext, (WIDTH / 2) - (subtextWidth / 2), timerHeight - 30);
+            String message = "Press 'A' to start!";
+            g.setColor(COLOR_UI);
+            FontMetrics metrics = g.getFontMetrics(g.getFont());
+            int fontWidth = metrics.stringWidth(message);
+            g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT / 2);
         }
-
-        WaveIndicator.draw(g);
-        g.setFont(FONT_MEDIUM);
-        g.setColor(Color.WHITE);
-        g.drawString(String.format("%d", wave), WaveIndicator.getFrame().x + (WaveIndicator.getFrame().width / 2),
-                WaveIndicator.getFrame().y + 15);
-
-        /**
-         * float auraCompletion = (float) player.getAura() / player.getRequiredAura();
-         * Color targetColor = new Color(207, 93, 54);
-         * 
-         * Color interpolatedColor = new Color(
-         * 1 - auraCompletion + targetColor.getRed() / 255f * auraCompletion,
-         * 1 - auraCompletion + targetColor.getGreen() / 255f * auraCompletion,
-         * 1 - auraCompletion + targetColor.getBlue() / 255f * auraCompletion);
-         * g.setColor(interpolatedColor);
-         * 
-         * if (player.getAura() != 0) {
-         * g.fillRect(0, HEIGHT - 10, (int) (WIDTH * auraCompletion),
-         * 10);
-         * }
-         **/
     }
 
     // spawn particles
@@ -387,6 +372,137 @@ public class GamePanel extends JPanel implements Runnable {
                 50, 0f, (int) damage);
     }
 
+    // ui stuff
+
+    public void drawui(Graphics2D g) {
+
+        // player health bar
+        if (player.isAlive()) {
+            g.setColor(Color.BLACK);
+            g.fillRect(player.getX() - (player.getWidth() / 2), player.getY() + (player.getHeight() / 2),
+                    player.getWidth(),
+                    5);
+            g.setColor(Color.RED);
+            g.fillRect(player.getX() - (player.getWidth() / 2), player.getY() + (player.getHeight() / 2),
+                    (int) (player.getWidth() * (player.getHealth() / player.getMaxHealth())), 5);
+        }
+
+        // wave countdown
+        if (!waveActive && !upgradeMenuActive) {
+
+            g.setColor(COLOR_UI);
+            String timer = String.format("%.1f", waveCooldown / 60.0);
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            FontMetrics titleMetrics = g.getFontMetrics(g.getFont());
+
+            int timerWidth = titleMetrics.stringWidth(timer);
+            int timerHeight = titleMetrics.getHeight();
+
+            int timerX = (WIDTH / 2) - (timerWidth / 2);
+            int timerY = (int) (HEIGHT / 1.2);
+
+            g.drawString(String.format(timer), timerX, timerY);
+
+            String subtext = "WAVE STARTS IN";
+            g.setFont(new Font("Arial", Font.BOLD, 15));
+            FontMetrics subtextMetrics = g.getFontMetrics(g.getFont());
+
+            int subtextWidth = subtextMetrics.stringWidth(subtext);
+
+            g.drawString(subtext, (WIDTH / 2) - (subtextWidth / 2), timerY - timerHeight);
+        }
+
+        // wave indicator
+        WaveIndicator.draw(g);
+        g.setFont(FONT_MEDIUM);
+        g.setColor(Color.WHITE);
+        g.drawString(String.format("%d", wave),
+                WaveIndicator.getFrame().x + (WaveIndicator.getFrame().width / 2),
+                WaveIndicator.getFrame().y + 15);
+
+        drawStatDisplay(g);
+        drawMoneyIndicator(g);
+
+    }
+
+    public void drawMoneyIndicator(Graphics2D g) {
+        // Draw the cost at the bottom of the frame
+        MoneyIndicator.draw(g);
+
+        Rectangle frame = MoneyIndicator.getFrame();
+        g.setFont(new Font("Arial", Font.BOLD, frame.height));
+        FontMetrics costMetrics = g.getFontMetrics(g.getFont());
+        String costText = String.format("%d", player.getMoney());
+
+        int costWidth = costMetrics.stringWidth(costText);
+        int costX = frame.x + (frame.width / 2) - (costWidth / 2);
+        int costY = (int) (frame.y + frame.height / 1.2f);
+
+        g.drawString(costText, costX, costY);
+    }
+
+    public void drawStatDisplay(Graphics2D g) {
+
+        StatDisplay.draw(g);
+
+        // Set the color and font for the stats
+        final Color Stats = COLOR_UI;
+        g.setColor(Stats);
+        g.setFont(FONT_SMALL);
+
+        // frame dimensions
+        Rectangle statFrame = StatDisplay.getFrame();
+        int frameWidth = statFrame.width;
+        int frameHeight = statFrame.height;
+        int frameX = statFrame.x;
+        int frameY = statFrame.y;
+
+        // the stats and their values
+        String[] stats = {
+                String.format("Max Health: %.1f", player.getMaxHealth()),
+                String.format("Recovery: %.1f", player.getRecovery() * 10),
+                String.format("Speed: %.1f", player.getSpeed()),
+
+                String.format("Magic Damage: %.1f", player.getProjectileDamage()),
+                String.format("Magic Speed: %.1f", player.getProjectileSpeed()),
+                String.format("Magic Size: %.1f", player.getProjectileSize()),
+                String.format("Magic Cooldown: %.1f", player.getAbilityCooldown()),
+
+                String.format("Contact Damage: %.1f", player.getContactDamage()),
+        };
+
+        // Calculate rows and columns
+        int rows = 2;
+        int cols = (int) Math.ceil(stats.length / (double) rows);
+
+        // Calculate cell dimensions
+        int cellWidth = frameWidth / cols;
+        int cellHeight = frameHeight / rows;
+
+        // Adjust font size to fit within cells
+        FontMetrics metrics = g.getFontMetrics();
+        int fontHeight = metrics.getHeight();
+        int fontAdjustment = Math.min(cellHeight / 2, fontHeight); // Ensure font fits within cell
+        g.setFont(g.getFont().deriveFont((float) fontAdjustment));
+
+        // Draw each stat
+        for (int i = 0; i < stats.length; i++) {
+            int row = i / cols;
+            int col = i % cols;
+            int x = frameX + col * cellWidth + (cellWidth / 2);
+            int y = (frameY + 2) + row * cellHeight + (cellHeight / 2);
+            int textWidth = metrics.stringWidth(stats[i]);
+            int textHeight = metrics.getAscent();
+            g.drawString(stats[i], x - textWidth / 2, y + textHeight / 4);
+        }
+    }
+
+    public void endGame() {
+        endWave();
+        gameActive = false;
+        fadeLevel = 1;
+    }
+
     // Setters
 
     public void closeUpgradeMenu() {
@@ -407,8 +523,8 @@ public class GamePanel extends JPanel implements Runnable {
         return projectiles;
     }
 
-    public ArrayList<Pickup> getMoney() {
-        return money;
+    public ArrayList<Pickup> getPickups() {
+        return pickups;
     }
 
     public ParticleManager getParticleManager() {

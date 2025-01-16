@@ -11,7 +11,7 @@ public class AbilityTypes {
 
     private static final Random random = new Random();
 
-    public static final Ability electric = new Ability("Electric Blast", ProjectileType.LIGHTNING, 12, 5, 1) {
+    public static final Ability jarOfLightning = new Ability("Jar of Lightning", ProjectileType.LIGHTNING, 12, 5, 1) {
         private float angleIncrement;
 
         @Override
@@ -29,11 +29,11 @@ public class AbilityTypes {
         }
     };
 
-    public static final Ability earth = new Ability("Earth Slam", ProjectileType.EARTH, 1, 7, 15) {
+    public static final Ability rock = new Ability("Rock", ProjectileType.ROCK, 1, 7, 15) {
 
         @Override
         protected void setupAbility(GameObject creator) {
-            direction = 90; // Fixed direction for Earth Slam
+            direction = random.nextInt(60, 120);
         }
 
         @Override
@@ -54,7 +54,7 @@ public class AbilityTypes {
         }
     };
 
-    public static final Ability fire = new Ability("Fire Shot", ProjectileType.FIRE, 3, 2f, 1) {
+    public static final Ability maskOfFlames = new Ability("Mask Of Flames", ProjectileType.FIRE, 3, 2f, 1) {
         float initialDirection;
 
         @Override
@@ -69,7 +69,7 @@ public class AbilityTypes {
         }
     };
 
-    public static final Ability blast = new Ability("Blast", ProjectileType.BASIC, 1, 2f, 15) {
+    public static final Ability blast = new Ability("Blast", ProjectileType.BASIC, 1, 1f, 15) {
         @Override
         protected void setupAbility(GameObject creator) {
             direction = creator.getDirection(); // Direction based on creator's orientation

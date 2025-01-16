@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
-import objects.enemies.Enemy;
 
 public class Player extends GameObject {
 
@@ -27,7 +26,7 @@ public class Player extends GameObject {
 
 	private ArrayList<Ability> abilities;
 
-	private int aura;
+	private int money;
 	private int pickupRange;
 	private final int DEFAULT_PICKUP_RANGE = 50;
 
@@ -48,14 +47,10 @@ public class Player extends GameObject {
 		this.panel = gp;
 		literalDirection = "down";
 		this.keyHandler = gp.getKeyHandler();
-		this.aura = 0;
+		this.money = 0;
 		this.pickupRange = DEFAULT_PICKUP_RANGE;
 
 		this.abilities = new ArrayList<>();
-		abilities.add(AbilityTypes.fire);
-		abilities.add(AbilityTypes.electric);
-		abilities.add(AbilityTypes.earth);
-		abilities.add(AbilityTypes.falcon);
 		abilities.add(AbilityTypes.blast);
 
 		this.maxHealth = DEFAULT_MAX_HEALTH;
@@ -69,7 +64,7 @@ public class Player extends GameObject {
 		this.projectileDamage = DEFAULT_PROJECTILE_DAMAGE;
 		this.projectileSpeed = DEFAULT_PROJECTILE_SPEED;
 		this.projectileSize = DEFAULT_PROJECTILE_SIZE;
-		this.projectileBonus = 2;
+		this.projectileBonus = 0;
 
 		this.hasShadow = true;
 
@@ -156,9 +151,9 @@ public class Player extends GameObject {
 	}
 
 	private void collectNearbyAuras() {
-		for (Pickup aura : panel.getMoney()) {
+		for (Pickup aura : panel.getPickups()) {
 			if (distanceTo(aura) < pickupRange) {
-				aura.collect(this);
+				aura.setTarget(this);
 			}
 		}
 	}
@@ -262,7 +257,7 @@ public class Player extends GameObject {
 	}
 
 	public void upgradeProjectileDamage() {
-		this.projectileDamage += DEFAULT_PROJECTILE_DAMAGE / 5; // 20%
+		this.projectileDamage += DEFAULT_PROJECTILE_DAMAGE / 2; // 50%
 	}
 
 	public void upgradeProjectileSpeed() {
@@ -287,12 +282,15 @@ public class Player extends GameObject {
 
 	// Setters and Getters
 
-	public void collectAura(Pickup aura) {
-		this.aura += aura.getValue();
+	public void collectPickup(Pickup pickup) {
+		this.money += pickup.getValue();
+		if (pickup.doAction() != null) {
+			pickup.doAction();
+		}
 	}
 
-	public int getAura() {
-		return this.aura;
+	public int getMoney() {
+		return this.money;
 	}
 
 	public ArrayList<Ability> getAbilities() {
@@ -303,8 +301,8 @@ public class Player extends GameObject {
 		abilities.add(ability);
 	}
 
-	public void addAura(int i) {
-		this.aura += i;
+	public void addMoney(int i) {
+		this.money += i;
 	}
 
 }
