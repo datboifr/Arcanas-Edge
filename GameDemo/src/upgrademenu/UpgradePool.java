@@ -27,7 +27,7 @@ public class UpgradePool {
                                 "MaxHealth", // spritePath
                                 25, // cost
                                 1.1f, // costIncrease
-                                () -> player.upgradeMaxHealth(), true));
+                                () -> player.upgradeMaxHealth(), 100));
 
                 // recovery upgrade
                 upgradePool.add(new Upgrade(
@@ -35,8 +35,8 @@ public class UpgradePool {
                                 "Heal faster",
                                 "Recovery", // spritePath
                                 25, // cost
-                                1.5f, // costIncrease
-                                () -> player.upgradeRecovery(), true));
+                                1.2f, // costIncrease
+                                () -> player.upgradeRecovery(), 100));
 
                 // speed upgradeuku
                 upgradePool.add(new Upgrade(
@@ -44,8 +44,8 @@ public class UpgradePool {
                                 "Move faster to evade enemies",
                                 "Agility", // spritePath
                                 20, // cost
-                                1.5f, // costIncrease
-                                () -> player.upgradeAgility(), true));
+                                1.3f, // costIncrease
+                                () -> player.upgradeAgility(), 100));
 
                 // contact damage upgrade
                 upgradePool.add(new Upgrade(
@@ -54,7 +54,7 @@ public class UpgradePool {
                                 "ContactDamage", // spritePath
                                 35, // cost
                                 1f, // costIncrease
-                                () -> player.upgradeContactDamage(), true));
+                                () -> player.upgradeContactDamage(), 100));
 
                 // shot damage upgrade
                 upgradePool.add(new Upgrade(
@@ -62,8 +62,8 @@ public class UpgradePool {
                                 "Increase the damage of your magic",
                                 "ProjectileDamage", // spritePath
                                 35, // cost
-                                1.2f, // costIncrease
-                                () -> player.upgradeProjectileDamage(), true));
+                                1.1f, // costIncrease
+                                () -> player.upgradeProjectileDamage(), 100));
 
                 // projectile speed upgrade
                 upgradePool.add(new Upgrade(
@@ -71,8 +71,8 @@ public class UpgradePool {
                                 "Increase the speed of your magic",
                                 "ProjectileSpeed", // spritePath
                                 40, // cost
-                                1.2f, // costIncrease
-                                () -> player.upgradeProjectileSpeed(), true));
+                                1.1f, // costIncrease
+                                () -> player.upgradeProjectileSpeed(), 100));
 
                 // projectile size upgrade
                 upgradePool.add(new Upgrade(
@@ -80,8 +80,8 @@ public class UpgradePool {
                                 "Increase the size of your magic",
                                 "MagicSize", // spritePath
                                 30, // cost
-                                1.3f, // costIncrease
-                                () -> player.upgradeProjectileSize(), true));
+                                1.1f, // costIncrease
+                                () -> player.upgradeProjectileSize(), 100));
 
                 // ability cooldown upgrade
                 upgradePool.add(new Upgrade(
@@ -89,8 +89,8 @@ public class UpgradePool {
                                 "Reduce the cooldown of abilities",
                                 "Cooldown", // spritePath
                                 45, // cost
-                                1.7f, // costIncrease
-                                () -> player.upgradeAbilityCooldown(), true));
+                                1.4f, // costIncrease
+                                () -> player.upgradeAbilityCooldown(), 10));
 
                 // more projectiles upgrade
                 upgradePool.add(new Upgrade(
@@ -98,8 +98,8 @@ public class UpgradePool {
                                 "Fire additional projectiles",
                                 "ProjectileBonus", // spritePath
                                 45, // cost
-                                2, // costIncrease
-                                () -> player.upgradeProjectileBonus(), true));
+                                1.5f, // costIncrease
+                                () -> player.upgradeProjectileBonus(), 6));
 
                 // pickup range upgrade
                 upgradePool.add(new Upgrade(
@@ -108,7 +108,7 @@ public class UpgradePool {
                                 "Lenses", // spritePath
                                 25, // cost
                                 1.4f, // costIncrease
-                                () -> player.upgradePickupRange(), true));
+                                () -> player.upgradePickupRange(), 10));
 
                 // pickup range upgrade
                 upgradePool.add(new Upgrade(
@@ -117,7 +117,7 @@ public class UpgradePool {
                                 "Abilities/JarOfLightning", // spritePath
                                 250, // cost
                                 1f, // costIncrease
-                                () -> player.newAbility(AbilityTypes.jarOfLightning), false));
+                                () -> player.newAbility(AbilityTypes.jarOfLightning), 1));
 
                 // pickup range upgrade
                 upgradePool.add(new Upgrade(
@@ -126,7 +126,7 @@ public class UpgradePool {
                                 "Abilities/MaskOfFlames", // spritePath
                                 250, // cost
                                 1f, // costIncrease
-                                () -> player.newAbility(AbilityTypes.maskOfFlames), false));
+                                () -> player.newAbility(AbilityTypes.maskOfFlames), 1));
 
                 // pickup range upgrade
                 upgradePool.add(new Upgrade(
@@ -135,7 +135,7 @@ public class UpgradePool {
                                 "Abilities/Rock", // spritePath
                                 250, // cost
                                 1f, // costIncrease
-                                () -> player.newAbility(AbilityTypes.rock), false));
+                                () -> player.newAbility(AbilityTypes.rock), 1));
 
                 // pickup range upgrade
                 upgradePool.add(new Upgrade(
@@ -144,7 +144,7 @@ public class UpgradePool {
                                 "Abilities/SoulEgg", // spritePath
                                 250, // cost
                                 1f, // costIncrease
-                                () -> player.newAbility(AbilityTypes.falcon), false));
+                                () -> player.newAbility(AbilityTypes.falcon), 1));
 
                 return upgradePool;
         }
