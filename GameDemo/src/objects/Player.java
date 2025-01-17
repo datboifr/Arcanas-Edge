@@ -71,7 +71,6 @@ public class Player extends GameObject {
 		try {
 			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
 		} catch (IOException e) {
-			sprite = null;
 			System.out.println("Couldn't Fetch Sprite");
 		}
 
@@ -96,7 +95,7 @@ public class Player extends GameObject {
 			}
 
 			updateThisAnimation();
-			sprite = null;
+			updateSprite();
 
 			for (Ability ability : abilities) {
 				if (ability != null) {

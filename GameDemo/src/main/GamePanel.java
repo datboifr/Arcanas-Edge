@@ -23,6 +23,7 @@ import upgrademenu.UpgradePool;
  * It handles the main game loop, object updates, rendering, and wave
  * management.
  */
+@SuppressWarnings("unused")
 public class GamePanel extends JPanel implements Runnable {
 
     private final Frame frame;
@@ -69,6 +70,7 @@ public class GamePanel extends JPanel implements Runnable {
     private int spawnTimer;
 
     private Thread gameThread;
+    private int fps;
 
     // ui objects and components
     private final UIElement MoneyIndicator;
@@ -134,6 +136,7 @@ public class GamePanel extends JPanel implements Runnable {
         long lastTime = System.nanoTime();
         long timer = System.currentTimeMillis();
         double delta = 0;
+        int frameCount = 0;
 
         while (isRunning) {
             long currentTime = System.nanoTime();
@@ -144,9 +147,12 @@ public class GamePanel extends JPanel implements Runnable {
                 updateGameState();
                 repaint();
                 delta--;
+                frameCount++;
             }
 
             if (System.currentTimeMillis() - timer >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
                 timer += 1000;
             }
         }
@@ -348,13 +354,15 @@ public class GamePanel extends JPanel implements Runnable {
         g.setFont(FONT_MEDIUM);
 
         String message = "Press 'A' to start!";
-        String message2 = "Press 'B' to close";
-
         g.setColor(COLOR_UI);
         FontMetrics metrics = g.getFontMetrics(g.getFont());
         int fontWidth = metrics.stringWidth(message);
-
         g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT - 100);
+
+        String message2 = "Press 'B' to close";
+        g.setColor(COLOR_UI);
+        FontMetrics metrics2 = g.getFontMetrics(g.getFont());
+        int fontWidth2 = metrics.stringWidth(message2);
         g.drawString(message2, WIDTH / 2 - (fontWidth / 2), HEIGHT - 70);
     }
 
