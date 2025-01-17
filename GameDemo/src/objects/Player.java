@@ -96,7 +96,7 @@ public class Player extends GameObject {
 			}
 
 			updateThisAnimation();
-			sprite = null;
+			updateSprite();
 
 			for (Ability ability : abilities) {
 				if (ability != null) {
