@@ -1,6 +1,5 @@
 package objects.projectiles;
 
-import main.GamePanel;
 import objects.GameObject;
 
 public class Projectile extends GameObject {
@@ -13,7 +12,6 @@ public class Projectile extends GameObject {
     public int centerX, centerY;
 
     private boolean allowedOffScreen = true;
-    private boolean active = true;
 
     private final GameObject creator;
 
