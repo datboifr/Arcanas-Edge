@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
     Random random = new Random();
 
     // Screen settings
-    private static final float SCREEN_SCALE = 2f;
+    private static final float SCREEN_SCALE = 1.5f;
     private static final int WIDTH = (int) (800 * SCREEN_SCALE);
     private static final int HEIGHT = (int) (450 * SCREEN_SCALE);
 
@@ -342,7 +342,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.setColor(new Color(0, 0, 0, Math.min(1f, fadeLevel)));
         g.fillRect(fade.x, fade.y, fade.width, fade.height);
 
-        int logoSize = 1000;
+        int logoSize = (int) (500 * SCREEN_SCALE);
         g.drawImage(loadSprite("Logo"), WIDTH / 2 - (logoSize / 2), 0, logoSize, logoSize, null);
 
         g.setFont(FONT_MEDIUM);
