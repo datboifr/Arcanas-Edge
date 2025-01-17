@@ -4,6 +4,7 @@ import combat.Ability;
 import combat.AbilityTypes;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.GamePanel;
@@ -69,7 +70,8 @@ public class Player extends GameObject {
 		this.hasShadow = true;
 
 		try {
-			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
+			InputStream inputStream = getClass().getResourceAsStream("/res/player/idleFront.png");
+			sprite = ImageIO.read(inputStream);
 		} catch (IOException e) {
 			sprite = null;
 			System.out.println("Couldn't Fetch Sprite");
