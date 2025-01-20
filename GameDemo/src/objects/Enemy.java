@@ -76,6 +76,9 @@ public class Enemy extends GameObject {
         moveTowardsTarget();
     }
 
+    /**
+     * Simple NPC movement
+     */
     private void moveTowardsTarget() {
         float angleToTarget = (directionTo(target) + 360) % 360;
 
@@ -85,18 +88,32 @@ public class Enemy extends GameObject {
         realX += deltaX;
         realY += deltaY;
 
-        for (Enemy other : panel.getEnemies()) {
-            if (other == this || !touching(other))
-                continue;
+        // Resolve collisions with other enemies
+        resolveCollisionsWithEnemies();
 
-            double angle = Math.atan2(other.y - realY, other.x - realY);
-            realX -= Math.cos(angle) * speed * COLLISION_REPULSION_FACTOR;
-            realY -= Math.sin(angle) * speed * COLLISION_REPULSION_FACTOR;
-        }
+        // Update the x, y positions after collision adjustments
         this.x = (int) realX;
         this.y = (int) realY;
 
         setDirection(angleToTarget);
+    }
+
+    /**
+     * Ensures enemys dont overlap eachother
+     */
+    private void resolveCollisionsWithEnemies() {
+        for (Enemy other : panel.getEnemies()) {
+            if (other == this || !touching(other)) {
+                continue;
+            }
+
+            // Correct the angle calculation for repulsion
+            double angle = Math.atan2(other.realY - realY, other.realX - realX);
+
+            // Repel enemies based on their speed and the collision repulsion factor
+            realX -= Math.cos(angle) * speed * COLLISION_REPULSION_FACTOR;
+            realY -= Math.sin(angle) * speed * COLLISION_REPULSION_FACTOR;
+        }
     }
 
     public void setSprite(String spritePath) {
