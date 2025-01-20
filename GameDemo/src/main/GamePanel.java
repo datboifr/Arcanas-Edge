@@ -4,7 +4,6 @@ package main;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -36,7 +35,6 @@ public class GamePanel extends JPanel implements Runnable {
     private static Rectangle fade = new Rectangle(0, 0, WIDTH, HEIGHT);
     private float fadeLevel;
     private boolean gameActive;
-    private int gamesPlayed;
 
     // Timing components
     private static final double FRAME_INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
@@ -90,7 +88,6 @@ public class GamePanel extends JPanel implements Runnable {
         addKeyListener(keyHandler);
 
         this.frame = frame;
-        gamesPlayed = 0;
 
         this.particleManager = new ParticleManager();
         MoneyIndicator = new UIElement((int) ((WIDTH / 2) - (40)), HEIGHT - 40, 80, 30);
@@ -545,7 +542,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void endGame() {
         fadeLevel = 1; // Reset fade level for the main menu
-        gamesPlayed++;
         upgradeMenuActive = false;
         waveActive = false;
         createNewGame();

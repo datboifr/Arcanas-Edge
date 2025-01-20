@@ -4,7 +4,6 @@ import combat.Ability;
 import combat.AbilityTypes;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.GamePanel;
@@ -14,7 +13,7 @@ public class Player extends GameObject {
 
 	private String literalDirection;
 	private final int RUNNING_FRAMES = 10;
-	private final int ATTACK_FRAMES = 9;
+	// private final int ATTACK_FRAMES = 9;
 	private BufferedImage idleB, idleF, idleR, idleL;
 
 	KeyHandler keyHandler;
