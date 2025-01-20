@@ -34,26 +34,26 @@ public class GamePanel extends JPanel implements Runnable {
     private static final int HEIGHT = (int) (450 * SCREEN_SCALE);
 
     private static Rectangle fade = new Rectangle(0, 0, WIDTH, HEIGHT);
-    private float fadeLevel = 1f;
-    private boolean gameActive = false;
+    private float fadeLevel;
+    private boolean gameActive;
 
     // Timing settings
     private static final double FRAME_INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
     private static final int WAVE_COOLDOWN_FRAMES = 300; // 5 seconds in frames
 
     // Game objects and components
-    private final ArrayList<GameObject> gameObjects;
-    private final ArrayList<Enemy> enemies;
-    private final ArrayList<Projectile> projectiles;
-    private final ArrayList<Pickup> pickups;
+    private ArrayList<GameObject> gameObjects;
+    private ArrayList<Enemy> enemies;
+    private ArrayList<Projectile> projectiles;
+    private ArrayList<Pickup> pickups;
 
-    private final Player player;
-    private final GameObject platform;
-    private final GameObject background;
+    private Player player;
+    private GameObject platform;
+    private GameObject background;
 
     private final KeyHandler keyHandler = new KeyHandler();
 
-    private final UpgradeMenu upgradeMenu;
+    private UpgradeMenu upgradeMenu;
     public final float UPGRADEMENU_MARGIN = 0.15f; // percentage
     private final ParticleManager particleManager;
 
@@ -83,17 +83,29 @@ public class GamePanel extends JPanel implements Runnable {
      * Constructor to initialize the GamePanel.
      */
     public GamePanel(Frame frame) {
-        this.frame = frame;
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.DARK_GRAY);
         setFocusable(true);
         addKeyListener(keyHandler);
 
+        this.frame = frame;
+        this.particleManager = new ParticleManager();
+        MoneyIndicator = new UIElement((int) ((WIDTH / 2) - (40)), HEIGHT - 40, 80, 30);
+
+        WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
+
+        StatDisplay = new UIElement(0 + (int) (WIDTH * UPGRADEMENU_MARGIN),
+                10, WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN * 2), 50);
+        startGameLoop();
+        createNewGame();
+    }
+
+    public void createNewGame() {
+        // Initialize all game variables and reset state
         this.gameObjects = new ArrayList<>();
         this.enemies = new ArrayList<>();
         this.projectiles = new ArrayList<>();
         this.pickups = new ArrayList<>();
-        this.particleManager = new ParticleManager();
 
         this.player = new Player(this, WIDTH / 2, HEIGHT / 2, 35, 35);
         this.platform = new GameObject(WIDTH / 2, HEIGHT / 2, "map/Platform");
@@ -108,15 +120,12 @@ public class GamePanel extends JPanel implements Runnable {
                 3,
                 2);
 
-        MoneyIndicator = new UIElement((int) ((WIDTH / 2) - (40)), HEIGHT - 40, 80, 30);
-
-        WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
-
-        StatDisplay = new UIElement(0 + (int) (WIDTH * UPGRADEMENU_MARGIN),
-                10, WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN * 2), 50);
-
+        // Reset wave, cooldown, and fade settings
         waveCooldown = WAVE_COOLDOWN_FRAMES;
-        startGameLoop();
+        fadeLevel = 1f; // Start fade effect for the main menu
+        gameActive = false;
+        wave = 0;
+        upgradeMenuActive = false;
     }
 
     /**
@@ -160,6 +169,7 @@ public class GamePanel extends JPanel implements Runnable {
         // game loading & fade
         if (!gameActive) {
             if (keyHandler.aActive) {
+                createNewGame();
                 gameActive = true;
             } else if (keyHandler.bActive) {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
@@ -276,14 +286,18 @@ public class GamePanel extends JPanel implements Runnable {
      */
     private void removeDeadObjects() {
         gameObjects.removeIf(object -> {
+            // Null check to avoid NullPointerException
+            if (object == null) {
+                return true;
+            }
             if (!object.isAlive()) {
-                if (object instanceof Enemy)
+                if (object instanceof Enemy) {
                     enemies.remove(object);
-                if (object instanceof Projectile)
+                } else if (object instanceof Projectile) {
                     projectiles.remove(object);
-                if (object instanceof Pickup)
+                } else if (object instanceof Pickup) {
                     pickups.remove(object);
-                if (object instanceof Player) {
+                } else if (object instanceof Player) {
                     endGame();
                 }
                 return true;
@@ -525,9 +539,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void endGame() {
-        endWave();
+        // Reset the game state to open the main menu
         gameActive = false;
-        fadeLevel = 1;
+        fadeLevel = 1; // Reset fade level for the main menu
+        upgradeMenuActive = false;
+        waveActive = false;
     }
 
     // Setters
