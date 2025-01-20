@@ -19,7 +19,8 @@ public class GameObject {
     protected boolean rotates = false; // purely visual
 
     // values
-    protected int x, y, width, height;
+    protected int x, y;
+    protected int width, height;
     protected boolean alive = true;
     protected boolean isAttacking = false;
     protected final int I_FRAMES = 15;
@@ -91,14 +92,15 @@ public class GameObject {
             // Align shadow with the bottom of the sprite or placeholder rectangle
             int shadowWidth = width / 2;
             int shadowHeight = 10;
-            int shadowX = x - shadowWidth / 2;
-            int shadowY = y + (height / 2) - shadowHeight / 2;
+            int shadowX = (int) (x - shadowWidth / 2);
+            int shadowY = (int) (y + (height / 2) - shadowHeight / 2);
 
             g.fillOval(shadowX, shadowY, shadowWidth, shadowHeight);
         }
 
         // Draw the sprite if it's not null
         if (this.sprite != null) {
+
             // Save the original transform
             AffineTransform originalTransform = g.getTransform();
             if (rotates) {

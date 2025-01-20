@@ -10,7 +10,6 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import objects.*;
-import objects.enemies.Enemy;
 import objects.projectiles.Projectile;
 import objects.particles.Particle;
 import objects.particles.ParticleManager;
@@ -28,16 +27,18 @@ public class GamePanel extends JPanel implements Runnable {
     private final Frame frame;
     Random random = new Random();
 
-    // Screen settings
+    // Screen size
     private static final float SCREEN_SCALE = 1.5f;
     private static final int WIDTH = (int) (800 * SCREEN_SCALE);
     private static final int HEIGHT = (int) (450 * SCREEN_SCALE);
 
+    // main menu components
     private static Rectangle fade = new Rectangle(0, 0, WIDTH, HEIGHT);
     private float fadeLevel;
     private boolean gameActive;
+    private int gamesPlayed;
 
-    // Timing settings
+    // Timing components
     private static final double FRAME_INTERVAL = 1_000_000_000.0 / 60; // Time per frame in nanoseconds
     private static final int WAVE_COOLDOWN_FRAMES = 300; // 5 seconds in frames
 
@@ -89,13 +90,14 @@ public class GamePanel extends JPanel implements Runnable {
         addKeyListener(keyHandler);
 
         this.frame = frame;
+        gamesPlayed = 0;
+
         this.particleManager = new ParticleManager();
         MoneyIndicator = new UIElement((int) ((WIDTH / 2) - (40)), HEIGHT - 40, 80, 30);
-
         WaveIndicator = new UIElement("icons/WaveIndicator", 50, WIDTH - 100, 50);
-
         StatDisplay = new UIElement(0 + (int) (WIDTH * UPGRADEMENU_MARGIN),
                 10, WIDTH - (int) (WIDTH * UPGRADEMENU_MARGIN * 2), 50);
+
         startGameLoop();
         createNewGame();
     }
@@ -190,6 +192,9 @@ public class GamePanel extends JPanel implements Runnable {
             }
             if (keyHandler.bActive) {
                 player.addMoney(10);
+            }
+            if (keyHandler.xActive) {
+                endGame();
             }
         }
 
@@ -352,23 +357,33 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void drawMainMenu(Graphics2D g) {
+    private void drawMainMenu(Graphics2D g) {
         g.setColor(new Color(0, 0, 0, Math.min(1f, fadeLevel)));
         g.fillRect(fade.x, fade.y, fade.width, fade.height);
 
         int logoSize = (int) (500 * SCREEN_SCALE);
-        g.drawImage(loadSprite("Logo"), WIDTH / 2 - (logoSize / 2), 0, logoSize, logoSize, null);
+        BufferedImage logoSprite;
 
-        g.setFont(FONT_MEDIUM);
+        try {
+            logoSprite = ImageIO
+                    .read(getClass()
+                            .getResourceAsStream("/res/" + "Logo" + ".png"));
+        } catch (Exception e) {
+            logoSprite = null;
+        }
 
-        String message = "Press 'A' to start!";
+        g.drawImage(logoSprite, WIDTH / 2 - (logoSize / 2), 0, logoSize, logoSize, null);
+
+        g.setFont(new Font("Arial", Font.BOLD, 40));
+
+        String message = "Press 'A' to start";
         String message2 = "Press 'B' to close";
 
         g.setColor(COLOR_UI);
         FontMetrics metrics = g.getFontMetrics(g.getFont());
         int fontWidth = metrics.stringWidth(message);
 
-        g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT - 100);
+        g.drawString(message, WIDTH / 2 - (fontWidth / 2), HEIGHT - 120);
         g.drawString(message2, WIDTH / 2 - (fontWidth / 2), HEIGHT - 70);
     }
 
@@ -455,17 +470,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     }
 
-    // used for the main menu
-    public BufferedImage loadSprite(String spritePath) {
-        try {
-            return ImageIO
-                    .read(getClass()
-                            .getResourceAsStream("/res/" + spritePath + ".png"));
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
     public void drawMoneyIndicator(Graphics2D g) {
         // Draw the cost at the bottom of the frame
         MoneyIndicator.draw(g);
@@ -539,11 +543,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void endGame() {
-        // Reset the game state to open the main menu
-        gameActive = false;
         fadeLevel = 1; // Reset fade level for the main menu
+        gamesPlayed++;
         upgradeMenuActive = false;
         waveActive = false;
+        createNewGame();
     }
 
     // Setters
