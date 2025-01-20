@@ -1,16 +1,12 @@
 package objects;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.imageio.ImageIO;
 
 import main.GamePanel;
 import objects.projectiles.Projectile;
 
 public class Enemy extends GameObject {
-
-    private GameObject target;
 
     // required to fix movement issues. better than using casts
     private double realX, realY;
@@ -26,10 +22,14 @@ public class Enemy extends GameObject {
     // Static initializer to populate the enemy pool
     static {
         // theres only one kind :(
-        ENEMY_POOL.add(new EnemyType(1, 15, 1.5f, 5, "slime/SlimeWalk1"));
-        ENEMY_POOL.add(new EnemyType(1.5f, 20, 1.5f, 5, "slime/SlimeWalk1"));
-        ENEMY_POOL.add(new EnemyType(2f, 30, 1.5f, 10, "slime/SlimeWalk1"));
-        ENEMY_POOL.add(new EnemyType(1.2f, 80, 1.2f, 30, "Dslime/dragonslime"));
+        ENEMY_POOL.add(new EnemyType(1, 15, 1.5f, 5, "slime/slime"));
+        ENEMY_POOL.add(new EnemyType(1.5f, 20, 1.5f, 5, "slime/slime"));
+        ENEMY_POOL.add(new EnemyType(2f, 30, 1.5f, 10, "slime/slime"));
+        ENEMY_POOL.add(new EnemyType(1.2f, 80, 1.2f, 30, "dragonSlime/dragonslime"));
+    }
+
+    public static ArrayList<EnemyType> getEnemyPool() {
+        return new ArrayList<>(ENEMY_POOL); // Return a copy to prevent modification
     }
 
     // Constructor for individual enemies
@@ -46,12 +46,12 @@ public class Enemy extends GameObject {
         this.contactDamage = type.getContactDamage();
         this.speed = type.getSpeed();
 
-        setSprite(type.getSpritePath());
+        setSprite("enemies/" + type.getSpritePath());
         this.width = (int) (sprite.getWidth() * type.getSize());
         this.height = (int) (sprite.getHeight() * type.getSize());
+        this.hasShadow = true;
     }
 
-    // Main update loop
     @Override
     public void update() {
         if (health <= 0) {
@@ -116,27 +116,14 @@ public class Enemy extends GameObject {
         }
     }
 
-    public void setSprite(String spritePath) {
-        try {
-            this.sprite = ImageIO
-                    .read(getClass()
-                            .getResourceAsStream("/res/enemies/" + spritePath + ".png"));
-        } catch (IOException e) {
-            this.sprite = null;
-            System.out.print("Couldn't Fetch Sprite");
-        }
-    }
-
     // Static methods for the enemy pool
     public static EnemyType getRandomEnemyType() {
         return ENEMY_POOL.get(RANDOM.nextInt(ENEMY_POOL.size()));
     }
 
-    public static ArrayList<EnemyType> getEnemyPool() {
-        return new ArrayList<>(ENEMY_POOL); // Return a copy to prevent modification
-    }
-
-    // Nested class for EnemyType
+    /**
+     * Nested class for enemy types
+     */
     public static class EnemyType {
         private final float size;
         private final float health;

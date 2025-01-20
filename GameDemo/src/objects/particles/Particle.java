@@ -12,8 +12,14 @@ public class Particle {
     private float gravity;
     private String text;
 
-    private boolean active = true;
-
+    /**
+     * Used for particle presets
+     * 
+     * @param life
+     * @param color
+     * @param size
+     * @param gravity
+     */
     public Particle(float life, Color color, float size, float gravity) {
         this.life = life;
         this.color = color;
@@ -21,13 +27,18 @@ public class Particle {
         this.gravity = gravity;
     }
 
-    public Particle(float life, Color color, float size, float gravity, String text) {
-        this.life = life;
-        this.color = color;
-        this.size = size;
-        this.gravity = gravity;
-    }
-
+    /**
+     * Particle
+     * 
+     * @param x
+     * @param y
+     * @param vx
+     * @param vy
+     * @param life
+     * @param color
+     * @param size
+     * @param gravity
+     */
     public Particle(float x, float y, float vx, float vy, float life, Color color, float size, float gravity) {
         this.x = x;
         this.y = y;
@@ -39,6 +50,19 @@ public class Particle {
         this.gravity = gravity;
     }
 
+    /**
+     * Damage indicator
+     * 
+     * @param x
+     * @param y
+     * @param vx
+     * @param vy
+     * @param life
+     * @param color
+     * @param size
+     * @param gravity
+     * @param text
+     */
     public Particle(float x, float y, float vx, float vy, float life, Color color, float size, float gravity,
             String text) {
         this.x = x;
@@ -53,11 +77,9 @@ public class Particle {
     }
 
     public void update() {
-        if (active) {
-            x += vx;
-            y += vy;
-            vy += gravity; // Simulate gravity
-        }
+        x += vx;
+        y += vy;
+        vy += gravity; // Simulate gravity
         life -= 1; // Reduce life
     }
 
@@ -72,6 +94,8 @@ public class Particle {
             g.drawString(text, (int) x, (int) y);
         }
     }
+
+    // getters
 
     public boolean isDead() {
         return life <= 0;

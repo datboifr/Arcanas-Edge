@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Manages every particle on screen
+ */
 public class ParticleManager {
     private List<Particle> particles = new ArrayList<>();
     private Random random = new Random();

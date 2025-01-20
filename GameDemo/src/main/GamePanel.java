@@ -342,6 +342,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         background.draw(g2d);
         platform.draw(g2d);
+        gameObjects.forEach(object -> object.drawShadow(g2d));
         gameObjects.forEach(object -> object.draw(g2d));
         particleManager.draw(g2d);
 
