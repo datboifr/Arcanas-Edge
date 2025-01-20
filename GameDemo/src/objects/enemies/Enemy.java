@@ -28,6 +28,7 @@ public class Enemy extends GameObject {
         ENEMY_POOL.add(new EnemyType(1, 15, 1.5f, 5, "slime/SlimeWalk1"));
         ENEMY_POOL.add(new EnemyType(1.5f, 20, 1.5f, 5, "slime/SlimeWalk1"));
         ENEMY_POOL.add(new EnemyType(2f, 30, 1.5f, 10, "slime/SlimeWalk1"));
+        ENEMY_POOL.add(new EnemyType(1.2f, 80, 1.2f, 30, "Dslime/dragonslime"));
     }
 
     // Constructor for individual enemies
