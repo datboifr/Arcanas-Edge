@@ -2,10 +2,7 @@ package objects;
 
 import combat.Ability;
 import combat.AbilityTypes;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
 
@@ -13,8 +10,7 @@ public class Player extends GameObject {
 
 	private String literalDirection;
 	private final int RUNNING_FRAMES = 10;
-	// private final int ATTACK_FRAMES = 9;
-	private BufferedImage idleB, idleF, idleR, idleL;
+	boolean wasMoving;
 
 	KeyHandler keyHandler;
 
@@ -63,7 +59,7 @@ public class Player extends GameObject {
 		this.currentFrame = 1;
 		loadPlayerImages();
 		literalDirection = "down";
-		setAnimation("rundown", true);
+		setAnimation("idledown", true);
 	}
 
 	public void update() {
@@ -82,9 +78,8 @@ public class Player extends GameObject {
 				checkCollisionWithEnemies();
 			}
 
-			if (moving()) {
-				updateAnimation();
-			}
+			updateAnimation();
+
 			for (Ability ability : abilities) {
 				if (ability != null) {
 					ability.updateCooldown(this);
@@ -134,25 +129,12 @@ public class Player extends GameObject {
 
 		// Handle animation
 		if (moving()) {
-			if (!lastDirection.equals(literalDirection)) {
+			if (!lastDirection.equals(literalDirection) || !wasMoving) {
 				setAnimation("run" + literalDirection, true);
+				wasMoving = true;
 			}
 		} else {
-			// No keys are active, switch to idle animation
-			switch (literalDirection) {
-				case "up":
-					sprite = idleB;
-					break;
-				case "down":
-					sprite = idleF;
-					break;
-				case "left":
-					sprite = idleL;
-					break;
-				case "right":
-					sprite = idleR;
-					break;
-			}
+			setAnimation("idle" + literalDirection, true);
 		}
 	}
 
@@ -181,24 +163,18 @@ public class Player extends GameObject {
 	}
 
 	public void loadPlayerImages() {
-		try {
-			animations.add(new Animation("runup", "player/run/back/RunB", RUNNING_FRAMES));
-			animations.add(new Animation("rundown", "player/run/front/RunF", RUNNING_FRAMES));
-			animations.add(new Animation("runleft", "player/run/left/RunL", RUNNING_FRAMES));
-			animations.add(new Animation("runright", "player/run/right/RunR", RUNNING_FRAMES));
+		animations.add(new Animation("runup", "player/run/back/RunB", RUNNING_FRAMES));
+		animations.add(new Animation("rundown", "player/run/front/RunF", RUNNING_FRAMES));
+		animations.add(new Animation("runleft", "player/run/left/RunL", RUNNING_FRAMES));
+		animations.add(new Animation("runright", "player/run/right/RunR", RUNNING_FRAMES));
 
-			for (Animation anim : animations) {
-				anim.load();
-			}
+		animations.add(new Animation("idleup", "player/idleBack", 1));
+		animations.add(new Animation("idledown", "player/idleFront", 1));
+		animations.add(new Animation("idleleft", "player/idleLeft", 1));
+		animations.add(new Animation("idleright", "player/idleRight", 1));
 
-			// idle sprites
-			idleB = ImageIO.read(getClass().getResourceAsStream("/res/player/idleBack.png"));
-			idleF = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
-			idleR = ImageIO.read(getClass().getResourceAsStream("/res/player/idleRight.png"));
-			idleL = ImageIO.read(getClass().getResourceAsStream("/res/player/idleLeft.png"));
-
-		} catch (IOException e) {
-			System.out.println("Couldn't Fetch Sprite");
+		for (Animation anim : animations) {
+			anim.load();
 		}
 	}
 
