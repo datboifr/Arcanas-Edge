@@ -21,10 +21,12 @@ public class Animation {
     public void load() {
         BufferedImage loadedFrame;
         for (int i = 0; i < length; i++) {
-            String framePath = "/res/" + path + (i + 1) + ".png"; // Construct the path for each frame
+            String framePath = path + (i + 1) + ".png"; // Construct the path for each frame
             System.out.println("Attempting to load: " + framePath); // Log the frame path
             try {
-                loadedFrame = ImageIO.read(getClass().getResourceAsStream(framePath));
+                loadedFrame = ImageIO
+                        .read(getClass()
+                                .getResourceAsStream("/res/" + framePath + ".png"));
                 frames[i] = loadedFrame;
             } catch (IOException e) {
                 System.out.println("Error loading frame: " + path + (i + 1) + ".png");
