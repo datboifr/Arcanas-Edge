@@ -2,10 +2,7 @@ package objects;
 
 import combat.Ability;
 import combat.AbilityTypes;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
 
@@ -13,14 +10,7 @@ public class Player extends GameObject {
 
 	private String literalDirection;
 	private final int RUNNING_FRAMES = 10;
-	private final int ATTACK_FRAMES = 9;
-	private BufferedImage[] runBack = new BufferedImage[RUNNING_FRAMES];
-	private BufferedImage[] runForward = new BufferedImage[RUNNING_FRAMES];
-	private BufferedImage[] runLeft = new BufferedImage[RUNNING_FRAMES];
-	private BufferedImage[] runRight = new BufferedImage[RUNNING_FRAMES];
-	private BufferedImage[] LmeleeR = new BufferedImage[ATTACK_FRAMES];
-	private BufferedImage[] LmeleeRD = new BufferedImage[ATTACK_FRAMES];
-	private BufferedImage idleB, idleF, idleR, idleL;
+	boolean wasMoving;
 
 	KeyHandler keyHandler;
 
@@ -45,7 +35,6 @@ public class Player extends GameObject {
 	public Player(GamePanel gp, int x, int y, int width, int height) {
 		super(x, y, width, height);
 		this.panel = gp;
-		literalDirection = "down";
 		this.keyHandler = gp.getKeyHandler();
 		this.money = 0;
 		this.pickupRange = DEFAULT_PICKUP_RANGE;
@@ -67,16 +56,10 @@ public class Player extends GameObject {
 		this.projectileBonus = 0;
 
 		this.hasShadow = true;
-
-		try {
-			sprite = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
-		} catch (IOException e) {
-			sprite = null;
-			System.out.println("Couldn't Fetch Sprite");
-		}
-
 		this.currentFrame = 1;
 		loadPlayerImages();
+		literalDirection = "down";
+		setAnimation("idledown", true);
 	}
 
 	public void update() {
@@ -95,8 +78,7 @@ public class Player extends GameObject {
 				checkCollisionWithEnemies();
 			}
 
-			updateThisAnimation();
-			sprite = null;
+			updateAnimation();
 
 			for (Ability ability : abilities) {
 				if (ability != null) {
@@ -109,46 +91,56 @@ public class Player extends GameObject {
 	private void handleMovement() {
 		float deltaX = 0;
 		float deltaY = 0;
+		String lastDirection = literalDirection; // Keep track of the last direction
 
-		if (keyHandler.upActive) {
-			literalDirection = "up";
-			super.direction = 270;
-			if (y > (0 + (height / 2))) {
+		if (moving()) {
+			if (keyHandler.upActive) {
 				deltaY -= speed;
+				literalDirection = "up";
+				super.direction = 270;
 			}
-		}
-		if (keyHandler.downActive) {
-			literalDirection = "down";
-			super.direction = 90;
-			if (y < (panel.getHeight() - (height / 2))) {
+			if (keyHandler.downActive) {
 				deltaY += speed;
+				literalDirection = "down";
+				super.direction = 90;
 			}
-		}
-		if (keyHandler.leftActive) {
-			literalDirection = "left";
-			super.direction = 180;
-			if (x > (0 + (width / 2))) {
+			if (keyHandler.leftActive) {
 				deltaX -= speed;
+				literalDirection = "left";
+				super.direction = 180;
 			}
-		}
-		if (keyHandler.rightActive) {
-			literalDirection = "right";
-			super.direction = 0;
-			if (x < (panel.getWidth() - (width / 2))) {
+			if (keyHandler.rightActive) {
 				deltaX += speed;
+				literalDirection = "right";
+				super.direction = 0;
 			}
+
+			// Normalize diagonal movement speed
+			if (deltaX != 0 && deltaY != 0) {
+				float diagonalFactor = (float) Math.sqrt(2);
+				deltaX /= diagonalFactor;
+				deltaY /= diagonalFactor;
+			}
+
+			// Update position
+			x += deltaX;
+			y += deltaY;
 		}
 
-		// Normalize diagonal movement speed
-		if (deltaX != 0 && deltaY != 0) {
-			float diagonalFactor = (float) Math.sqrt(2);
-			deltaX /= diagonalFactor;
-			deltaY /= diagonalFactor;
+		// Handle animation
+		if (moving()) {
+			if (!lastDirection.equals(literalDirection) || !wasMoving) {
+				setAnimation("run" + literalDirection, true);
+				wasMoving = true;
+			}
+		} else {
+			setAnimation("idle" + literalDirection, true);
 		}
+	}
 
-		// Apply movement
-		x += deltaX;
-		y += deltaY;
+	private boolean moving() {
+		return keyHandler.upActive || keyHandler.downActive || keyHandler.leftActive
+				|| keyHandler.rightActive;
 	}
 
 	private void collectNearbyAuras() {
@@ -170,72 +162,19 @@ public class Player extends GameObject {
 		}
 	}
 
-	private void updateThisAnimation() {
-		animationCounter++;
-
-		if (isAttacking) {
-			currentFrame = (animationCounter - 1) / FRAMES_PER_SPRITE + 1;
-			if (currentFrame > ATTACK_FRAMES) {
-				isAttacking = false;
-				animationCounter = 0;
-			}
-		} else if (animationCounter > FRAMES_PER_SPRITE) {
-			animationCounter = 0;
-			currentFrame = (currentFrame % 10) + 1; // Loops spriteNumber between 1 and 10
-		}
-	}
-
-	private void updateSprite() {
-		if (isAttacking) {
-			sprite = LmeleeR[currentFrame - 1];
-		} else {
-			switch (literalDirection) {
-				case "up":
-					sprite = keyHandler.upActive ? runBack[currentFrame - 1] : idleB;
-					break;
-				case "down":
-					sprite = keyHandler.downActive ? runForward[currentFrame - 1] : idleF;
-					break;
-				case "left":
-					sprite = keyHandler.leftActive ? runLeft[currentFrame - 1] : idleL;
-					break;
-				case "right":
-					sprite = keyHandler.rightActive ? runRight[currentFrame - 1] : idleR;
-					break;
-			}
-		}
-	}
-
 	public void loadPlayerImages() {
-		try {
-			// run sprites
-			for (int i = 0; i < RUNNING_FRAMES; i++) {
-				runBack[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/run/back/RunB" + (i + 1) + ".png"));
-				runForward[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/run/front/RunF" + (i + 1) + ".png"));
-				runLeft[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/run/left/RunL" + (i + 1) + ".png"));
-				runRight[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/run/right/RunR" + (i + 1) + ".png"));
-			}
+		animations.add(new Animation("runup", "player/run/back/RunB", RUNNING_FRAMES));
+		animations.add(new Animation("rundown", "player/run/front/RunF", RUNNING_FRAMES));
+		animations.add(new Animation("runleft", "player/run/left/RunL", RUNNING_FRAMES));
+		animations.add(new Animation("runright", "player/run/right/RunR", RUNNING_FRAMES));
 
-			// idle sprites
-			idleB = ImageIO.read(getClass().getResourceAsStream("/res/player/idleBack.png"));
-			idleF = ImageIO.read(getClass().getResourceAsStream("/res/player/idleFront.png"));
-			idleR = ImageIO.read(getClass().getResourceAsStream("/res/player/idleRight.png"));
-			idleL = ImageIO.read(getClass().getResourceAsStream("/res/player/idleLeft.png"));
+		animations.add(new Animation("idleup", "player/idleBack", 1));
+		animations.add(new Animation("idledown", "player/idleFront", 1));
+		animations.add(new Animation("idleleft", "player/idleLeft", 1));
+		animations.add(new Animation("idleright", "player/idleRight", 1));
 
-			// attack sprites
-			for (int i = 0; i < ATTACK_FRAMES; i++) {
-				LmeleeR[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/attack/right/LmeleeR" + (i + 1) + ".png"));
-				LmeleeRD[i] = ImageIO
-						.read(getClass().getResourceAsStream("/res/player/attack/right/LmeleeRD" + (i + 1) + ".png"));
-			}
-
-		} catch (IOException e) {
-			System.out.println("Couldn't Fetch Sprite");
+		for (Animation anim : animations) {
+			anim.load();
 		}
 	}
 

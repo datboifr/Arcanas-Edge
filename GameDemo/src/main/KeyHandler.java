@@ -43,6 +43,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_L)
             zActive = true;
 
+        // cheat switch
         if (code == KeyEvent.VK_C)
             if (cheatActive)
                 cheatActive = false;

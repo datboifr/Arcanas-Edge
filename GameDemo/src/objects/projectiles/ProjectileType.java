@@ -1,19 +1,19 @@
 package objects.projectiles;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import javax.imageio.ImageIO;
-import objects.AnimationData;
-import objects.GameObject;
-import objects.particles.ParticleManager;
 
+import objects.Animation;
+import objects.GameObject;
+
+/**
+ * A type of projectile
+ */
 public enum ProjectileType implements ProjectileBehaviour {
 
-    LIGHTNING(1, 5, 10, true, 0.2f, Map.of(
-            "default", new AnimationData("JarOfLightning/LightningSpear", 6))) {
+    LIGHTNING(1, 5, 10, true, 0.2f, new ArrayList<>(List.of(
+            new Animation("default", "JarOfLightning/LightningSpear", 6)))) {
         @Override
         public void created(Projectile projectile) {
         }
@@ -42,16 +42,18 @@ public enum ProjectileType implements ProjectileBehaviour {
             projectile.setSize(random.nextFloat(0.3f, 0.5f));
         }
     },
-    ROCK(1.5f, 3, 35, true, -1, Map.of(
-            "default", new AnimationData("Rock/Rock", 1))) {
+    ROCK(1.5f, 3, 35, true, -1, new ArrayList<>(List.of(
+            new Animation("default", "Rock/Rock", 1)))) {
         @Override
         public void created(Projectile projectile) {
             projectile.vy = -10;
             projectile.vx = (random.nextFloat(-4, 4));
+
         }
 
         @Override
         public void update(Projectile projectile) {
+            float GRAVITY = 0.2f;
             projectile.vy += GRAVITY * this.speed;
 
             projectile.setPosition((int) (projectile.getX() + projectile.vx),
@@ -68,9 +70,9 @@ public enum ProjectileType implements ProjectileBehaviour {
         public void cooldownFinished(Projectile projectile) {
         }
     },
-    FALCON(1.5f, 0.07f, 10, true, 5, Map.of(
-            "default", new AnimationData("falcon/Falcon", 1),
-            "break", new AnimationData("falcon/FalconBreak", 3))) {
+    FALCON(1.5f, 0.07f, 10, true, 5, new ArrayList<>(List.of(
+            new Animation("default", "falcon/Falcon", 1),
+            new Animation("break", "falcon/FalconBreak", 3)))) {
         @Override
         public void created(Projectile projectile) {
             projectile.angle = random.nextInt(0, 360);
@@ -110,11 +112,11 @@ public enum ProjectileType implements ProjectileBehaviour {
             // projectile.die();
         }
     },
-    FIRE(1, 5f, 25, true, 5, Map.of(
-            "default", new AnimationData("MaskOfFlames/FireArrowhead", 4))) {
+    FIRE(1, 5f, 25, true, 5, new ArrayList<>(List.of(
+            new Animation("default", "MaskOfFlames/FireArrowhead", 4)))) {
+
         @Override
         public void created(Projectile projectile) {
-            projectile.setAllowedOffscreen(false);
         }
 
         @Override
@@ -123,6 +125,10 @@ public enum ProjectileType implements ProjectileBehaviour {
             double dy = Math.sin(Math.toRadians(projectile.getDirection())) * speed;
 
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
+
+            if (projectile.isOffscreen()) {
+                projectile.die();
+            }
         }
 
         @Override
@@ -133,8 +139,8 @@ public enum ProjectileType implements ProjectileBehaviour {
         public void cooldownFinished(Projectile projectile) {
         }
     },
-    BASIC(1, 5f, 30, false, 5, Map.of(
-            "default", new AnimationData("chargedArrow/ChargedArrowHold", 4))) {
+    BASIC(1, 5f, 30, false, 5, new ArrayList<>(List.of(
+            new Animation("default", "chargedArrow/ChargedArrowHold", 4)))) {
 
         @Override
         public void created(Projectile projectile) {
@@ -145,6 +151,10 @@ public enum ProjectileType implements ProjectileBehaviour {
             double dx = Math.cos(Math.toRadians(projectile.getDirection())) * speed;
             double dy = Math.sin(Math.toRadians(projectile.getDirection())) * speed;
             projectile.setPosition((int) (projectile.getX() + dx), (int) (projectile.getY() + dy));
+
+            if (projectile.isOffscreen()) {
+                projectile.die();
+            }
         }
 
         @Override
@@ -158,7 +168,6 @@ public enum ProjectileType implements ProjectileBehaviour {
         }
     };
 
-    final float GRAVITY = 0.2f;
     protected float size;
     protected int width, height;
     protected float speed;
@@ -167,38 +176,26 @@ public enum ProjectileType implements ProjectileBehaviour {
     protected float cooldown;
 
     Random random = new Random();
-    ParticleManager particleManager = new ParticleManager();
     protected boolean animated = true;
-    protected HashMap<String, BufferedImage[]> animations = new HashMap<>();
+    protected ArrayList<Animation> animations = new ArrayList<>();
 
     // Constructor
     ProjectileType(float size, float speed, int damage, boolean canPierce, float cooldown,
-            Map<String, AnimationData> animationDataMap) {
+            ArrayList<Animation> animationsList) {
         this.size = size;
         this.speed = speed;
         this.contactDamage = damage;
         this.canPierce = canPierce;
         this.cooldown = cooldown * 60;
 
-        for (Map.Entry<String, AnimationData> entry : animationDataMap.entrySet()) {
-            loadAnimation(entry.getKey(), entry.getValue().getPath(), entry.getValue().getLength());
+        for (Animation entry : animationsList) {
+            Animation animation = new Animation(entry.getName(), "projectiles/" + entry.getPath(), entry.getLength());
+            animations.add(animation);
+            animation.load();
         }
 
-        this.width = animations.get("default")[0].getWidth();
-        this.height = animations.get("default")[0].getHeight();
-    }
-
-    public void loadAnimation(String name, String path, int animationLength) {
-        BufferedImage[] loadedFrames = new BufferedImage[animationLength];
-        for (int i = 0; i < animationLength; i++) {
-            try {
-                loadedFrames[i] = ImageIO
-                        .read(getClass().getResourceAsStream("/res/projectiles/" + path + (i + 1) + ".png"));
-            } catch (IOException e) {
-                System.out.println("Error loading frame: " + path + (i + 1) + ".png");
-            }
-        }
-        animations.put(name, loadedFrames);
+        this.width = animations.get(0).getFrame(0).getWidth();
+        this.height = animations.get(0).getFrame(0).getHeight();
     }
 
     public float getSize() {
@@ -227,6 +224,10 @@ public enum ProjectileType implements ProjectileBehaviour {
 
     public float getCooldown() {
         return cooldown;
+    }
+
+    public ArrayList<Animation> getAnimations() {
+        return this.animations;
     }
 
     public boolean isAnimated() {
